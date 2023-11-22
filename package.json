@@ -1,0 +1,67 @@
+{
+  "name": "ld-workbench",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "LDWorkbench is a Linked Data Transformation tool designed to use only SPARQL as transformation language.",
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "mocha \"./dist/**/*.test.js\"",
+    "prepare": "husky install",
+    "build": "npx tsc",
+    "dev": "npx tsc --watch --preserveWatchOutput"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git"
+  },
+  "keywords": [
+    "linked open data",
+    "lod",
+    "sparql",
+    "etl"
+  ],
+  "contributors": [
+    {
+      "name": "Mark Lindeman",
+      "email": "mark.lindeman@triply.cc"
+    },
+    {
+      "name": "Philippe Renzen",
+      "email": "philippe.renzen@triply.cc"
+    },
+    {
+      "name": "Iva Dimitrova",
+      "email": "iva.dimitrova@triply.cc"
+    }
+  ],
+  "author": {
+    "name": "Triply",
+    "email": "info@triply.cc"
+  },
+  "license": "EUPL-1.2",
+  "bugs": {
+    "url": "https://github.com/netwerk-digitaal-erfgoed/ld-workbench/issues"
+  },
+  "homepage": "https://github.com/netwerk-digitaal-erfgoed/ld-workbench#readme",
+  "lint-staged": {
+    "*.{ts,js}": "eslint --cache --fix",
+    "*.js": "eslint --cache --fix"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.9.4",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "chai": "^4.3.10",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-standard-with-typescript": "^40.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.3.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.3.2"
+  }
+}
