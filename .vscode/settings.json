@@ -1,5 +1,8 @@
 {
   "yaml.schemas": {
-    "static/ld-workbench.schema.json": "configurations/*.yml",
+    "static/ld-workbench.schema.json": [
+      "configurations/*.yml",
+      "static/example/*.yml"
+    ],
   }
 }

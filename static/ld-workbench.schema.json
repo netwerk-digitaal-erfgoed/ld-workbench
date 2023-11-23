@@ -2,48 +2,54 @@
   "$id": "https://raw.githubusercontent.com/netwerk-digitaal-erfgoed/ld-workbench/main/static/ld-workbench.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "LDWorkbenchConfiguration",
-  "description": "JSON Schema for LDWorkbench, it helps with the writing of the configuration needed to run LDWorkbench pipelines.",
+  "description": "JSON Schema for LDWorkbench.\nIt helps with the writing of the configuration needed to run LDWorkbench pipelines.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
     "name": {
       "type": "string",
-      "description": "The name of your pipeline"
+      "description": "The name of your pipeline, it must be unique over all your configurations."
     },
     "description": {
       "type": "string",
       "description": "An optional description for your pipeline."
     },
-    "pipeline": {
+    "destination": {
+      "type": "string",
+      "description": "The file where the final result of your pipeline is saved."
+    },
+    "stages": {
       "type": "array",
+      "description": "This is where you define the individual iterator/generator for each step.",
       "minItems": 1,
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
           "name": {
             "type": "string",
-            "description": "The name of your pipeline"
+            "description": "The name of your pipeline step, it must be unique within one configuration."
           },
           "iterator": {
             "type": "string",
-            "description": "Path (prefixed with \"file://\") or SPARQL Query that makes the iterator using SPARQL select."
+            "description": "Path (prefixed with \"file://\") or SPARQL Query \nthat makes the iterator using SPARQL select."
           },
           "generator": {
             "type": "string",
-            "description": "Path (prefixed with \"file://\") or SPARQL Query that makes the generator using SPARQL construct."
+            "description": "Path (prefixed with \"file://\") or SPARQL Query \nthat makes the generator using SPARQL construct."
           },
           "endpoint": {
             "type": "string",
-            "description": "The SPARQL enspoint for the iterator."
+            "description": "The SPARQL endpoint for the iterator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the result of the previous file is used."
           },
-          "target": {
+          "destination": {
             "type": "string",
-            "description": "The file where the results are saved."
+            "description": "The file where the results are saved. \nThis is not a required property, \nif ommitted a temporary file will be created automatically."
           }
         },
-        "required": ["name", "iterator", "generator", "endpoint", "target"]
+        "required": ["name", "iterator", "generator"]
       }
     }
   },
-  "required": ["name", "pipeline"]
+  "required": ["name", "destination", "stages"]
 }

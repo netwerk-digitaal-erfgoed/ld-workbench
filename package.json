@@ -13,7 +13,8 @@
     "build": "npx tsc",
     "dev": "npx tsc --watch --preserveWatchOutput",
     "ld-workbench": "node dist/main",
-    "util:json-schema-to-typescript": "npx json2ts -i ./static/ld-workbench.schema.json -o src/types/LDWorkbenchConfiguration.d.ts"
+    "util:lint": "ESLINT_STRICT=true ESLINT_EXPENSIVE=true eslint --ext .tsx --ext .ts  ./src",
+    "util:json-schema-to-typescript": "npx json2ts -i ./static/ld-workbench.schema.json -o src/lib/LDWorkbenchConfiguration.d.ts"
   },
   "repository": {
     "type": "git",
@@ -55,8 +56,10 @@
   "devDependencies": {
     "@types/chai": "^4.3.11",
     "@types/inquirer": "^9.0.7",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.9.4",
+    "@types/sparqljs": "^3.1.8",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "chai": "^4.3.10",
     "commander": "^11.1.0",
@@ -76,6 +79,9 @@
     "ajv": "^8.12.0",
     "chalk": "^5.3.0",
     "glob": "^7.2.3",
-    "inquirer": "^9.2.12"
+    "inquirer": "^9.2.12",
+    "js-yaml": "^4.1.0",
+    "pretty-ms": "^8.0.0",
+    "sparqljs": "^3.7.1"
   }
 }
