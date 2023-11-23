@@ -1,0 +1,8 @@
+{
+	"recommendations": [
+		"dbaeumer.vscode-eslint",
+    "stardog-union.vscode-langserver-sparql",
+    "stardog-union.stardog-rdf-grammars",
+    "MarkLindeman.turtle-vocab-autocomplete"
+	]
+}

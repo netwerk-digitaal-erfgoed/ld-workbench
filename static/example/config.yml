@@ -1,0 +1,11 @@
+name: Example Pipeline
+description: >
+  This is an example pipline.
+  It uses files that are available in thois repository and SPARQL endpoints 
+  that should work.
+pipeline:
+  - name: Query 1
+    iterator: file://static/example/iterator-1.rq
+    generator: file://static/example/generator-1.rq
+    endpoint: https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql
+    target: file://./data/example-1.nt
