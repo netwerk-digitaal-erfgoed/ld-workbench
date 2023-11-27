@@ -33,26 +33,40 @@ export interface LDWorkbenchConfiguration {
        * The name of your pipeline step, it must be unique within one configuration.
        */
       name: string;
-      /**
-       * Path (prefixed with "file://") or SPARQL Query
-       * that makes the iterator using SPARQL select.
-       */
-      iterator: string;
-      /**
-       * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
-       */
-      iteratorBatchSize?: number;
-      /**
-       * Path (prefixed with "file://") or SPARQL Query
-       * that makes the generator using SPARQL construct.
-       */
-      generator: string;
-      /**
-       * The SPARQL endpoint for the iterator.
-       * If it starts with "file://", a local RDF file is queried.
-       * If ommmitted the result of the previous file is used.
-       */
-      endpoint?: string;
+      iterator: {
+        /**
+         * Path (prefixed with "file://") or SPARQL Query
+         * that makes the iterator using SPARQL select.
+         */
+        query: string;
+        /**
+         * The SPARQL endpoint for the iterator.
+         * If it starts with "file://", a local RDF file is queried.
+         * If ommmitted the result of the previous file is used.
+         */
+        endpoint?: string;
+        /**
+         * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
+         */
+        batchSize?: number;
+      };
+      generator: {
+        /**
+         * Path (prefixed with "file://") or SPARQL Query
+         * that makes the generator using SPARQL construct.
+         */
+        query: string;
+        /**
+         * The SPARQL endpoint for the generator.
+         * If it starts with "file://", a local RDF file is queried.
+         * If ommmitted the endpoint of the Iterator is used.
+         */
+        endpoint?: string;
+        /**
+         * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
+         */
+        batchSize?: number;
+      };
       /**
        * The file where the results are saved.
        * This is not a required property,
@@ -65,26 +79,40 @@ export interface LDWorkbenchConfiguration {
        * The name of your pipeline step, it must be unique within one configuration.
        */
       name: string;
-      /**
-       * Path (prefixed with "file://") or SPARQL Query
-       * that makes the iterator using SPARQL select.
-       */
-      iterator: string;
-      /**
-       * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
-       */
-      iteratorBatchSize?: number;
-      /**
-       * Path (prefixed with "file://") or SPARQL Query
-       * that makes the generator using SPARQL construct.
-       */
-      generator: string;
-      /**
-       * The SPARQL endpoint for the iterator.
-       * If it starts with "file://", a local RDF file is queried.
-       * If ommmitted the result of the previous file is used.
-       */
-      endpoint?: string;
+      iterator: {
+        /**
+         * Path (prefixed with "file://") or SPARQL Query
+         * that makes the iterator using SPARQL select.
+         */
+        query: string;
+        /**
+         * The SPARQL endpoint for the iterator.
+         * If it starts with "file://", a local RDF file is queried.
+         * If ommmitted the result of the previous file is used.
+         */
+        endpoint?: string;
+        /**
+         * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
+         */
+        batchSize?: number;
+      };
+      generator: {
+        /**
+         * Path (prefixed with "file://") or SPARQL Query
+         * that makes the generator using SPARQL construct.
+         */
+        query: string;
+        /**
+         * The SPARQL endpoint for the generator.
+         * If it starts with "file://", a local RDF file is queried.
+         * If ommmitted the endpoint of the Iterator is used.
+         */
+        endpoint?: string;
+        /**
+         * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
+         */
+        batchSize?: number;
+      };
       /**
        * The file where the results are saved.
        * This is not a required property,

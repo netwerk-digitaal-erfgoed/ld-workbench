@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/adjacent-overload-signatures */
+/* eslint-disable @typescript-eslint/method-signature-style */
 import EventEmitter from 'node:events';
-import * as readline from 'node:readline'
-import { isFilePathString } from '../utils/guards.js';
 import File from './File.class.js';
 import { type LDWorkbenchConfiguration } from './LDWorkbenchConfiguration.js';
 import Iterator from './Iterator.class.js';
@@ -9,15 +9,28 @@ import kebabcase from 'lodash.kebabcase'
 import type Pipeline from './Pipeline.class.js';
 import path from 'node:path';
 import { Writer } from 'n3'
-import type { Quad } from '@rdfjs/types'
+import type { Quad, NamedNode } from '@rdfjs/types'
 import type { WriteStream } from 'node:fs';
-
 declare interface Stage {
-  on: ((event: 'progress', listener: (name: string) => void) => this) & ((event: string, listener: (message: string) => void) => this);
+  on(event: "generatorResult", listener: () => void): this;
+  off(event: "generatorResult", listener: () => void): this;
+  emit(event: "generatorResult"): boolean;
+
+  on(event: "iteratorResultFinished", listener: (statements: number) => void): this;
+  off(event: "iteratorResultFinished", listener: (statements: number) => void): this;
+  emit(event: "iteratorResultFinished", statements: number): boolean;
+
+  on(event: "finished", listener: (statements: number) => void): this;
+  off(event: "finished", listener: (statements: number) => void): this;
+  emit(event: "finished", statements: number): boolean;
+
+  on(event: "iteratorResult", listener: ($this: NamedNode) => void): this;
+  off(event: "iteratorResult", listener: ($this: NamedNode) => void): this;
+  emit(event: "iteratorResult", $this: NamedNode): boolean;
+
 }
 
 class Stage extends EventEmitter {
-  public endpoint: File | URL
   public destination: WriteStream
   public iterator: Iterator
   public generator: Generator
@@ -27,14 +40,6 @@ class Stage extends EventEmitter {
     private readonly stageConfiguration: LDWorkbenchConfiguration['stages'][0]
   ) {
     super()
-    if (isFilePathString(stageConfiguration.endpoint)) {
-      this.endpoint = new File(stageConfiguration.endpoint)
-    } else if(stageConfiguration.endpoint !== undefined) {
-      this.endpoint = new URL(stageConfiguration.endpoint)
-    } else {
-      throw new Error('An endpoint is required, although we might change this to use the intermit result from the previous stage')
-    }
-
     try {
       this.iterator = new Iterator(this)
     } catch(e) {
@@ -54,15 +59,15 @@ class Stage extends EventEmitter {
     return this.stageConfiguration
   }
 
-  public async run(): Promise<number> {
-    process.stdout.write('\n   fetching results from the iterator ...')
-    let i = 0
+  public async run(): Promise<void> {
     let quadCount = 0
     for await (const $this of this.iterator) {
       let qc = 0
+      this.emit('iteratorResult', $this)
       const quadStream = await this.generator.loadStatements($this)
       const writer = new Writer({ format: 'N-Triples' })
       quadStream.on('data', (quad: Quad) => {
+        this.emit('generatorResult')
         quadCount++
         qc++
         writer.addQuad(quad)
@@ -70,21 +75,15 @@ class Stage extends EventEmitter {
 
       quadStream.on('end', () => {
         writer.end((error, result) => {
-        readline.clearLine(process.stdout, 0)
-        readline.cursorTo(process.stdout, 0)
-        process.stdout.write(`   - [${++i}] ${$this.value}: ${qc} statement${qc===1?'':'s'}`)
         if (error !== null) {
           throw error
         }
         this.destination.write(result)
+        this.emit('iteratorResultFinished', qc)
       });
       })
     }
-    readline.clearLine(process.stdout, 0)
-    readline.cursorTo(process.stdout, 0)
-    readline.moveCursor(process.stdout, 0, -1) // up one line
-    readline.clearLine(process.stdout, 1) // from cursor to end
-    return quadCount
+    this.emit('finished', quadCount)
   }
 
 }
