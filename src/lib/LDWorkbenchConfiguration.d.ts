@@ -39,6 +39,10 @@ export interface LDWorkbenchConfiguration {
        */
       iterator: string;
       /**
+       * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
+       */
+      iteratorBatchSize?: number;
+      /**
        * Path (prefixed with "file://") or SPARQL Query
        * that makes the generator using SPARQL construct.
        */
@@ -66,6 +70,10 @@ export interface LDWorkbenchConfiguration {
        * that makes the iterator using SPARQL select.
        */
       iterator: string;
+      /**
+       * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
+       */
+      iteratorBatchSize?: number;
       /**
        * Path (prefixed with "file://") or SPARQL Query
        * that makes the generator using SPARQL construct.

@@ -8,6 +8,6 @@ construct {
     sdo:name ?name
 } 
 where {
-  $this a/rdfs:subClassOf* dbo:Plant; rdfs:label ?name .
-      filter(lang(?name) = 'nl')
-} limit 10
+  $this rdfs:label ?name .
+      filter(lang(?name) = 'en')
+}

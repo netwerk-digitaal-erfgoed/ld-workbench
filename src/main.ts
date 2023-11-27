@@ -5,7 +5,7 @@ import { error } from './utils/error.js'
 import version from './utils/version.js'
 import type { LDWorkbenchConfiguration } from './lib/LDWorkbenchConfiguration.js'
 import loadPipelines from './utils/loadPipelines.js'
-import Pipeline from './lib/Pipeline.js'
+import Pipeline from './lib/Pipeline.class.js'
 
 console.info(chalk.bold(`Welcome to LD Workbench version ${chalk.cyan(version())}`))
 
@@ -64,11 +64,10 @@ inquirer.prompt(
     // @ts-expect-error the Map does contain the key, we checked it
     configuration = pipelines.get(names[0])
   }
-  try {
-    (new Pipeline(configuration)).run()
-  } catch (e) {
+  (new Pipeline(configuration)).run().then(_ => {})
+  .catch(e => {
     error(`Error in pipeline ${chalk.italic(configuration.name)}`, 5, e as Error)
-  }
+  })
 })
 .catch(e => {
   error(e as Error)

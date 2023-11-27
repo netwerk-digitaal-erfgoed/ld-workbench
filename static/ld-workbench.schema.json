@@ -34,13 +34,17 @@
             "type": "string",
             "description": "Path (prefixed with \"file://\") or SPARQL Query \nthat makes the iterator using SPARQL select."
           },
+          "iteratorBatchSize": {
+            "type": "number",
+            "description": "Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query."
+          },
           "generator": {
             "type": "string",
             "description": "Path (prefixed with \"file://\") or SPARQL Query \nthat makes the generator using SPARQL construct."
           },
           "endpoint": {
             "type": "string",
-            "description": "The SPARQL endpoint for the iterator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the result of the previous file is used."
+            "description": "The SPARQL endpoint for the generator and the iterator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the result of the previous file is used."
           },
           "destination": {
             "type": "string",

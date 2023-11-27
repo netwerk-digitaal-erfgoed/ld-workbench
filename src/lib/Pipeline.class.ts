@@ -1,19 +1,25 @@
 /**
  * Running a pipeline
  */
-
+import readline from 'node:readline'
+import kebabcase from 'lodash.kebabcase'
 import type { LDWorkbenchConfiguration } from './LDWorkbenchConfiguration.js';
 import chalk from 'chalk';
-import Stage from './Stage.js';
+import Stage from './Stage.class.js';
 import duration from '../utils/duration.js';
+import path from 'node:path';
+import { mkdirSync } from 'node:fs';
 
 class Pipeline {
 
   private readonly stages = new Map<string, Stage>() 
+  public dataDir: string
   private $isValidated: boolean = false
 
   public constructor(private readonly $configuration: LDWorkbenchConfiguration) {
-
+    //  create data folder:
+    this.dataDir = path.join('data', kebabcase(this.$configuration.name))
+    mkdirSync(this.dataDir, {recursive: true})
   }
 
   private error(e: Error, stage?: string): void {
@@ -34,13 +40,18 @@ class Pipeline {
       if (this.stages.has(stageConfiguration.name)) {
         throw new Error(`Detected a duplicate name for stage \`${stageConfiguration.name}\` in your pipeline: each job must have a unique name.`)
       }
-      this.stages.set(stageConfiguration.name, new Stage(stageConfiguration))
+      this.stages.set(stageConfiguration.name, new Stage(this, stageConfiguration))
       i++
     }
     this.$isValidated = true
   }
 
-  public run(): void {
+    public get configuration(): LDWorkbenchConfiguration {
+      return this.$configuration
+    }
+
+    public async run(): Promise<number> {
+    let quadCount = 0
     const now = new Date()
     console.info(chalk.cyan(`⚪️ starting pipeline "${chalk.bold(this.name)}"`))
     process.stdout.write('🟡 validating pipeline: ')
@@ -58,21 +69,26 @@ class Pipeline {
       const counter = `${++i}`.padStart(stages.toString().length, '0')
       return `[${counter}/${stages}]`
     }
-    this.stages.forEach((stage, name) => {
+
+    for (const name of this.stages.keys()) {
       const now = (new Date())
-      process.stdout.write(`🔵 stage ${getStageNo()} "${chalk.bold(name)}": `)
-      // stage.on('progress', (message) => {
-      // })
+      const msg = `processing stage ${getStageNo()} "${chalk.bold(name)}"`
+      process.stdout.write(`🔵 ${msg}`)
       try {
-        stage.run()
-        process.stdout.write(`✅ done in ${duration(now)}\n`)
+        const c = await this.stages.get(name)?.run()
+        readline.cursorTo(process.stdout, 0) // up one line
+        readline.clearLine(process.stdout, 0)
+        process.stdout.write(`🟡 ${msg} done in ${duration(now)} (${c} statement${c===1?'':'s'}) ✅ \n`)
+        quadCount += c ?? 0
       } catch (e) {
-        process.stdout.write(`❌ failed in ${duration(now)}\n`)
+        readline.cursorTo(process.stdout, 0) // up one line
+        readline.clearLine(process.stdout, 0)
+        process.stdout.write(`🔴 ${msg} failed in ${duration(now)} ❌ \n`)
         this.error(e as Error)
       }
-    })
-
+    }
     console.info(chalk.green(`🟢 your pipeline was completed in ${duration(now)}`))
+    return quadCount
   }
 
   get name(): string {
