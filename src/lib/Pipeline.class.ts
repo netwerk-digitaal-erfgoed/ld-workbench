@@ -103,7 +103,7 @@ class Pipeline {
     for (const name of this.stages.keys()) {
       i++
       if (i < startFromStage) {
-        console.log(`skipping stage "${chalk.bold(name)}" as requested`)
+        ora().start().info(`skipping stage "${chalk.bold(name)}" as requested`).stop()
       } else {
         const spinner = ora("Loading results from Iterator").start();
         const stage = this.stages.get(name)!;

@@ -31,7 +31,7 @@ declare interface Stage {
 }
 
 class Stage extends EventEmitter {
-  public destination: WriteStream
+  public destination: () => WriteStream
   public iterator: Iterator
   public generator: Generator
 
@@ -51,7 +51,7 @@ class Stage extends EventEmitter {
     } catch(e) {
       throw new Error(`Error in the generator of stage \`${configuration.name}\`: ${(e as Error).message}`)
     }
-    this.destination = new File(this.destinationPath).getStream()
+    this.destination = () => new File(this.destinationPath).getStream()
   }
 
   public get destinationPath(): string {
@@ -64,11 +64,12 @@ class Stage extends EventEmitter {
 
   public async run(): Promise<number> {
     let quadCount = 0
+    const writeStream = this.destination()
     for await (const $this of this.iterator) {
       let qc = 0
       this.emit('iteratorResult', $this)
       const quadStream = await this.generator.loadStatements($this)
-      const writer = new Writer(this.destination, { end: false, format: 'N-Triples' })
+      const writer = new Writer(writeStream, { end: false, format: 'N-Triples' })
       quadStream.on('data', (quad: Quad) => {
         this.emit('generatorResult')
         quadCount++
@@ -78,7 +79,6 @@ class Stage extends EventEmitter {
 
       quadStream.on('end', () => {
         this.emit('generatorResultFinished', qc)
-        writer.end()
       })
     }
     this.emit('finished', quadCount)
