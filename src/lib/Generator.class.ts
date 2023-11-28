@@ -28,9 +28,8 @@ export default class Generator {
   }
 
   public async loadStatements($this: NamedNode): Promise<ResultStream<Quad>> {
-    // const values = this.query.values ?? []
-    // values.push({$this})
-    // this.query.values = values
+    // Prebinding, see https://www.w3.org/TR/shacl/#pre-binding
+    // we know the query is safe to use replacement since we checked it before
     const queryString = getSPARQLQueryString(this.query)
       .replaceAll(
       /[?$]\bthis\b/g,
