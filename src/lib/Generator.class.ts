@@ -36,7 +36,6 @@ export default class Generator {
       /[?$]\bthis\b/g,
       `<${$this.value}>`
     );
-    console.log(queryString)
     if (this.source === '') this.source = getEngineSource(this.endpoint)
     return this.engine.queryQuads(queryString, {
       sources: [this.source]

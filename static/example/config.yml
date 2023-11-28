@@ -18,3 +18,4 @@ stages:
       query: file://static/example/iterator-stage-2.rq
     generator: 
       query: file://static/example/generator-stage-2.rq
+      endpoint: https://query.wikidata.org/sparql

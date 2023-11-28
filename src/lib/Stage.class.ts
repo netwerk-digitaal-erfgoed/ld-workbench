@@ -16,9 +16,9 @@ declare interface Stage {
   off(event: "generatorResult", listener: () => void): this;
   emit(event: "generatorResult"): boolean;
 
-  on(event: "iteratorResultFinished", listener: (statements: number) => void): this;
-  off(event: "iteratorResultFinished", listener: (statements: number) => void): this;
-  emit(event: "iteratorResultFinished", statements: number): boolean;
+  on(event: "generatorResultFinished", listener: (statements: number) => void): this;
+  off(event: "generatorResultFinished", listener: (statements: number) => void): this;
+  emit(event: "generatorResultFinished", statements: number): boolean;
 
   on(event: "finished", listener: (statements: number) => void): this;
   off(event: "finished", listener: (statements: number) => void): this;
@@ -62,7 +62,7 @@ class Stage extends EventEmitter {
     return this.configuration.name
   }
 
-  public async run(): Promise<void> {
+  public async run(): Promise<number> {
     let quadCount = 0
     for await (const $this of this.iterator) {
       let qc = 0
@@ -77,12 +77,12 @@ class Stage extends EventEmitter {
       })
 
       quadStream.on('end', () => {
-        writer.end(() => {
-        this.emit('iteratorResultFinished', qc)
-      });
+        this.emit('generatorResultFinished', qc)
+        writer.end()
       })
     }
     this.emit('finished', quadCount)
+    return quadCount
   }
 
 }

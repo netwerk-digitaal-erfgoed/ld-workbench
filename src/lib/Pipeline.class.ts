@@ -69,35 +69,60 @@ class Pipeline {
     return this.$configuration;
   }
 
-  public async run(): Promise<void> {
+  public async run(startFromStageName?: string): Promise<void> {
     const now = new Date();
     console.info(chalk.cyan(`🏁 starting pipeline "${chalk.bold(this.name)}"`));
     const spinner = ora("validating pipeline").start();
+    let startFromStage = 0
     try {
       this.validate();
+      if (startFromStageName !== undefined) {
+        if(/^\d+$/.test(startFromStageName)) {
+          const ix = parseInt(startFromStageName)
+          if (Array.from(this.stages.keys()).length < ix) {
+            const e = new Error(`Pipeline ${chalk.italic(this.name)} does not have stage #${chalk.italic(startFromStageName)}.`)
+            spinner.fail(e.message);
+            this.error(e);
+          } else {
+            startFromStage = ix - 1
+          }
+        } else if(!this.stages.has(startFromStageName)) {
+          const e = new Error(`Pipeline ${chalk.italic(this.name)} does not have stage ${chalk.italic(startFromStageName)}.`)
+          spinner.fail(e.message);
+          this.error(e);
+        } else {
+          startFromStage = Array.from(this.stages.keys()).findIndex(value => value === startFromStageName)
+        }
+      }
       spinner.succeed();
     } catch (e) {
       spinner.fail((e as Error).message);
       this.error(e as Error);
     }
-
+    let i = -1
     for (const name of this.stages.keys()) {
-      const spinner = ora("Loading results from Iterator").start();
-      const stage = this.stages.get(name)!;
-      stage.on("iteratorResult", ($this) => {
-        spinner.text = $this.value;
-      });
-      stage.on("finished", (noQuads) => {
-        spinner.succeed(
-          `stage "${chalk.bold(name)}" resulted in ${noQuads} quads`
-        );
-      });
+      i++
+      if (i < startFromStage) {
+        console.log(`skipping stage "${chalk.bold(name)}" as requested`)
+      } else {
+        const spinner = ora("Loading results from Iterator").start();
+        const stage = this.stages.get(name)!;
+        stage.on("iteratorResult", ($this) => {
+          spinner.text = $this.value;
+        });
+        let count = 0
+        stage.on("generatorResult", () => {
+          count++
+        });
 
-      try {
-        await stage.run();
-      } catch (e) {
-        spinner.fail((e as Error).message);
-        this.error(e as Error);
+        try {
+          await stage.run()
+          // @TODO: the # of quads is not correct, should be something in the async loop...
+          spinner.succeed(`stage "${chalk.bold(name)}" resulted in ${count} quads`)
+        } catch (e) {
+          spinner.fail((e as Error).message);
+          this.error(e as Error);
+        }
       }
     }
     console.info(
