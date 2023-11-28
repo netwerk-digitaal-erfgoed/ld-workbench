@@ -36,27 +36,30 @@ class Stage extends EventEmitter {
   public generator: Generator
 
   public constructor(
-    pipeline: Pipeline,
-    private readonly stageConfiguration: LDWorkbenchConfiguration['stages'][0]
+    public readonly pipeline: Pipeline,
+    public readonly configuration: LDWorkbenchConfiguration['stages'][0]
   ) {
     super()
     try {
       this.iterator = new Iterator(this)
     } catch(e) {
-      throw new Error(`Error in the iterator of stage \`${stageConfiguration.name}\`: ${(e as Error).message}`)
+      throw new Error(`Error in the iterator of stage \`${configuration.name}\`: ${(e as Error).message}`)
     }
 
     try {
       this.generator = new Generator(this)
     } catch(e) {
-      throw new Error(`Error in the generator of stage \`${stageConfiguration.name}\`: ${(e as Error).message}`)
+      throw new Error(`Error in the generator of stage \`${configuration.name}\`: ${(e as Error).message}`)
     }
-    this.destination = new File(path.join(pipeline.dataDir, kebabcase(stageConfiguration.name) + '.nt')).create()
-
+    this.destination = new File(this.destinationPath).getStream()
   }
 
-  public get configuration(): LDWorkbenchConfiguration['stages'][0] {
-    return this.stageConfiguration
+  public get destinationPath(): string {
+    return path.join(this.pipeline.dataDir, kebabcase(this.configuration.name) + '.nt')
+  }
+
+  public get name(): string {
+    return this.configuration.name
   }
 
   public async run(): Promise<void> {
@@ -65,7 +68,7 @@ class Stage extends EventEmitter {
       let qc = 0
       this.emit('iteratorResult', $this)
       const quadStream = await this.generator.loadStatements($this)
-      const writer = new Writer({ format: 'N-Triples' })
+      const writer = new Writer(this.destination, { end: false, format: 'N-Triples' })
       quadStream.on('data', (quad: Quad) => {
         this.emit('generatorResult')
         quadCount++
@@ -74,11 +77,7 @@ class Stage extends EventEmitter {
       })
 
       quadStream.on('end', () => {
-        writer.end((error, result) => {
-        if (error !== null) {
-          throw error
-        }
-        this.destination.write(result)
+        writer.end(() => {
         this.emit('iteratorResultFinished', qc)
       });
       })

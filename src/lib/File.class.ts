@@ -1,7 +1,8 @@
 import { type WriteStream, createWriteStream, existsSync, statSync } from 'fs'
-import { isFilePathString } from '../utils/guards.js'
+import { isFile, isFilePathString } from '../utils/guards.js'
 
 export default class File {
+  public static $id = 'File'
   private readonly $isValid?: boolean
   public constructor(private $path: string) {}
 
@@ -18,7 +19,11 @@ export default class File {
     return this
   }
 
-  public create(): WriteStream {
+  public get path(): string {
+    return this.$path
+  }
+
+  public getStream(): WriteStream {
     if (existsSync(this.$path)) {
       // throw new Error(`File already exists: \`${this.$path}\``)
     }
@@ -28,5 +33,9 @@ export default class File {
   public toString(): string {
     this.validate()
     return this.$path
+  }
+
+  public static is(value: any): value is File {
+    return isFile(value)
   }
 }

@@ -7,9 +7,14 @@ description: >
 
 # The individual stages for your pipeline
 stages:
-  - name: Stage 1
+  - name: "Stage 1"
     iterator: 
-      query: file://static/example/iterator-1.rq
+      query: file://static/example/iterator-stage-1.rq
       endpoint: https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql
     generator: 
-      query: file://static/example/generator-1.rq
+      query: file://static/example/generator-stage-1.rq
+  - name: "Stage 2"
+    iterator: 
+      query: file://static/example/iterator-stage-2.rq
+    generator: 
+      query: file://static/example/generator-stage-2.rq

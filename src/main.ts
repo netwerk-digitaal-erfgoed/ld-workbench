@@ -64,7 +64,8 @@ inquirer.prompt(
     // @ts-expect-error the Map does contain the key, we checked it
     configuration = pipelines.get(names[0])
   }
-  (new Pipeline(configuration)).run().then(_ => {})
+  const pipeline = new Pipeline(configuration)
+  pipeline.run().then(_ => {})
   .catch(e => {
     error(`Error in pipeline ${chalk.italic(configuration.name)}`, 5, e as Error)
   })
