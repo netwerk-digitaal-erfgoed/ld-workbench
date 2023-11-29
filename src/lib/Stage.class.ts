@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/adjacent-overload-signatures */
 /* eslint-disable @typescript-eslint/method-signature-style */
 import EventEmitter from 'node:events';
 import File from './File.class.js';
@@ -9,25 +8,16 @@ import kebabcase from 'lodash.kebabcase'
 import type Pipeline from './Pipeline.class.js';
 import path from 'node:path';
 import { Writer } from 'n3'
-import type { Quad, NamedNode } from '@rdfjs/types'
+import type { NamedNode } from '@rdfjs/types'
 import type { WriteStream } from 'node:fs';
 declare interface Stage {
-  on(event: "generatorResult", listener: () => void): this;
-  off(event: "generatorResult", listener: () => void): this;
-  emit(event: "generatorResult"): boolean;
-
-  on(event: "generatorResultFinished", listener: (statements: number) => void): this;
-  off(event: "generatorResultFinished", listener: (statements: number) => void): this;
-  emit(event: "generatorResultFinished", statements: number): boolean;
-
-  on(event: "finished", listener: (statements: number) => void): this;
-  off(event: "finished", listener: (statements: number) => void): this;
-  emit(event: "finished", statements: number): boolean;
-
+  on(event: "generatorResult", listener: (count: number) => void): this;
+  on(event: "end", listener: (iteratorCount: number, statements: number) => void): this;
   on(event: "iteratorResult", listener: ($this: NamedNode) => void): this;
-  off(event: "iteratorResult", listener: ($this: NamedNode) => void): this;
-  emit(event: "iteratorResult", $this: NamedNode): boolean;
 
+  emit(event: "generatorResult", count: number): boolean;
+  emit(event: "end", iteratorCount: number, statements: number): boolean;
+  emit(event: "iteratorResult", $this: NamedNode): boolean;
 }
 
 class Stage extends EventEmitter {
@@ -62,27 +52,29 @@ class Stage extends EventEmitter {
     return this.configuration.name
   }
 
-  public async run(): Promise<number> {
+  public run(): void {
     let quadCount = 0
-    const writeStream = this.destination()
-    for await (const $this of this.iterator) {
-      let qc = 0
+    let iteratorCount = 0
+    let generatorCount = 0
+    const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' })
+    this.generator.on('data', quad => {
+      writer.addQuad(quad)
+      quadCount ++
+    })
+    this.generator.on('end', _ => {
+      generatorCount++
+      if (generatorCount === iteratorCount) {
+        this.emit('end', iteratorCount, quadCount)
+      }
+    })
+    this.iterator.on('data', $this => {
+      this.generator.run($this)
       this.emit('iteratorResult', $this)
-      const quadStream = await this.generator.loadStatements($this)
-      const writer = new Writer(writeStream, { end: false, format: 'N-Triples' })
-      quadStream.on('data', (quad: Quad) => {
-        this.emit('generatorResult')
-        quadCount++
-        qc++
-        writer.addQuad(quad)
-      })
-
-      quadStream.on('end', () => {
-        this.emit('generatorResultFinished', qc)
-      })
-    }
-    this.emit('finished', quadCount)
-    return quadCount
+    })
+    this.iterator.on('end', count => {
+      iteratorCount = count
+    })
+    this.iterator.run()
   }
 
 }

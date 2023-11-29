@@ -99,35 +99,33 @@ class Pipeline {
       spinner.fail((e as Error).message);
       this.error(e as Error);
     }
-    let i = -1
-    for (const name of this.stages.keys()) {
-      i++
-      if (i < startFromStage) {
-        ora().start().info(`skipping stage "${chalk.bold(name)}" as requested`).stop()
-      } else {
-        const spinner = ora("Loading results from Iterator").start();
-        const stage = this.stages.get(name)!;
-        stage.on("iteratorResult", ($this) => {
-          spinner.text = $this.value;
-        });
-        let count = 0
-        stage.on("generatorResult", () => {
-          count++
-        });
 
-        try {
-          await stage.run()
-          // @TODO: the # of quads is not correct, should be something in the async loop...
-          spinner.succeed(`stage "${chalk.bold(name)}" resulted in ${count} quads`)
-        } catch (e) {
-          spinner.fail((e as Error).message);
-          this.error(e as Error);
+    const stageNames = Array.from(this.stages.keys()).splice(startFromStage)
+
+    function run(stages: Map<string, Stage>): void {
+      const stage = stages.get(stageNames.shift()!)!
+      const spinner = ora("Loading results from Iterator").start();
+      stage.on("iteratorResult", ($this) => {
+        spinner.text = $this.value;
+      });
+      stage.on("end", (iris, statements) => {
+        spinner.succeed(`stage "${chalk.bold(stage.name)}" resulted in ${statements} statement${statements === 1 ?'':'s'} in ${iris} iteration${iris === 1 ?'':'s'}.`)
+        if (stageNames.length !== 0) {
+          run(stages)
+        } else {
+          console.info(
+            chalk.green(`✔ your pipeline was completed in ${duration(now)}`)
+          );
         }
+      });
+      try {
+        stage.run()
+      } catch(e) {
+        spinner.fail((e as Error).message);
       }
     }
-    console.info(
-      chalk.green(`✔ your pipeline was completed in ${duration(now)}`)
-    );
+
+    run(this.stages)
   }
 
   get name(): string {
