@@ -21,7 +21,7 @@ export interface LDWorkbenchConfiguration {
   /**
    * The file where the final result of your pipeline is saved.
    */
-  destination: string;
+  destination?: string;
   /**
    * This is where you define the individual iterator/generator for each step.
    *

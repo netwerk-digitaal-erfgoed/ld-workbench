@@ -4,8 +4,10 @@ import type { LDWorkbenchConfiguration } from "./LDWorkbenchConfiguration.js";
 import chalk from "chalk";
 import Stage from "./Stage.class.js";
 import duration from "../utils/duration.js";
+import File from './File.class.js'
 import path from "node:path";
 import * as fs from "node:fs";
+import { isFilePathString } from '../utils/guards.js';
 
 class Pipeline {
   public readonly stages = new Map<string, Stage>();
@@ -13,6 +15,7 @@ class Pipeline {
   private $isValidated: boolean = false;
   private stageNames: string[] = [];
   private now = new Date();
+  private readonly destination: File
 
   public constructor(
     private readonly $configuration: LDWorkbenchConfiguration
@@ -20,6 +23,14 @@ class Pipeline {
     //  create data folder:
     this.dataDir = path.join("data", kebabcase(this.$configuration.name));
     fs.mkdirSync(this.dataDir, { recursive: true });
+    const destinationFile = this.configuration.destination ?? `file://${path.join(this.dataDir, 'statements.nt')}`
+    if (!isFilePathString(destinationFile)) {
+      throw new Error('We currently only allow publishing data to local files.')
+    }
+    if(!destinationFile.endsWith('.nt')) {
+      throw new Error('We currently only writing results in N-Triples format,\nmake sure your destination filename ends with \'.nt\'.')
+    }
+    this.destination = new File(destinationFile, true)
   }
 
   private error(e: Error, stage?: string): void {
@@ -142,7 +153,7 @@ class Pipeline {
       if (this.stageNames.length !== 0) {
         this.runRecursive();
       } else {
-        this.concat()
+        this.writeResult()
           console.info(
             chalk.green(
               `✔ your pipeline "${chalk.bold(
@@ -159,10 +170,14 @@ class Pipeline {
     }
   }
 
-  private concat(): void {
+  private writeResult(): void {
     const spinner = ora("Combining statements from all stages:").start();
-    const destinationPath = path.join(this.dataDir, 'statements.nt')
-    const destinationStream = fs.createWriteStream(destinationPath, {flags:'a'})
+
+    const destinationPathNew = this.configuration.destination
+    if (!isFilePathString(destinationPathNew)) {
+      throw new Error('We currently only allow publishing data to local files.')
+    }
+    const destinationStream = this.destination.getStream()
     const stageNames = Array.from(this.stages.keys())
     for (const stageName of stageNames) {
       spinner.suffixText = chalk.bold(stageName)
@@ -171,7 +186,7 @@ class Pipeline {
         destinationStream.write(buffer)
       })
     }
-    spinner.suffixText = chalk.bold(destinationPath)
+    spinner.suffixText = chalk.bold(this.destination.toString())
     spinner.succeed()
   }
 
