@@ -1,6 +1,5 @@
 # Metadata for your pipeline:
 name: Example Pipeline
-destination: file://data/example/example.ttl
 description: >
   This is an example pipeline. It uses files that are available in this repository 
   and SPARQL endpoints that should work.
@@ -8,7 +7,7 @@ description: >
 # The individual stages for your pipeline
 stages:
   - name: "Stage 1"
-    iterator: 
+    iterator:
       query: file://static/example/iterator-stage-1.rq
       endpoint: https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql
     generator: 

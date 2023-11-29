@@ -1,10 +1,11 @@
-import { type WriteStream, createWriteStream, existsSync, statSync } from 'fs'
+import { type WriteStream, createWriteStream, existsSync, statSync, mkdirSync } from 'fs'
 import { isFile, isFilePathString } from '../utils/guards.js'
+import { dirname } from 'path'
 
 export default class File {
   public static $id = 'File'
   private readonly $isValid?: boolean
-  public constructor(private $path: string) {}
+  public constructor(private $path: string, private readonly skipExistsCheck: boolean = false) {}
 
   public validate(): File {
     if (this.$isValid !== undefined) return this
@@ -13,7 +14,7 @@ export default class File {
       throw new Error(`The filename \`${wrongFilePath}\` should start with \`file://\``)
     }
     this.$path = this.$path.replace(/^file:\/\//, '')
-    if (!existsSync(this.$path) || !statSync(this.$path).isFile()) {
+    if (!this.skipExistsCheck && (!existsSync(this.$path) || !statSync(this.$path).isFile())) {
       throw new Error(`File not found: \`${this.$path}\``)
     }
     return this
@@ -23,11 +24,14 @@ export default class File {
     return this.$path
   }
 
-  public getStream(): WriteStream {
+  public getStream(append: boolean = false): WriteStream {
     if (existsSync(this.$path)) {
       // throw new Error(`File already exists: \`${this.$path}\``)
     }
-    return createWriteStream(this.$path)
+    if (!existsSync(dirname(this.$path))) {
+      mkdirSync(dirname(this.$path), { recursive: true})
+    }
+    return createWriteStream(this.$path, append ? {flags: 'a'} : {})
   }
 
   public toString(): string {
