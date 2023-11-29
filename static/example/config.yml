@@ -4,6 +4,10 @@ description: >
   This is an example pipeline. It uses files that are available in this repository 
   and SPARQL endpoints that should work.
 
+
+# This is optional, by default it will be stored in the data directory of the pipeline using filename 'statements.nt'
+destination: file://data/example-pipeline.nt
+
 # The individual stages for your pipeline
 stages:
   - name: "Stage 1"

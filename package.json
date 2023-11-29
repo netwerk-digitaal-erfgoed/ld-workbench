@@ -91,5 +91,8 @@
     "ora": "^7.0.1",
     "pretty-ms": "^8.0.0",
     "sparqljs": "^3.7.1"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }

@@ -30,7 +30,7 @@ class Pipeline {
     if(!destinationFile.endsWith('.nt')) {
       throw new Error('We currently only writing results in N-Triples format,\nmake sure your destination filename ends with \'.nt\'.')
     }
-    this.destination = new File(destinationFile, true)
+    this.destination = (new File(destinationFile, true)).validate()
   }
 
   private error(e: Error, stage?: string): void {
@@ -158,7 +158,7 @@ class Pipeline {
             chalk.green(
               `✔ your pipeline "${chalk.bold(
                 this.name
-              )}" was completed in ${duration(this.now)}}`
+              )}" was completed in ${duration(this.now)}`
             )
           );
       }
@@ -172,11 +172,6 @@ class Pipeline {
 
   private writeResult(): void {
     const spinner = ora("Combining statements from all stages:").start();
-
-    const destinationPathNew = this.configuration.destination
-    if (!isFilePathString(destinationPathNew)) {
-      throw new Error('We currently only allow publishing data to local files.')
-    }
     const destinationStream = this.destination.getStream()
     const stageNames = Array.from(this.stages.keys())
     for (const stageName of stageNames) {

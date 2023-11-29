@@ -4,7 +4,7 @@ import { dirname } from 'path'
 
 export default class File {
   public static $id = 'File'
-  private readonly $isValid?: boolean
+  private $isValid?: boolean
   public constructor(private $path: string, private readonly skipExistsCheck: boolean = false) {}
 
   public validate(): File {
@@ -17,6 +17,7 @@ export default class File {
     if (!this.skipExistsCheck && (!existsSync(this.$path) || !statSync(this.$path).isFile())) {
       throw new Error(`File not found: \`${this.$path}\``)
     }
+    this.$isValid = true
     return this
   }
 
