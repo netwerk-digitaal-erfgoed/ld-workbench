@@ -8,7 +8,7 @@ export default function loadPipelines (configDirOrFile: string): Map<string, LDW
   const pipelines = new Map<string, LDWorkbenchConfiguration>()
 
   if (!fs.existsSync(configDirOrFile))
-    throw new Error(`Configuration directory/file ${chalk.italic(configDirOrFile)} could not be found.`)
+    throw new Error(`Configuration directory/file ${chalk.italic(configDirOrFile)} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx ldworkbench --init\` to setup an example workbench project.`)
 
   const files: string[] = []
   if (fs.lstatSync(configDirOrFile).isDirectory()) {

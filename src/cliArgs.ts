@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { program } from 'commander';
 import { error } from './utils/error.js';
 import version from './utils/version.js';
+import init from './utils/init.js';
 
 program
   .name('ld-workbench')
@@ -10,6 +11,7 @@ program
   .option('--configDir </path/to/yaml/>', 'Path to a folder containing your configuration files.')
   .option('-p, --pipeline <name-of-pipeline>', 'Name of the pipeline you want to run')
   .option('-s, --stage <name-of-stage>', 'Name of the stage of the pipeline you want to run')
+  .option('--init', 'Initializes a new LDWorkbench project')
   .version(version());
 program.parse();
 export const cliArgs: {
@@ -17,7 +19,22 @@ export const cliArgs: {
   configDir?: string;
   pipeline?: string;
   stage?: string
+  init?: boolean
 } = program.opts();
+
+if (cliArgs.init !== undefined) {
+  if(Object.values(cliArgs).length !== 1) {
+    error('The --init flag can not be used in conjuction with other CLI arguments.')    
+  }
+  try {
+    init()
+    console.log(chalk.green('A boilerplate LDWorkbech has been created. You can now run a project using `npx ldworkbench`.'))
+  } catch(e) {
+    error(e as Error)
+  }
+  process.exit(0)
+}
+
 if (cliArgs.config !== undefined && cliArgs.configDir !== undefined) {
   error(
     'Do not use both the --config and the --configDir options.',

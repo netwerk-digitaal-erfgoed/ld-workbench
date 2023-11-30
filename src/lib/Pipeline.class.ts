@@ -21,7 +21,7 @@ class Pipeline {
     private readonly $configuration: LDWorkbenchConfiguration
   ) {
     //  create data folder:
-    this.dataDir = path.join("data", kebabcase(this.$configuration.name));
+    this.dataDir = path.join("pipelines", "data", kebabcase(this.$configuration.name));
     fs.mkdirSync(this.dataDir, { recursive: true });
     const destinationFile = this.configuration.destination ?? `file://${path.join(this.dataDir, 'statements.nt')}`
     if (!isFilePathString(destinationFile)) {

@@ -1,5 +1,7 @@
 import Ajv, { type ValidateFunction, type ErrorObject } from 'ajv';
 import parseYamlFile from './parseYamlFile.js';
+import { fileURLToPath } from 'url';
+import * as path from 'path';
 
 /**
  * Validate an object against a JSON Schema provided as a YAML file.
@@ -9,7 +11,9 @@ import parseYamlFile from './parseYamlFile.js';
  */
 export default function validate(filePathOrObject: object | string): ErrorObject[] | null {
   // Parse the YAML schema file
-  const schema = parseYamlFile('./static/ld-workbench.schema.json');
+  const dirname = path.dirname(fileURLToPath(import.meta.url));
+  const filename = path.resolve(path.join(dirname, '..', '..', 'static', 'ld-workbench.schema.json'))
+  const schema = parseYamlFile(filename);
   const configuration = typeof filePathOrObject === 'string' 
     ? parseYamlFile(filePathOrObject)
     : filePathOrObject
