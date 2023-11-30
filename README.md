@@ -4,6 +4,25 @@ LDWorkbench is a Linked Data Transformation tool designed to use only SPARQL as 
 
 This project is currently in a Proof of Concept phase, feel free to watch our progress, but please do not use this project in a production setup.
 
+## Install & Usage
+The quickest way to get started with LDWorkbench is follow these instruction:
+
+```bash
+mkdir ldworkbench
+cd ldworkbench
+npm i git+https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git
+npx ldworkbench --init
+```
+
+Your workbench is now ready for use. An example workbench is provided, run it with this command:
+
+```bash
+npx ldworkbench
+```
+
+### Configuring a workbench project
+
+
 ## Development
 For local development, these script should get you going:
 ```bash
