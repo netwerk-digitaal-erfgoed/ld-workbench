@@ -17,6 +17,18 @@ A workbench pipeline is defined by a configuration file, stored in [YAML](https:
 A pipeline must have a `name`, 1 or more `stages` and optionaly a `description`. If you have multiple pipelines, each pipepline must have a unique name.  See the [example configuration file](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/static/example/config.yml) for a boilerplate configuration file. A visualisation of the schema giving more insights on required and optional properties can be [found here](https://json-schema.app/view/%23?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnetwerk-digitaal-erfgoed%2Fld-workbench%2Fmain%2Fstatic%2Fld-workbench.schema.json).
 
 ## Install & Usage
+
+LDWorkbench is a CLI (*Command Line Interface*) application. That means there is no visual window to run the application in, in stead it runs in a shell *terminal*. There are lots of shells, e.g. `bash` on Linux, `zsh` on MacOs and `PowerShell` on Windows. Cnsult the manual of your OS if you do not know how to start a terminal screen.
+
+The LDWorkbench project runs using Javascript. To run the application you will need to install [Node.js](https://nodejs.org/en). You can downlaod an installer for your platform on their website. To see if you have Node,js installed, run this commandos in your terminal:
+```bash
+npm --version
+node --version
+```
+
+
+Both commands should print the version to your terminal. For Node.js we recommend at least the LTS (*Long Term Support*) version `20.10.0`.
+
 The quickest way to get started with LDWorkbench is to follow these instruction:
 
 ```bash
@@ -48,7 +60,7 @@ your-working-dir
 ```
 
 ## Development
-For local development, these script should get you going:
+For local development, this script should get you going:
 ```bash
 git clone https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git
 cd ld-workbench
