@@ -23,7 +23,7 @@ export default function init(): void {
 
   const yamlSchemasSettings = {
     "yaml.schemas": {
-      "node_modules/ldworkbench/static/ld-workbench.schema.json": [
+      "node_modules/ld-workbench/static/ld-workbench.schema.json": [
         "pipelines/configurations/**/*.yml",
         "static/example/*.yml",
       ],
@@ -52,7 +52,7 @@ export default function init(): void {
       if (!Object.hasOwn(settings, 'yaml.schemas')) {
         settings['yaml.schemas'] = yamlSchemasSettings['yaml.schemas']
       } else {
-        settings['yaml.schemas']["node_modules/ldworkbench/static/ld-workbench.schema.json"]  = yamlSchemasSettings['yaml.schemas']["node_modules/ldworkbench/static/ld-workbench.schema.json"]
+        settings['yaml.schemas']["node_modules/ld-workbench/static/ld-workbench.schema.json"]  = yamlSchemasSettings['yaml.schemas']["node_modules/ld-workbench/static/ld-workbench.schema.json"]
       }
       fs.writeFileSync(settingsFile, JSON.stringify(yamlSchemasSettings, undefined, 2))
     }

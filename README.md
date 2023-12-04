@@ -32,16 +32,13 @@ Both commands should print the version to your terminal. For Node.js we recommen
 The quickest way to get started with LDWorkbench is to follow these instruction:
 
 ```bash
-mkdir ldworkbench
-cd ldworkbench
-npm i git+https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git
-npx ldworkbench --init
+npx ld-workbench --init
 ```
 
 Your workbench is now ready for use. An example workbench is provided, run it with this command:
 
 ```bash
-npx ldworkbench
+npx ld-workbench
 ```
 
 ### Configuring a workbench pipeline

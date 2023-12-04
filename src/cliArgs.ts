@@ -28,7 +28,7 @@ if (cliArgs.init !== undefined) {
   }
   try {
     init()
-    console.log(chalk.green('A boilerplate LDWorkbech has been created. You can now run a project using `npx ldworkbench`.'))
+    console.log(chalk.green('A boilerplate LDWorkbech has been created. You can now run a project using `npx ld-workbench`.'))
   } catch(e) {
     error(e as Error)
   }

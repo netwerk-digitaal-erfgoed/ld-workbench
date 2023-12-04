@@ -1,8 +1,8 @@
 {
-  "name": "ldworkbench",
+  "name": "ld-workbench",
   "type": "module",
   "bin": {
-    "ldworkbench": "dist/main.js"
+    "ld-workbench": "dist/main.js"
   },
   "version": "0.0.1",
   "description": "LDWorkbench is a Linked Data Transformation tool designed to use only SPARQL as transformation language.",
@@ -12,8 +12,8 @@
     "prepare": "husky install",
     "build": "npx tsc",
     "dev": "npx tsc --watch --preserveWatchOutput",
-    "ldworkbench": "node dist/main",
-    "ldworkbench:example": "node dist/main --configDir static",
+    "ld-workbench": "node dist/main",
+    "ld-workbench:example": "node dist/main --configDir static",
     "util:lint": "ESLINT_STRICT=true ESLINT_EXPENSIVE=true eslint --ext .tsx --ext .ts  ./src",
     "util:json-schema-to-typescript": "npx json2ts -i ./static/ld-workbench.schema.json -o src/lib/LDWorkbenchConfiguration.d.ts"
   },
