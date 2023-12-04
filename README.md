@@ -29,6 +29,8 @@ node --version
 
 Both commands should print the version to your terminal. For Node.js we recommend at least the LTS (*Long Term Support*) version `20.10.0`.
 
+**IMPORTANT** the following instructions do not work yet awaiting publishing to npmjs.com!! The only way to work with the LDWorkbench until it is published is decribed in the *Development chapter*.
+
 The quickest way to get started with LDWorkbench is to follow these instruction:
 
 ```bash
