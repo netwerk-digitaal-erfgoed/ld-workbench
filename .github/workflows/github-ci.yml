@@ -41,7 +41,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Run LDWorkbench init
-        run: npx ldworkbench --init
+        run: rm -rf ./pipelines && npx ldworkbench --init
       - name: Test
         run: npm run test
       - run: echo "Job status ${{ job.status }}."
