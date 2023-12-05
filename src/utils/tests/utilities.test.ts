@@ -158,10 +158,10 @@ describe('Utilities', () => {
     it('should throw if configuration file & directory could not be found', () => {
       const nonExistentConfFile = 'fileDoesNotExist.yml'
       const nonExistentDirWithFile = './dirDoesNotExist/' + nonExistentConfFile
-      expect(() => loadPipelines(nonExistentConfFile)).to.throw(`Configuration directory/file ${chalk.italic(nonExistentConfFile)} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx ldworkbench --init\` to setup an example workbench project.`)
-      expect(() => loadPipelines(nonExistentDirWithFile)).to.throw(`Configuration directory/file ${chalk.italic(nonExistentDirWithFile)} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx ldworkbench --init\` to setup an example workbench project.`)
+      expect(() => loadPipelines(nonExistentConfFile)).to.throw(`Configuration directory/file ${chalk.italic(nonExistentConfFile)} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx ld-workbench --init\` to setup an example workbench project.`)
+      expect(() => loadPipelines(nonExistentDirWithFile)).to.throw(`Configuration directory/file ${chalk.italic(nonExistentDirWithFile)} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx ld-workbench --init\` to setup an example workbench project.`)
     })
-    it.only('should throw if directory has no .yml configuration file', () => {
+    it('should throw if directory has no .yml configuration file', () => {
       const dirWithoutConfFile = './src/utils/tests/static/dirWithoutYmlFile'
       expect(() => loadPipelines(dirWithoutConfFile)).to.throw(`No configuration files found matching pattern ${chalk.italic(`${dirWithoutConfFile}/**/*.yml`)}`)
     })
