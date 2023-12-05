@@ -40,8 +40,8 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
-      - name: Run LDWorkbench init
-        run: rm -rf ./pipelines && npx ldworkbench --init
+      - name: Run LDWorkbench init & test run
+        run: rm -rf ./pipelines && npx ldworkbench --init && npx ldworkbench
       - name: Test
         run: npm run test
       - run: echo "Job status ${{ job.status }}."
