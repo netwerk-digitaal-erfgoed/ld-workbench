@@ -24,7 +24,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+      # Using Node LTS https://nodejs.org/en
+        node-version: [20.10.0]
 
     steps:
       - run: echo "Job was automatically triggered by a ${{ github.event_name }} event on ${{ github.ref }} - ${{ github.repository }}."

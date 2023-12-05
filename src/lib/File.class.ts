@@ -3,7 +3,7 @@ import { isFile, isFilePathString } from '../utils/guards.js'
 import { dirname } from 'path'
 
 export default class File {
-  public static $id = 'File'
+  public readonly $id = 'File'
   private $isValid?: boolean
   public constructor(private $path: string, private readonly skipExistsCheck: boolean = false) {}
 
