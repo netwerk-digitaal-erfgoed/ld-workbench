@@ -52,7 +52,7 @@ describe('Stage Class', () => {
         });
     });
 
-    describe.skip('run', () => {
+    describe('run', () => {
         it('should run the stage correctly', async function () {
             this.timeout(5000)
             const configuration = parseYamlFile('./static/example/config.yml')
