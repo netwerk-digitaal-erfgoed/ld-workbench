@@ -1,9 +1,0 @@
-prefix skos: <http://www.w3.org/2004/02/skos/core#>
-prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/>
-construct {
-  ?this a skos:Concept; skos:prefLabel ?labels
-} where {
-  ?s wdtn:P1014 ?this .
-  ?s rdfs:label ?labels
-} 
