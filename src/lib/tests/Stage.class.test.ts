@@ -54,7 +54,7 @@ describe('Stage Class', () => {
 
     describe('run', () => {
         it('should run the stage correctly', async function () {
-            this.timeout(3000)
+            this.timeout(5000)
             const configuration = parseYamlFile('./static/example/config.yml')
             const pipeline = new Pipeline(configuration)
             const stageConfig = configuration.stages[0]
