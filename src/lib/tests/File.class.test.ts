@@ -48,12 +48,15 @@ describe('File Class', () => {
     describe('getStream', () => {
         beforeEach(() => {
             const filePath = 'file.txt';
-            fs.writeFileSync(filePath, 'Initial content');
+            if (!fs.existsSync(filePath)) {
+                fs.writeFileSync(filePath, 'Initial content');
+            }
         });
-
         afterEach(() => {
             const filePath = 'file.txt';
-            fs.unlinkSync(filePath);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
             if (fs.existsSync('./new')) {
                 fs.rmSync('./new', { recursive: true, force: true });
             }
