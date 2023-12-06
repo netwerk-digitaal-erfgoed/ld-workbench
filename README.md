@@ -18,7 +18,7 @@ A pipeline must have a `name`, 1 or more `stages` and optionaly a `description`.
 
 ## Install & Usage
 
-LDWorkbench is a CLI (*Command Line Interface*) application. That means there is no visual window to run the application in, in stead it runs in a shell *terminal*. There are lots of shells, e.g. `bash` on Linux, `zsh` on MacOs and `PowerShell` on Windows. Cnsult the manual of your OS if you do not know how to start a terminal screen.
+LDWorkbench is a CLI (*Command Line Interface*) application. That means there is no visual window to run the application in, in stead it runs in a shell *terminal*. There are lots of shells, e.g. `bash` on Linux, `zsh` on MacOs and `PowerShell` on Windows. Consult the manual of your OS if you do not know how to start a terminal screen.
 
 The LDWorkbench project runs using Javascript. To run the application you will need to install [Node.js](https://nodejs.org/en). You can downlaod an installer for your platform on their website. To see if you have Node,js installed, run this commandos in your terminal:
 ```bash
