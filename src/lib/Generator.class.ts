@@ -57,8 +57,8 @@ class Generator extends EventEmitter {
       stream.on('end', () => {
         this.emit('end', numberOfStatements)
       })
-    }).catch(e => {
-      throw e as Error
+    }).catch(_ => {
+      throw new Error(`The Generator did not run succesfully, it could not get the results from the endpoint ${this.source}`)
     })
   }
 }
