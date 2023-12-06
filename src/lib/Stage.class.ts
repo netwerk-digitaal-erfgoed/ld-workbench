@@ -60,8 +60,7 @@ class Stage extends EventEmitter {
     this.generator.on('data', quad => {
       writer.addQuad(quad)
       quadCount ++
-      // slows down run test in Stage.class.test.ts
-      // this.emit('generatorResult', quadCount)
+      this.emit('generatorResult', quadCount)
     })
     this.generator.on('end', _ => {
       generatorCount++

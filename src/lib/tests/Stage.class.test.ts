@@ -7,6 +7,7 @@ import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import parseYamlFile from "../../utils/parseYamlFile.js";
 import path from "path";
+import type { NamedNode } from "n3";
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -51,27 +52,27 @@ describe('Stage Class', () => {
         });
     });
 
-    describe.skip('run', () => {
+    describe('run', () => {
         it('should run the stage correctly', async function () {
-            this.timeout(5000)
+            this.timeout(3000)
             const configuration = parseYamlFile('./static/example/config.yml')
             const pipeline = new Pipeline(configuration)
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig);
 
-            const emittedEvents: any[] = [];
+            const iteratorEvents: Array<{event: 'iteratorResult', namedNode: NamedNode}> = [];
+            const generatorEvents: Array<{event: 'generatorResult', count: number}> = [];
+            const endEvents: Array<{ event: 'end', iteratorCount: number, statements: number }> = [];
             async function runStageWithPromise(): Promise<boolean> {
                 return new Promise((resolve, reject) => {
-                    // @mightymax seems to never emit generatorResult, added it as comment to Stage class, but will need to uncomment the timeout in this test above ^
                     stage.addListener('generatorResult', (count) => {
-                        emittedEvents.push({ event: 'generatorResult', count });
+                        generatorEvents.push({ event: 'generatorResult', count });
                     });
                     stage.addListener('iteratorResult', (namedNode) => {
-                        console.log('🪵  | file: Stage.class.test.ts:70 | stage.addListener | namedNode:', namedNode)
-                        emittedEvents.push({ event: 'iteratorResult', namedNode });
+                        iteratorEvents.push({ event: 'iteratorResult', namedNode });
                     });
                     stage.addListener('end', (iteratorCount, statements) => {
-                        emittedEvents.push({ event: 'end', iteratorCount, statements });
+                        endEvents.push({ event: 'end', iteratorCount, statements });
                         resolve(true);
                     });
                     stage.addListener('error', (error) => {
@@ -81,13 +82,17 @@ describe('Stage Class', () => {
                 });
             }
             await runStageWithPromise()
-            expect(emittedEvents[0].event).to.equal('iteratorResult')
-            expect(emittedEvents[0].namedNode.termType).to.equal('NamedNode')
-            expect(emittedEvents[0].namedNode.value).to.equal('http://dbpedia.org/resource/Iris_virginica')
-            expect(emittedEvents[emittedEvents.length -1].event).to.equal('end')
-            expect(emittedEvents[emittedEvents.length -1].iteratorCount).to.equal(153)
-            expect(emittedEvents[emittedEvents.length -1].statements).to.equal(459)
-            expect(emittedEvents.length).to.equal(154)
+            expect(iteratorEvents[0].event).to.equal('iteratorResult')
+            expect(iteratorEvents[0].namedNode.termType).to.equal('NamedNode')
+            expect(iteratorEvents[0].namedNode.value).to.equal('http://dbpedia.org/resource/Iris_virginica')
+            expect(iteratorEvents.length).to.equal(153)
+            expect(generatorEvents[0].event).to.equal('generatorResult')
+            expect(generatorEvents[0].count).to.equal(1)
+            expect(generatorEvents.length).to.equal(459)
+            expect(endEvents[0].event).to.equal('end')
+            expect(endEvents[0].iteratorCount).to.equal(153)
+            expect(endEvents[0].statements).to.equal(459)
+            expect(endEvents.length).to.equal(1)
         });
     });
 });

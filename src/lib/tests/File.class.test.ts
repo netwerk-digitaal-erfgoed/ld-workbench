@@ -59,14 +59,14 @@ describe('File Class', () => {
             }
         });
         it('should create a write stream for a new file', () => {
-            const filePath = 'file://new/file.txt';
+            const filePath = 'new/file.txt';
             const file = new File(filePath);
             const writeStream = file.getStream();
             expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
         });
 
         it('should append to an existing file when append is true', () => {
-            const filePath = 'file://file.txt';
+            const filePath = 'file.txt';
             const file = new File(filePath);
             const writeStream = file.getStream(true);
             expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
@@ -76,7 +76,7 @@ describe('File Class', () => {
             const file = new File(filePath, true).validate();
             const writeStream = file.getStream();
             expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
-            expect(fs.existsSync(path.dirname(filePath.replace("file://", "./")))).to.equal(true);
+            expect(fs.existsSync(path.dirname(filePath).replace('file://', ''))).to.equal(true);
         });
     });
 });

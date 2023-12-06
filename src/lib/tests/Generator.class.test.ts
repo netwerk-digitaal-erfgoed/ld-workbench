@@ -25,7 +25,7 @@ describe('Generator Class', () => {
             expect(generator).to.have.property('source');
         });
     });
-
+    // BUG when both the generator and iterator tests are running, it seems the iterator will never terminate
     describe.skip('run', () => {
         it('should emit "data" and "end" events with the correct number of statements', async () => {
             const configuration = parseYamlFile('./static/example/config.yml')
