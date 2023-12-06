@@ -1,11 +1,16 @@
-import { type WriteStream, createWriteStream, existsSync, statSync, mkdirSync } from 'fs'
+import { type WriteStream, createWriteStream, existsSync, statSync, mkdirSync, readFile } from 'fs'
 import { isFile, isFilePathString } from '../utils/guards.js'
 import { dirname } from 'path'
+import chalk from 'chalk'
+import { type Ora } from 'ora'
+import type Pipeline from './Pipeline.class.js'
+
 
 export default class File {
   public static $id = 'File'
   private $isValid?: boolean
-  public constructor(private $path: string, private readonly skipExistsCheck: boolean = false) {}
+  public constructor(private $path: string, private readonly skipExistsCheck: boolean = false) {
+  }
 
   public validate(): File {
     if (this.$isValid !== undefined) return this
@@ -42,5 +47,17 @@ export default class File {
 
   public static is(value: any): value is File {
     return isFile(value)
+  }
+
+  public async write(pipeline: Pipeline, spinner: Ora): Promise<void> {
+    const destinationStream = this.getStream()
+    const stageNames = Array.from(pipeline.stages.keys())
+    for (const stageName of stageNames) {
+      if (spinner !== undefined) spinner.suffixText = chalk.bold(stageName)
+      readFile(pipeline.stages.get(stageName)!.destinationPath, (error, buffer) => {
+        if(error !== null) throw error
+        destinationStream.write(buffer)
+      })
+    }
   }
 }

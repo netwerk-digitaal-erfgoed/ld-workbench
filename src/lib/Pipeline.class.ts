@@ -7,7 +7,8 @@ import duration from "../utils/duration.js";
 import File from './File.class.js'
 import path from "node:path";
 import * as fs from "node:fs";
-import { isFilePathString } from '../utils/guards.js';
+import { isFilePathString, isTriplyDBPathString } from '../utils/guards.js';
+import TriplyDB from './TriplyDB.class.js';
 
 class Pipeline {
   public readonly stages = new Map<string, Stage>();
@@ -15,7 +16,7 @@ class Pipeline {
   private $isValidated: boolean = false;
   private stageNames: string[] = [];
   private now = new Date();
-  private readonly destination: File
+  private readonly destination: File | TriplyDB
 
   public constructor(
     private readonly $configuration: LDWorkbenchConfiguration
@@ -24,13 +25,14 @@ class Pipeline {
     this.dataDir = path.join("pipelines", "data", kebabcase(this.$configuration.name));
     fs.mkdirSync(this.dataDir, { recursive: true });
     const destinationFile = this.configuration.destination ?? `file://${path.join(this.dataDir, 'statements.nt')}`
-    if (!isFilePathString(destinationFile)) {
-      throw new Error('We currently only allow publishing data to local files.')
+    if (!isFilePathString(destinationFile) && !isTriplyDBPathString(destinationFile)) {
+      throw new Error('We currently only allow publishing data to local files and TriplyDB.')
     }
-    if(!destinationFile.endsWith('.nt')) {
+    if(isFilePathString(destinationFile) && !destinationFile.endsWith('.nt')) {
       throw new Error('We currently only writing results in N-Triples format,\nmake sure your destination filename ends with \'.nt\'.')
     }
-    this.destination = (new File(destinationFile, true)).validate()
+    this.destination = isTriplyDBPathString(destinationFile) ? 
+      (new TriplyDB(destinationFile)).validate() : (new File(destinationFile, true)).validate()
   }
 
   private error(e: Error, stage?: string): void {
@@ -154,13 +156,18 @@ class Pipeline {
         this.runRecursive();
       } else {
         this.writeResult()
-          console.info(
-            chalk.green(
-              `✔ your pipeline "${chalk.bold(
-                this.name
-              )}" was completed in ${duration(this.now)}`
-            )
-          );
+          .then(_ => {
+            console.info(
+              chalk.green(
+                `✔ your pipeline "${chalk.bold(
+                  this.name
+                )}" was completed in ${duration(this.now)}`
+              )
+            );
+          })
+          .catch(e => {
+            throw new Error('Pipeline failed: ' + (e as Error).message)
+          })
       }
     });
     try {
@@ -170,18 +177,10 @@ class Pipeline {
     }
   }
 
-  private writeResult(): void {
-    const spinner = ora("Combining statements from all stages:").start();
-    const destinationStream = this.destination.getStream()
-    const stageNames = Array.from(this.stages.keys())
-    for (const stageName of stageNames) {
-      spinner.suffixText = chalk.bold(stageName)
-      fs.readFile(this.stages.get(stageName)!.destinationPath, (error, buffer) => {
-        if(error !== null) throw error
-        destinationStream.write(buffer)
-      })
-    }
-    spinner.suffixText = chalk.bold(this.destination.toString())
+  private async writeResult(): Promise<void> {
+    const spinner = ora('Writing results to destination').start();
+    await this.destination.write(this, spinner)
+    spinner.suffixText = this.destination.path
     spinner.succeed()
   }
 
