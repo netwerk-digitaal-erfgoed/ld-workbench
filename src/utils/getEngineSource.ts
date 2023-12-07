@@ -9,7 +9,7 @@ export default function getEngineSource(endpoint: Endpoint): string {
     const previousStage = endpoint.load();
     if (!existsSync(previousStage.destinationPath)) {
       throw new Error(
-        `The result from stage "${previousStage.name}" (${previousStage.destinationPath}) is not avalilable, make sure to run that stage first`
+        `The result from stage "${previousStage.name}" (${previousStage.destinationPath}) is not available, make sure to run that stage first`
       );
     }
     source = path.resolve(previousStage.destinationPath);

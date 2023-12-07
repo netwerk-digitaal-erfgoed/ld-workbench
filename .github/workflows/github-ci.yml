@@ -24,7 +24,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+      # Using Node LTS https://nodejs.org/en
+        node-version: [20.10.0]
 
     steps:
       - run: echo "Job was automatically triggered by a ${{ github.event_name }} event on ${{ github.ref }} - ${{ github.repository }}."
@@ -39,6 +40,8 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
+      - name: LDWorkbench init & test run
+        run: rm -rf ./pipelines && npx ld-workbench --init && npx ld-workbench
       - name: Test
         run: npm run test
       - run: echo "Job status ${{ job.status }}."
