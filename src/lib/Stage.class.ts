@@ -59,6 +59,7 @@ class Stage extends EventEmitter {
     const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' })
     this.generator.on('data', quad => {
       writer.addQuad(quad)
+      console.log('🪵  | file: Stage.class.ts:62 | Stage | run | quad:', quad)
       quadCount ++
       this.emit('generatorResult', quadCount)
     })
@@ -73,7 +74,8 @@ class Stage extends EventEmitter {
       this.emit('iteratorResult', $this)
     })
     this.iterator.on('end', count => {
-      iteratorCount = count
+        this.generator.end()
+        iteratorCount = count
     })
     this.iterator.run()
   }

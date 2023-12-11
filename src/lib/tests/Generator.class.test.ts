@@ -28,7 +28,8 @@ describe('Generator Class', () => {
     });
     // BUG when both the generator and iterator tests are running, it seems the iterator will never terminate
     describe.skip('run', () => {
-        it('Should work with batch processing', () => {
+        it.only('Should work with batch processing', async function (){
+            this.timeout(500000)
             const configuration: LDWorkbenchConfiguration = {
                 name: 'Example Pipeline',
                 description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -61,7 +62,25 @@ describe('Generator Class', () => {
               const pipeline = new Pipeline(configuration)
               pipeline.validate()
               const stage = new Stage(pipeline, configuration.stages[0])
-              stage.run()
+
+              async function runGeneratorWithPromise(): Promise<boolean> {
+                return new Promise((resolve, reject) => {
+                    stage.addListener('generatorResult', (quad) => {
+                        console.log('🪵  | file: Generator.class.test.ts:70 | stage.addListener | quad:', quad)
+                    });
+                    stage.addListener('end', (numResults) => {
+                        console.log('🪵  | file: Generator.class.test.ts:74 | stage.addListener | numResults:', numResults)
+                        resolve(true)
+                    });
+                    stage.addListener('error', (error) => {
+                        reject(error);
+                    });
+                    stage.run();
+                });
+            }
+
+            await runGeneratorWithPromise()
+              
         }
 
         )

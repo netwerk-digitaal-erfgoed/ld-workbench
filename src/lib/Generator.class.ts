@@ -10,7 +10,6 @@ import getEngine from '../utils/getEngine.js';
 import getEngineSource from '../utils/getEngineSource.js';
 import EventEmitter from 'node:events';
 import getBatchSPARQLQueryString from "../utils/getBatchSPARQLQueryString.js";
-
 declare interface Generator {
   on(event: "data", listener: (statement: Quad) => void): this;
   on(event: "end", listener: (numResults: number) => void): this;
@@ -22,7 +21,7 @@ class Generator extends EventEmitter {
   private readonly query: ConstructQuery;
   private readonly engine: QueryEngine;
   private readonly batchSize: number | undefined
-  private batchTestArrayOfNamedNodes: NamedNode[] | undefined
+  private batchArrayOfNamedNodes: NamedNode[] | undefined
   private source: string = ''
   private readonly endpoint: Endpoint;
   public constructor(stage: Stage) {
@@ -33,10 +32,10 @@ class Generator extends EventEmitter {
     );
 
     if (stage.configuration.generator.batchSize !== undefined) {
-      this.batchTestArrayOfNamedNodes = []
+      this.batchArrayOfNamedNodes = []
       this.batchSize = stage.configuration.generator.batchSize
     } else {
-      this.batchTestArrayOfNamedNodes = undefined
+      this.batchArrayOfNamedNodes = undefined
       this.batchSize = undefined
     }
 
@@ -48,29 +47,54 @@ class Generator extends EventEmitter {
     this.engine = getEngine(this.endpoint)
   }
 
+  // clean up function, in case batch processing is used and there are leftovers in batchArrayOfNamedNodes
+  public end(): void {
+    let numberOfStatements = 0
+    if((this.batchArrayOfNamedNodes !== undefined) && (this.batchArrayOfNamedNodes?.length > 0)){
+      console.log('TEST - leftovers!')
+      const queryString = getBatchSPARQLQueryString(this.query, this.batchArrayOfNamedNodes)
+      // Clearing batch Named Node targets array when it is the size of the batchSize
+      this.batchArrayOfNamedNodes = []
+
+      // TODO turn this into a function
+      this.engine.queryQuads(queryString, {
+        sources: [this.source]
+      }).then(stream => {
+        stream.on('data', (quad: Quad) => {
+          numberOfStatements++
+          this.emit('data', quad)
+        })
+        stream.on('end', () => {
+          this.emit('end', numberOfStatements)
+        })
+      }).catch(_ => {
+        throw new Error(`The Generator did not run successfully, it could not get the results from the endpoint ${this.source}`)
+      })
+
+    }
+
+  }
+
   public run($this: NamedNode): void {
     let numberOfStatements = 0
     if (this.source === '') this.source = getEngineSource(this.endpoint)
 
-    if (this.batchTestArrayOfNamedNodes !== undefined) {
+    if (this.batchArrayOfNamedNodes !== undefined) {
       // batch processing of queries
-      this.batchTestArrayOfNamedNodes.push($this)
-
-      // REVIEW BLOCKER
-      // BUG in this approach the given batchSize could result in leftover NamedNodes 
-      // (e.g. 101 NamedNodes result in 10 full arrays of batchTestArrayOfNamedNodes, but the 11th with only 1 value and never meeting the condition)
-      // => no way to check the iterator's 'index' in stage
-      if (this.batchTestArrayOfNamedNodes.length === this.batchSize) {
+      this.batchArrayOfNamedNodes.push($this)
+      if (this.batchArrayOfNamedNodes.length === this.batchSize) {
         // getting batch SPARQL query string 
-        const queryString = getBatchSPARQLQueryString(this.query, this.batchTestArrayOfNamedNodes)
+        const queryString = getBatchSPARQLQueryString(this.query, this.batchArrayOfNamedNodes)
 
         // Clearing batch Named Node targets array when it is the size of the batchSize
-        this.batchTestArrayOfNamedNodes = []
+        this.batchArrayOfNamedNodes = []
 
+        // TODO turn this into a function
         this.engine.queryQuads(queryString, {
           sources: [this.source]
         }).then(stream => {
           stream.on('data', (quad: Quad) => {
+            console.log('🪵  | file: Generator.class.ts:103 | Generator | stream.on | quad:', quad)
             numberOfStatements++
             this.emit('data', quad)
           })
@@ -89,7 +113,7 @@ class Generator extends EventEmitter {
           /[?$]\bthis\b/g,
           `<${$this.value}>`
         );
-
+      // TODO turn this into a function
       this.engine.queryQuads(queryString, {
         sources: [this.source]
       }).then(stream => {
