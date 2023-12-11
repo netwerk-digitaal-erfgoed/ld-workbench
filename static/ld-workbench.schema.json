@@ -44,7 +44,7 @@
                 "description": "The SPARQL endpoint for the iterator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the result of the previous file is used."
               },
               "batchSize": {
-                "type": "number",
+                "type": "integer",
                 "description": "Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query."
               }
             }
@@ -63,7 +63,8 @@
                 "description": "The SPARQL endpoint for the generator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the endpoint of the Iterator is used."
               },
               "batchSize": {
-                "type": "number",
+                "type": "integer",
+                "minimum": 1,
                 "description": "Overrule the generator's behaviour of fetching results for 10 bindings of $this per request."
               }
             }

@@ -6,6 +6,7 @@ import Pipeline from "../Pipeline.class.js";
 import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { NamedNode } from "n3";
+import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
@@ -27,6 +28,43 @@ describe('Generator Class', () => {
     });
     // BUG when both the generator and iterator tests are running, it seems the iterator will never terminate
     describe.skip('run', () => {
+        it('Should work with batch processing', () => {
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                  {
+                    name: 'Stage 1',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-1.rq',
+                      endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+                    },
+                    generator: {
+                      query: 'file://static/example/generator-stage-1.rq',
+                      batchSize: 10
+                    }
+                  },
+                  {
+                    name: 'Stage 2',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-2.rq',
+                    },
+                    generator: {
+                      query: 'file://static/example/generator-stage-2.rq',
+                      endpoint: 'https://query.wikidata.org/sparql',
+                      batchSize: 1
+                    }
+                  }
+                ]
+              }
+              const pipeline = new Pipeline(configuration)
+              pipeline.validate()
+              const stage = new Stage(pipeline, configuration.stages[0])
+              stage.run()
+        }
+
+        )
         it('should emit "data" and "end" events with the correct number of statements', async () => {
             const configuration = parseYamlFile('./static/example/config.yml')
             const pipeline = new Pipeline(configuration)
