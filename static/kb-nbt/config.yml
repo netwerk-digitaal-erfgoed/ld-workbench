@@ -13,6 +13,6 @@ stages:
   - name: "Stage 1"
     iterator:
       query: file://static/kb-nbt/iterator-stage-1.rq
-      endpoint: http://data.bibliotheken.nl/sparql
+      endpoint: https://api.data.netwerkdigitaalerfgoed.nl/datasets/Fedor/Nederlandse-Bibliografie-Totaal-NBT/sparql
     generator: 
       query: file://static/kb-nbt/generator-stage-1.rq
