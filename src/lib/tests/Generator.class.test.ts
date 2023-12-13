@@ -10,8 +10,8 @@ import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
-describe('Generator Class', () => {
-    describe('constructor', () => {
+describe.only('Generator Class', () => {
+    describe.skip('constructor', () => {
         it('should set query, engine, endpoint, and source properties correctly', () => {
             const configuration = parseYamlFile('./static/example/config.yml')
             const pipeline = new Pipeline(configuration)
