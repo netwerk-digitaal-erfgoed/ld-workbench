@@ -521,6 +521,13 @@ describe('Utilities', () => {
           })
         }
       })
+      // @phil problematic test here
+      /**
+       * [ ] in CI throws error:
+       *      AssertionError: expected [Function] to throw an error
+                at Context.<anonymous> (file:///home/runner/work/ld-workbench/ld-workbench/dist/utils/tests/utilities.test.js:526:70)
+                at process.processImmediate (node:internal/timers:478:21)
+       * */ 
       it('should throw when input is PreviousStage and destinationPath does not exist', () => {
         const configuration = parseYamlFile('./static/example/config.yml')
         const pipeline = new Pipeline(configuration)

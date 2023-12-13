@@ -63,7 +63,7 @@
     "@types/mocha": "^10.0.6",
     "@types/n3": "^1.16.4",
     "@types/node": "^20.9.4",
-    "@types/sparqljs": "^3.1.8",
+    "@types/sparqljs": "^3.1.9",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
@@ -93,7 +93,8 @@
     "n3": "^1.17.2",
     "ora": "^7.0.1",
     "pretty-ms": "^8.0.0",
-    "sparqljs": "^3.7.1"
+    "sparqljs": "^3.7.1",
+    "uuid": "^9.0.1"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"

@@ -1,6 +1,7 @@
-import type { NamedNode } from "@rdfjs/types";
-import sparqljs from 'sparqljs'
-import { type SelectQuery, type ConstructQuery } from 'sparqljs'
+import type { NamedNode, BlankNode, Variable } from "@rdfjs/types";
+import type { SelectQuery, ConstructQuery } from "sparqljs";
+import sparqljs  from 'sparqljs'
+import { v4 as uuidv4 } from 'uuid';
 const { Generator } = sparqljs
 
 // TODO should validate the SPARQL query
@@ -144,12 +145,93 @@ WHERE {
 --> each ?name would need to be uniquely matched to the name
 
  */
+
+class UniqueUUIDMap {
+  private readonly map = new Map<string, string>();
+
+  getOrCreateUUID(value: string): string {
+    if (this.map.has(value)) {
+      // If the value has been encountered before, return the existing UUID
+      return this.map.get(value)!;
+    } else {
+      // If it's a new value, generate a new UUID and store it in the map
+      const newUUID = uuidv4();
+      this.map.set(value, newUUID);
+      return newUUID;
+    }
+  }
+}
+
+const isSubject = (S: sparqljs.IriTerm | BlankNode | Variable ): S is sparqljs.IriTerm | BlankNode | Variable => {
+  return (
+    typeof S === 'object' &&
+    S !== null &&
+    'termType' in S &&
+    'value' in S
+  );
+};
+const isObject = (O: sparqljs.Term): O is sparqljs.Term => {
+  return (
+    typeof O === 'object' &&
+    O !== null &&
+    'termType' in O &&
+    'value' in O
+  );
+};
+
 function getBatchSPARQLQueryString(query: SelectQuery | ConstructQuery, arrayOfNamedNodes: NamedNode[]): string {
     let batchQuery: string = ''
+    /**
+     * 
+     * [x] the query.template contains the contruct elements, each Variable that is the same variable and is not "this" should get a unique UUID
+     *    [ ] test for nested construct queries - most likely will fail with current approach
+     * [ ] figure out how the UNIONS work
+     * [ ] do the same for query.where OR make UNIONs for the where clauses
+     */
+
+    // REVIEW approach feels to specific for given query, not generic enough
     for (let index = 0; index < arrayOfNamedNodes.length; index++) {
-        const value = arrayOfNamedNodes[index].value;
+      // Manipulate the AST to create the batch query
+      if (query.queryType === "CONSTRUCT" && (query.template !== undefined) && (query.where !== undefined)){
+        // go over variables of the CONSTRUCT template
+        // TODO should test for nested queries
+        const values = new UniqueUUIDMap
+        for (let index = 0; index < query.template.length; index++){
+          const SPO = query.template[index]
+          let sub = SPO.subject as unknown as any
+          let obj = SPO.object as unknown as any
+          if (isSubject(sub)  && (sub.value !== "this")){
+            sub = { ...sub, value: values.getOrCreateUUID(sub.value)}
+          }  
+          if (isObject(obj) && (obj.value !== "this")){
+            obj = { ...obj, value: values.getOrCreateUUID(obj.value)}
+          }
+
+          query.template[index] = {...SPO, subject: (sub ?? SPO.subject), object: (obj ?? SPO.object) }
+          console.log('🪵  | file: getBatchSPARQLQueryString.ts:199 | getBatchSPARQLQueryString |   query.template[index]:',   query.template[index])
+
+        }
+
+        /**
+         * query.where
+         * 
+          [
+            { type: 'bgp', triples: [ [Object] ] },
+            {
+              type: 'filter',
+              expression: { type: 'operation', operator: '=', args: [Array] }
+            }
+          ]
+         */
+         const triples = (query.where[0] as any).triples // triples is in the object but seems to not be retrievable
+         console.log('🪵  | file: getBatchSPARQLQueryString.ts:226 | getBatchSPARQLQueryString | triples:', triples)
+
+         const args = (query.where[1] as any).expression.args
+         console.log('🪵  | file: getBatchSPARQLQueryString.ts:229 | getBatchSPARQLQueryString | args:', args)
+
+      }
+      const value = arrayOfNamedNodes[index].value;
         const generator = new Generator();
-        console.log(query.prefixes)
         if (index === 0) {
             batchQuery += generator.stringify(query).replaceAll(
                 /[?$]\bthis\b/g,
