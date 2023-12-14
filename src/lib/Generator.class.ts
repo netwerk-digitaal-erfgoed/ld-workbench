@@ -47,34 +47,6 @@ class Generator extends EventEmitter {
     this.engine = getEngine(this.endpoint)
   }
 
-  // clean up function, in case batch processing is used and there are leftovers in batchArrayOfNamedNodes
-  public end(): void {
-    let numberOfStatements = 0
-    if((this.batchArrayOfNamedNodes !== undefined) && (this.batchArrayOfNamedNodes?.length > 0)){
-      console.log('TEST - leftovers!')
-      const queryString = getBatchSPARQLQueryString(this.query, this.batchArrayOfNamedNodes)
-      // Clearing batch Named Node targets array when it is the size of the batchSize
-      this.batchArrayOfNamedNodes = []
-
-      // TODO turn this into a function
-      this.engine.queryQuads(queryString, {
-        sources: [this.source]
-      }).then(stream => {
-        stream.on('data', (quad: Quad) => {
-          numberOfStatements++
-          this.emit('data', quad)
-        })
-        stream.on('end', () => {
-          this.emit('end', numberOfStatements)
-        })
-      }).catch(_ => {
-        throw new Error(`The Generator did not run successfully, it could not get the results from the endpoint ${this.source}`)
-      })
-
-    }
-
-  }
-
   public run($this: NamedNode): void {
     let numberOfStatements = 0
     if (this.source === '') this.source = getEngineSource(this.endpoint)
@@ -94,7 +66,6 @@ class Generator extends EventEmitter {
           sources: [this.source]
         }).then(stream => {
           stream.on('data', (quad: Quad) => {
-            console.log('🪵  | file: Generator.class.ts:103 | Generator | stream.on | quad:', quad)
             numberOfStatements++
             this.emit('data', quad)
           })
@@ -127,6 +98,36 @@ class Generator extends EventEmitter {
       }).catch(_ => {
         throw new Error(`The Generator did not run successfully, it could not get the results from the endpoint ${this.source}`)
       })
+    }
+  }
+
+  // clean up function, in case batch processing is used and there are leftovers in batchArrayOfNamedNodes
+  public end(): void {
+    let numberOfStatements = 0
+    if((this.batchArrayOfNamedNodes !== undefined) && (this.batchArrayOfNamedNodes?.length !== 0)){
+      const queryString = getBatchSPARQLQueryString(this.query, this.batchArrayOfNamedNodes)
+      // Clearing batch Named Node targets array when it is the size of the batchSize
+      this.batchArrayOfNamedNodes = []
+
+      // TODO turn this into a function
+      this.engine.queryQuads(queryString, {
+        sources: [this.source]
+      }).then(stream => {
+        stream.on('data', (quad: Quad) => {
+          numberOfStatements++
+          this.emit('data', quad)
+        })
+        stream.on('end', () => {
+          this.emit('end', numberOfStatements)
+        })
+      }).catch(_ => {
+        throw new Error(`The Generator did not run successfully, it could not get the results from the endpoint ${this.source}`)
+      })
+
+    }
+    else{
+      // REVIEW this doesn't seem to work - Stage class is not listening to this event
+      this.emit('end', numberOfStatements)
     }
   }
 }

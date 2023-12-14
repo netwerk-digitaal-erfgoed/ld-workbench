@@ -1,150 +1,8 @@
-import type { NamedNode, BlankNode, Variable } from "@rdfjs/types";
-import type { SelectQuery, ConstructQuery } from "sparqljs";
-import sparqljs  from 'sparqljs'
+import type { NamedNode, Variable } from "@rdfjs/types";
+import type { ConstructQuery, UnionPattern, Pattern, Triple } from "sparqljs";
+import sparqljs from 'sparqljs'
 import { v4 as uuidv4 } from 'uuid';
 const { Generator } = sparqljs
-
-// TODO should validate the SPARQL query
-
-/**
- * 
- * @param query SPARQL construct/Select query template with $this
- * @param arrayOfNamedNodes an array of named nodes
- * @returns a batch SPARQL query 
- */
-
-// REVIEW
-// BUG in this implementation we cannot append and unionize several construct queries
-// BUG this results in a failing query
-// BUG moreover, the ?name is not unique, meaning there would be no way to construct the individual triples
-/**
- *  RESULT: 
-CONSTRUCT {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00118> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00118> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00118> <https://schema.org/name> ?name.
-}
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00118> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
-UNION # this is impossible in SPARQL
-CONSTRUCT {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00119> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00119> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00119> <https://schema.org/name> ?name.
-}
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00119> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
- * THIS QUERY IS ALSO INCORRECT
-
-PREFIX sdo: <https://schema.org/>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-CONSTRUCT
-{
-  <https://triplydb.com/triply/iris/id/floweringPlant/00138> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00138> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00138> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00139> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00139> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00139> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00140> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00140> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00140> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00141> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00141> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00141> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00142> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00142> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00142> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00143> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00143> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00143> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00144> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00144> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00144> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00145> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00145> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00145> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00146> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00146> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00146> <https://schema.org/name> ?name.
-
-  <https://triplydb.com/triply/iris/id/floweringPlant/00147> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00147> <https://schema.org/additionalType> <http://vocab.getty.edu/aat/300343602>.
-  <https://triplydb.com/triply/iris/id/floweringPlant/00147> <https://schema.org/name> ?name.
-}
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00138> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-  
-  <https://triplydb.com/triply/iris/id/floweringPlant/00139> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-} }
-UNION
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00140> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
-UNION
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00141> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
-UNION
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00142> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
-UNION
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00143> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
-UNION
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00144> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
-UNION
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00145> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
-UNION
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00146> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
-UNION
-
-WHERE {
-  <https://triplydb.com/triply/iris/id/floweringPlant/00147> <http://www.w3.org/2000/01/rdf-schema#label> ?name.
-  FILTER((LANG(?name)) = "en")
-}
---> each ?name would need to be uniquely matched to the name
-
- */
 
 class UniqueUUIDMap {
   private readonly map = new Map<string, string>();
@@ -155,125 +13,130 @@ class UniqueUUIDMap {
       return this.map.get(value)!;
     } else {
       // If it's a new value, generate a new UUID and store it in the map
-      const newUUID = uuidv4();
+      // SPARQL doesn't allow '-' in variables
+      const newUUID = uuidv4().replace(/-/g, '');
       this.map.set(value, newUUID);
       return newUUID;
     }
   }
 }
 
-const isSubject = (S: sparqljs.IriTerm | BlankNode | Variable ): S is sparqljs.IriTerm | BlankNode | Variable => {
+const isVariable = (obj: any): obj is Variable => {
   return (
-    typeof S === 'object' &&
-    S !== null &&
-    'termType' in S &&
-    'value' in S
-  );
-};
-const isObject = (O: sparqljs.Term): O is sparqljs.Term => {
-  return (
-    typeof O === 'object' &&
-    O !== null &&
-    'termType' in O &&
-    'value' in O
+    typeof obj === 'object' &&
+    obj !== null &&
+    "termType" in obj &&
+    obj.termType === "Variable"
   );
 };
 
-function getBatchSPARQLQueryString(query: SelectQuery | ConstructQuery, arrayOfNamedNodes: NamedNode[]): string {
-    let batchQuery: string = ''
-    /**
-     * 
-     * [x] the query.template contains the contruct elements, each Variable that is the same variable and is not "this" should get a unique UUID
-     *    [ ] test for nested construct queries - most likely will fail with current approach
-     * [ ] figure out how the UNIONS work
-     * [ ] do the same for query.where OR make UNIONs for the where clauses
-     */
-
-    // REVIEW approach feels to specific for given query, not generic enough
-    for (let index = 0; index < arrayOfNamedNodes.length; index++) {
-      // Manipulate the AST to create the batch query
-      if (query.queryType === "CONSTRUCT" && (query.template !== undefined) && (query.where !== undefined)){
-        // go over variables of the CONSTRUCT template
-        // TODO should test for nested queries
-        const values = new UniqueUUIDMap
-        for (let index = 0; index < query.template.length; index++){
-          const SPO = query.template[index]
-          let sub = SPO.subject as unknown as any
-          let obj = SPO.object as unknown as any
-          if (isSubject(sub)  && (sub.value !== "this")){
-            sub = { ...sub, value: values.getOrCreateUUID(sub.value)}
-          }  
-          if (isObject(obj) && (obj.value !== "this")){
-            obj = { ...obj, value: values.getOrCreateUUID(obj.value)}
-          }
-
-          query.template[index] = {...SPO, subject: (sub ?? SPO.subject), object: (obj ?? SPO.object) }
-          console.log('🪵  | file: getBatchSPARQLQueryString.ts:199 | getBatchSPARQLQueryString |   query.template[index]:',   query.template[index])
-
-        }
-
-        /**
-         * query.where
-         * 
-          [
-            { type: 'bgp', triples: [ [Object] ] },
-            {
-              type: 'filter',
-              expression: { type: 'operation', operator: '=', args: [Array] }
-            }
-          ]
-         */
-         const triples = (query.where[0] as any).triples // triples is in the object but seems to not be retrievable
-         console.log('🪵  | file: getBatchSPARQLQueryString.ts:226 | getBatchSPARQLQueryString | triples:', triples)
-
-         const args = (query.where[1] as any).expression.args
-         console.log('🪵  | file: getBatchSPARQLQueryString.ts:229 | getBatchSPARQLQueryString | args:', args)
-
-      }
-      const value = arrayOfNamedNodes[index].value;
-        const generator = new Generator();
-        if (index === 0) {
-            batchQuery += generator.stringify(query).replaceAll(
-                /[?$]\bthis\b/g,
-                `<${value}>`
-            );
-        } else {
-            query.prefixes = {} // clearing prefixes
-            batchQuery += "\nUNION\n" + generator.stringify(query).replaceAll(
-                /[?$]\bthis\b/g,
-                `<${value}>`
-            );
-        }
-    }
-
-    // // BUG trying to fix this with string manipulation, but this could result in errors
-    // // Also each variable should be uniquely matched
-
-    // // Regular expression to extract CONSTRUCT { ... } patterns
-    // const constructPatternRegex = /CONSTRUCT\s*{([^}]*)}/gs;
-
-    // // Regular expression to extract WHERE { ... } patterns
-    // const wherePatternRegex = /WHERE\s*{([^}]*)}/gs;
-
-    // // Extract CONSTRUCT patterns from the query string
-    // const constructMatches = batchQuery.match(constructPatternRegex);
-
-    // // Remove CONSTRUCT patterns from the query string
-    // const queryStringWithoutConstruct = batchQuery.replace(constructPatternRegex, '');
-
-    // // Extract WHERE patterns from the query string
-    // const whereMatches = queryStringWithoutConstruct.match(wherePatternRegex);
-
-    // // Process matched CONSTRUCT patterns
-    // const cleanedConstructMatches = constructMatches?.map(match => match.replace(/CONSTRUCT\s*{([\s\S]*)}/, '$1')).join('')
-
-    // // Process matched WHERE patterns
-    // const cleanedWhereMatches = whereMatches?.map(match => match.replace(/WHERE\s*{([\s\S]*)}/, '$1')).join('')
-
-    // batchQuery = `CONSTRUCT\n{${cleanedConstructMatches}}\nWHERE{${cleanedWhereMatches}}`
-
-    // console.log('🪵  | file: getBatchSPARQLQueryString.ts:191 | batchQuery:', batchQuery)
-    return batchQuery
+function isUUID(input: string): boolean {
+  const uuidPattern = /^[a-fA-F0-9]{8}[a-fA-F0-9]{4}[a-fA-F0-9]{4}[a-fA-F0-9]{4}[a-fA-F0-9]{12}$/;
+  return uuidPattern.test(input);
 }
+
+// BUG known error: if the query uses BOUND($this) and $this is a named node (which it is), it will become an illegal query - since SPARQL expects $this in BIND($this) to be a variable
+// a correct query would be to add a join clause with . { BIND($this as <named node>)} (which should return false)
+// see DEFINITION: Values Insertion - https://www.w3.org/TR/shacl/#pre-binding
+function sparqlAstMutation(obj: any, namedNodeValue: string, variablesMap: UniqueUUIDMap): any {
+  if (isVariable(obj)) {
+    if(obj.value === "this"){
+      obj = {
+        ...obj,
+        termType: "NamedNode",
+        value: namedNodeValue
+      } satisfies NamedNode
+    } else if (!isUUID(obj.value)){
+      obj.value = variablesMap.getOrCreateUUID(obj.value)
+    }
+  }
+  return obj
+}
+
+/**
+ * This function should make unique variables with UUID for each matching variable in the query and replace $this with a named node in the query
+ * @param obj a ConstructQuery object that could contain variables with values (e.g. Triples)
+ * @param UUIDMap a hash map that stores unique variables as keys and uses UUID as values - will return UUID if key already exists
+ * @param namedNodeValue a named node that should replace $this in the query
+ * @return the given input object, making every matching variable unique and replacing $this with the target named node
+*/
+// eachDeep(obj, (obj) => {sparqlAstMutation(obj, namedNodeValue, variablesMap)})
+function recursiveSparqlAstMutations(obj: any, namedNodeValue: string, variablesMap: UniqueUUIDMap): any {
+  if (typeof obj === 'object' && obj !== null) {
+    if (Array.isArray(obj)) {
+      // If obj is an array, recursively process each element
+      return obj.map((item) => recursiveSparqlAstMutations(item, namedNodeValue, variablesMap));
+    } else {
+      // If obj is an object, recursively process each property in the object
+      const mutatedObject: any = {};
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          mutatedObject[key] = recursiveSparqlAstMutations(obj[key], namedNodeValue, variablesMap);
+        }
+      }
+      return sparqlAstMutation(mutatedObject, namedNodeValue, variablesMap);
+    }
+  }
+  return obj;
+}
+
+
+function unionizeConstructQueries(queries: ConstructQuery[]): ConstructQuery {
+  const prefixes = queries[0].prefixes
+  const base = queries[0].base
+  // making sure queries have a template
+ queries = queries.filter(({ template }) => template);
+
+ const template = queries.flatMap(query => query.template!) satisfies Triple[]
+  // making sure queries have a where
+  queries = queries.filter(({ where }) => where);
+  // creating unionized query for every where clause beyond the first query
+  const unionPattern: UnionPattern = {
+    type: "union",
+    patterns: queries.map(q => ({ type: "group", patterns: q.where! } satisfies Pattern))
+  }
+  // adding the union pattern to the batchQuery
+  const batchQuery = {
+    queryType: "CONSTRUCT" as "CONSTRUCT",
+    type: "query" as "query",
+    base,
+    prefixes,
+    where: [unionPattern],
+    template,
+  }
+  return batchQuery
+}
+
+
+/**
+ * 
+ * @param query SPARQL construct/Select query template with $this
+ * @param arrayOfNamedNodes an array of named nodes
+ * @returns a batch SPARQL query 
+ */
+function getBatchSPARQLQueryString(query: ConstructQuery, arrayOfNamedNodes: NamedNode[]): string {
+  const generator = new Generator();
+  const uniqueQueries: ConstructQuery[] = []
+  /**
+   *    [ ] test for nested construct queries - Use Iva's example queries
+   */
+
+  for (let index = 0; index < arrayOfNamedNodes.length; index++) {
+    const variablesMap = new UniqueUUIDMap()
+    
+
+    // Manipulate the AST to create the batch query
+      const namedNodeValue = arrayOfNamedNodes[index].value;
+
+      // should change the query object's $this and variables to UUID
+      const uniqueQuery = recursiveSparqlAstMutations(query, namedNodeValue, variablesMap)
+
+      // each query now should have unique variables for each matching variable and a target named node
+      uniqueQueries.push(uniqueQuery)
+
+    }
+    const batchQuery = unionizeConstructQueries(uniqueQueries)
+    return generator.stringify(batchQuery)
+  }
 
 export default getBatchSPARQLQueryString

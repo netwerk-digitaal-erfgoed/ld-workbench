@@ -32,13 +32,13 @@ class Stage extends EventEmitter {
     super()
     try {
       this.iterator = new Iterator(this)
-    } catch(e) {
+    } catch (e) {
       throw new Error(`Error in the iterator of stage \`${configuration.name}\`: ${(e as Error).message}`)
     }
 
     try {
       this.generator = new Generator(this)
-    } catch(e) {
+    } catch (e) {
       throw new Error(`Error in the generator of stage \`${configuration.name}\`: ${(e as Error).message}`)
     }
     this.destination = () => new File(this.destinationPath).getStream()
@@ -59,14 +59,41 @@ class Stage extends EventEmitter {
     const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' })
     this.generator.on('data', quad => {
       writer.addQuad(quad)
-      console.log('🪵  | file: Stage.class.ts:62 | Stage | run | quad:', quad)
-      quadCount ++
+      quadCount++
       this.emit('generatorResult', quadCount)
     })
     this.generator.on('end', _ => {
       generatorCount++
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      const numberOfLeftoverNamedNodes = this.generator["batchArrayOfNamedNodes"]!.length
+      console.log('🪵  | file: Stage.class.ts:70 | Stage | run | numberOfLeftoverNamedNodes:', numberOfLeftoverNamedNodes)
+      const batchGeneratorCount = generatorCount * this.configuration.generator.batchSize!  + numberOfLeftoverNamedNodes
+      console.log('🪵  | file: Stage.class.ts:71 | Stage | run | generatorCount:', generatorCount)
+      console.log('🪵  | file: Stage.class.ts:71 | Stage | run | this.configuration.generator.batchSize!:', this.configuration.generator.batchSize!)
+      console.log('🪵  | file: Stage.class.ts:69 | Stage | run | batchGeneratorCount:', batchGeneratorCount)
+      console.log('🪵  | file: Stage.class.ts:77 | Stage | run | iteratorCount:', iteratorCount)
       if (generatorCount === iteratorCount) {
+        console.log('🪵  | file: Stage.class.ts:70 | Stage | run | quadCount:', quadCount)
         this.emit('end', iteratorCount, quadCount)
+      }
+      // with batchsize, the number of the generatorCount is the number of batchSize times smaller + the leftover elements that did not fit into the batch
+      else if (batchGeneratorCount === iteratorCount) {
+        if (numberOfLeftoverNamedNodes !== 0){
+          // clean up generator and process quads
+          this.generator.end()        
+          this.generator.on('data', quad => {
+            writer.addQuad(quad)
+            quadCount++
+            this.emit('generatorResult', quadCount)
+          })
+          this.generator.on('end', _ => {
+            console.log('🪵  | file: Stage.class.ts:83 | Stage | run | quadCount:', quadCount)
+            this.emit('end', iteratorCount, quadCount)
+          })
+        }else{
+          console.log('🪵  | file: Stage.class.ts:83 | Stage | run | quadCount:', quadCount)
+          this.emit('end', iteratorCount, quadCount)
+        }
       }
     })
     this.iterator.on('data', $this => {
@@ -74,7 +101,6 @@ class Stage extends EventEmitter {
       this.emit('iteratorResult', $this)
     })
     this.iterator.on('end', count => {
-        this.generator.end()
         iteratorCount = count
     })
     this.iterator.run()
