@@ -77,7 +77,7 @@ class Stage extends EventEmitter {
         this.emit('end', iteratorCount, quadCount)
       }
       // with batchsize, the number of the generatorCount is the number of batchSize times smaller + the leftover elements that did not fit into the batch
-      else if (batchGeneratorCount === iteratorCount) {
+      else if ((this.configuration.generator.batchSize !== undefined) && (batchGeneratorCount === iteratorCount)) {
         if (numberOfLeftoverNamedNodes !== 0){
           // clean up generator and process quads
           this.generator.end()        
