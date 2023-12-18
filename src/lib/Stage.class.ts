@@ -10,6 +10,7 @@ import path from 'node:path';
 import { Writer } from 'n3'
 import type { NamedNode } from '@rdfjs/types'
 import type { WriteStream } from 'node:fs';
+
 declare interface Stage {
   on(event: "generatorResult", listener: (count: number) => void): this;
   on(event: "end", listener: (iteratorCount: number, statements: number) => void): this;
@@ -24,9 +25,8 @@ declare interface Stage {
 
 class Stage extends EventEmitter {
   public destination: () => WriteStream
+  public generators: Generator[] = []
   public iterator: Iterator
-  public generator: Generator
-
   public constructor(
     public readonly pipeline: Pipeline,
     public readonly configuration: LDWorkbenchConfiguration['stages'][0]
@@ -38,11 +38,19 @@ class Stage extends EventEmitter {
       throw new Error(`Error in the iterator of stage \`${configuration.name}\`: ${(e as Error).message}`)
     }
 
-    try {
-      this.generator = new Generator(this)
-    } catch(e) {
-      throw new Error(`Error in the generator of stage \`${configuration.name}\`: ${(e as Error).message}`)
+    // Handle both single generator and array of generators
+   if (this.configuration.generators !== undefined && this.configuration.generators?.length > 0){
+    for  (const generatorConfig of this.configuration.generators){
+      try {
+        this.generators.push(new Generator({...this, generator: generatorConfig}))
+      } catch(e) {
+        throw new Error(`Error in the generator of stage \`${configuration.name}\`: ${(e as Error).message}`)
+      }
+    }}
+    else if (this.configuration.generator !== undefined){
+      this.generators.push(new Generator(this))
     }
+
     this.destination = () => new File(this.destinationPath).getStream()
   }
 
@@ -59,21 +67,28 @@ class Stage extends EventEmitter {
     let iteratorCount = 0
     let generatorCount = 0
     const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' })
-    this.generator.on('data', quad => {
-      writer.addQuad(quad)
-      quadCount ++
-      this.emit('generatorResult', quadCount)
-    })
-    this.generator.on('end', _ => {
-      generatorCount++
-      if (generatorCount === iteratorCount) {
-        this.emit('end', iteratorCount, quadCount)
-      }
-    })
+
+    this.generators.forEach(generator => {
+      generator.on('data', quad => {
+        writer.addQuad(quad)
+        quadCount ++
+        this.emit('generatorResult', quadCount)
+      })
+      generator.on('end', _ => {
+        generatorCount++
+        if (generatorCount === iteratorCount) {
+          this.emit('end', iteratorCount, quadCount)
+        }
+      })
+    });
+
     this.iterator.on('data', $this => {
-      this.generator.run($this)
+      this.generators.forEach(generator => {
+        generator.run($this);
+      });
       this.emit('iteratorResult', $this)
-    })
+    });
+
     this.iterator.on('end', count => {
       iteratorCount = count
     })
@@ -82,7 +97,6 @@ class Stage extends EventEmitter {
     })
     this.iterator.run()
   }
-
 }
 
-export default Stage
+export default Stage;

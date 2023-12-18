@@ -41,11 +41,33 @@
               },
               "endpoint": {
                 "type": "string",
-                "description": "The SPARQL endpoint for the iterator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the result of the previous file is used."
+                "description": "The SPARQL endpoint for the iterator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf omitted the result of the previous file is used."
               },
               "batchSize": {
                 "type": "number",
-                "description": "Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query."
+                "description": "Overrule the iterator's behavior of fetching 10 results per request, regardless of any limit's in your query."
+              }
+            }
+          },
+          "generators": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["query"],
+              "properties": {
+                "query": {
+                  "type": "string",
+                  "description": "Path (prefixed with \"file://\") or SPARQL Query \nthat makes the generator using SPARQL construct."
+                },
+                "endpoint": {
+                  "type": "string",
+                  "description": "The SPARQL endpoint for the generator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommitted the endpoint of the Iterator is used."
+                },
+                "batchSize": {
+                  "type": "number",
+                  "description": "Overrule the generator's behaviour of fetching results for 10 bindings of $this per request."
+                }
               }
             }
           },
@@ -60,20 +82,24 @@
               },
               "endpoint": {
                 "type": "string",
-                "description": "The SPARQL endpoint for the generator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the endpoint of the Iterator is used."
+                "description": "The SPARQL endpoint for the generator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf omitted the endpoint of the Iterator is used."
               },
               "batchSize": {
                 "type": "number",
-                "description": "Overrule the generator's behaviour of fetching results for 10 bindings of $this per request."
+                "description": "Overrule the generator's behavior of fetching results for 10 bindings of $this per request."
               }
             }
           },
           "destination": {
             "type": "string",
-            "description": "The file where the results are saved. \nThis is not a required property, \nif ommitted a temporary file will be created automatically."
+            "description": "The file where the results are saved. \nThis is not a required property, \nif omitted a temporary file will be created automatically."
           }
         },
-        "required": ["name", "iterator", "generator"]
+        "required": ["name", "iterator"],
+        "dependencies": {
+          "generator": ["generator"],
+          "generators": ["generators"]
+        }
       }
     }
   },

@@ -10,7 +10,7 @@ export default function getEndpoint(
   type: 'iterator' | 'generator' = 'iterator'
 ): Endpoint {
   const t: keyof LDWorkbenchConfiguration['stages'][0] = type
-  const endpoint = stage.configuration[t].endpoint
+  const endpoint = stage.configuration[t]!.endpoint
   if (isFilePathString(endpoint)) {
     return new File(endpoint);
   } else if (endpoint !== undefined) {

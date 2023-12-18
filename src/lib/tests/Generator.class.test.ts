@@ -41,7 +41,7 @@ describe('Generator Class', () => {
             }
             const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
-            const stage = new Stage(pipeline, stageConfig)
+            const stage = new Stage(pipeline, stageConfig, )
             const generator = new Generator(stage)
             expect(generator).to.be.an.instanceOf(Generator);
             expect(generator).to.be.an.instanceOf(EventEmitter);

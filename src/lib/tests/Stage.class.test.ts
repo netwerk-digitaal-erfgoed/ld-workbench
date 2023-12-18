@@ -48,9 +48,9 @@ describe('Stage Class', () => {
             expect(stage).to.be.an.instanceOf(Stage);
             expect(stage).to.have.property('destination');
             expect(stage).to.have.property('iterator');
-            expect(stage).to.have.property('generator');
+            expect(stage).to.have.property('generators');
             expect(stage.iterator).to.be.an.instanceOf(Iterator);
-            expect(stage.generator).to.be.an.instanceOf(Generator);
+            expect(stage.generators[0]).to.be.an.instanceOf(Generator);
             expect(stage.pipeline).to.be.an.instanceOf(Pipeline);
             expect(stage).to.have.property('pipeline', pipeline);
             expect(stage).to.have.property('configuration');

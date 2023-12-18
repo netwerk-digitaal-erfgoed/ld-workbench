@@ -42,15 +42,15 @@ export interface LDWorkbenchConfiguration {
         /**
          * The SPARQL endpoint for the iterator.
          * If it starts with "file://", a local RDF file is queried.
-         * If ommmitted the result of the previous file is used.
+         * If omitted the result of the previous file is used.
          */
         endpoint?: string;
         /**
-         * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
+         * Overrule the iterator's behavior of fetching 10 results per request, regardless of any limit's in your query.
          */
         batchSize?: number;
       };
-      generator: {
+      generators?: {
         /**
          * Path (prefixed with "file://") or SPARQL Query
          * that makes the generator using SPARQL construct.
@@ -59,18 +59,35 @@ export interface LDWorkbenchConfiguration {
         /**
          * The SPARQL endpoint for the generator.
          * If it starts with "file://", a local RDF file is queried.
-         * If ommmitted the endpoint of the Iterator is used.
+         * If ommitted the endpoint of the Iterator is used.
          */
         endpoint?: string;
         /**
          * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
          */
         batchSize?: number;
+      }[];
+      generator?: {
+        /**
+         * Path (prefixed with "file://") or SPARQL Query
+         * that makes the generator using SPARQL construct.
+         */
+        query: string;
+        /**
+         * The SPARQL endpoint for the generator.
+         * If it starts with "file://", a local RDF file is queried.
+         * If omitted the endpoint of the Iterator is used.
+         */
+        endpoint?: string;
+        /**
+         * Overrule the generator's behavior of fetching results for 10 bindings of $this per request.
+         */
+        batchSize?: number;
       };
       /**
        * The file where the results are saved.
        * This is not a required property,
-       * if ommitted a temporary file will be created automatically.
+       * if omitted a temporary file will be created automatically.
        */
       destination?: string;
     },
@@ -88,15 +105,15 @@ export interface LDWorkbenchConfiguration {
         /**
          * The SPARQL endpoint for the iterator.
          * If it starts with "file://", a local RDF file is queried.
-         * If ommmitted the result of the previous file is used.
+         * If omitted the result of the previous file is used.
          */
         endpoint?: string;
         /**
-         * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
+         * Overrule the iterator's behavior of fetching 10 results per request, regardless of any limit's in your query.
          */
         batchSize?: number;
       };
-      generator: {
+      generators?: {
         /**
          * Path (prefixed with "file://") or SPARQL Query
          * that makes the generator using SPARQL construct.
@@ -105,18 +122,35 @@ export interface LDWorkbenchConfiguration {
         /**
          * The SPARQL endpoint for the generator.
          * If it starts with "file://", a local RDF file is queried.
-         * If ommmitted the endpoint of the Iterator is used.
+         * If ommitted the endpoint of the Iterator is used.
          */
         endpoint?: string;
         /**
          * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
          */
         batchSize?: number;
+      }[];
+      generator?: {
+        /**
+         * Path (prefixed with "file://") or SPARQL Query
+         * that makes the generator using SPARQL construct.
+         */
+        query: string;
+        /**
+         * The SPARQL endpoint for the generator.
+         * If it starts with "file://", a local RDF file is queried.
+         * If omitted the endpoint of the Iterator is used.
+         */
+        endpoint?: string;
+        /**
+         * Overrule the generator's behavior of fetching results for 10 bindings of $this per request.
+         */
+        batchSize?: number;
       };
       /**
        * The file where the results are saved.
        * This is not a required property,
-       * if ommitted a temporary file will be created automatically.
+       * if omitted a temporary file will be created automatically.
        */
       destination?: string;
     }[]

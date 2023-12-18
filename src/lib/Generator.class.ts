@@ -25,6 +25,7 @@ class Generator extends EventEmitter {
   private source: string = ''
   private readonly endpoint: Endpoint;
   public constructor(stage: Stage) {
+    if (stage.configuration.generator === undefined) throw new Error('Error in Generator: no generator was present in stage configuration')
     super()
     this.query = getSPARQLQuery(
       stage.configuration.generator.query,
