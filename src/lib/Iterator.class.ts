@@ -15,9 +15,11 @@ const DEFAULT_LIMIT = 10;
 declare interface Iterator {
   on(event: "data", listener: ($this: NamedNode) => void): this;
   on(event: "end", listener: (numResults: number) => void): this;
+  on(event: "error", listener: (e: Error) => void): this;
 
   emit(event: "data", $this: NamedNode): boolean;
   emit(event: "end", numResults: number): boolean;
+  emit(event: "error", e: Error): boolean;
 }
 
 class Iterator extends EventEmitter {
@@ -44,6 +46,9 @@ class Iterator extends EventEmitter {
     if (this.source === "") this.source = getEngineSource(this.endpoint);
     this.query.offset = this.$offset;
     const queryString = getSPARQLQueryString(this.query);
+    const error = (e: any): Error => new Error(
+      `The Iterator did not run succesfully, it could not get the results from the endpoint ${this.source} (offset: ${this.$offset}, limit ${this.query.limit}): ${(e as Error).message}`
+    )
     this.engine
       .queryBindings(queryString, {
         sources: [this.source],
@@ -72,11 +77,13 @@ class Iterator extends EventEmitter {
             this.run();
           }
         });
+
+        stream.on('error', (e) => {
+          this.emit("error", error(e))
+        })
       })
-      .catch((_) => {
-        throw new Error(
-          `The Iterator did not run succesfully, it could not get the results from the endpoint ${this.source} (offset: ${this.$offset}, limit ${this.query.limit})`
-        );
+      .catch((e) => {
+        this.emit("error", error(e))
       });
   }
 }

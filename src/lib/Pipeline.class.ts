@@ -144,6 +144,10 @@ class Pipeline {
     stage.on("iteratorResult", ($this) => {
       spinner.text = $this.value;
     });
+    stage.on('error', (e) => {
+      spinner.fail()
+      this.error(e)
+    })
     stage.on("end", (iris, statements) => {
       spinner.succeed(
         `stage "${chalk.bold(

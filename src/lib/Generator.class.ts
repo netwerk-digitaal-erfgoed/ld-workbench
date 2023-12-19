@@ -13,9 +13,11 @@ import EventEmitter from 'node:events';
 declare interface Generator {
   on(event: "data", listener: (statement: Quad) => void): this;
   on(event: "end", listener: (numResults: number) => void): this;
+  on(event: "error", listener: (e: Error) => void): this;
 
   emit(event: "data", statement: Quad): boolean;
   emit(event: "end", numResults: number): boolean;
+  emit(event: "error", e: Error): boolean;
 }
 class Generator extends EventEmitter {
   private readonly query: ConstructQuery;
@@ -45,6 +47,7 @@ class Generator extends EventEmitter {
       /[?$]\bthis\b/g,
       `<${$this.value}>`
     );
+    const error = (e: any): Error => new Error(`The Generator did not run succesfully, it could not get the results from the endpoint ${this.source}: ${(e as Error).message}`)
     if (this.source === '') this.source = getEngineSource(this.endpoint)
     let numberOfStatements = 0
     this.engine.queryQuads(queryString, {
@@ -57,8 +60,11 @@ class Generator extends EventEmitter {
       stream.on('end', () => {
         this.emit('end', numberOfStatements)
       })
-    }).catch(_ => {
-      throw new Error(`The Generator did not run succesfully, it could not get the results from the endpoint ${this.source}`)
+      stream.on('error', (e) => {
+        this.emit("error", error(e))
+      })
+    }).catch(e => {
+      this.emit("error", error(e))
     })
   }
 }
