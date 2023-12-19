@@ -14,10 +14,12 @@ declare interface Stage {
   on(event: "generatorResult", listener: (count: number) => void): this;
   on(event: "end", listener: (iteratorCount: number, statements: number) => void): this;
   on(event: "iteratorResult", listener: ($this: NamedNode) => void): this;
+  on(event: "error", listener: (e: Error) => void): this;
 
   emit(event: "generatorResult", count: number): boolean;
   emit(event: "end", iteratorCount: number, statements: number): boolean;
   emit(event: "iteratorResult", $this: NamedNode): boolean;
+  emit(event: "error", e: Error): boolean;
 }
 
 class Stage extends EventEmitter {
@@ -74,6 +76,9 @@ class Stage extends EventEmitter {
     })
     this.iterator.on('end', count => {
       iteratorCount = count
+    })
+    this.iterator.on('error', e => {
+      this.emit('error', e)
     })
     this.iterator.run()
   }
