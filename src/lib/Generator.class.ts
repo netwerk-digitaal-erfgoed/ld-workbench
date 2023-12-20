@@ -74,7 +74,6 @@ class Generator extends EventEmitter {
     if ((this.$this.length === this.batchSize) || this.batchSize === undefined) {
       // getting batch SPARQL query string 
       const queryString = getBatchSPARQLQueryString(this.query, this.$this)
-      
       // Clearing batch Named Node targets array when it is the size of the batchSize
       this.$this = []
 

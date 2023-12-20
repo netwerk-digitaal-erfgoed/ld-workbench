@@ -51,11 +51,10 @@ export default class File {
 
   public async write(pipeline: Pipeline, spinner: Ora): Promise<void> {
     const destinationStream = this.getStream()
-    console.log('🪵  | file: File.class.ts:54 | File | write | destinationStream:', destinationStream)
     const stageNames = Array.from(pipeline.stages.keys())
     for (const stageName of stageNames) {
       if (spinner !== undefined) spinner.suffixText = chalk.bold(stageName)
-      // @mightymax the buffer seems to be a lot smaller for the batch pipeline
+      // @mightymax the buffer seems to be a lot smaller for the batch pipeline (sometimes)
       readFile(pipeline.stages.get(stageName)!.destinationPath, (error, buffer) => {
         console.log('🪵  | file: File.class.ts:59 | File | readFile | buffer:', buffer)
         if(error !== null) throw error
