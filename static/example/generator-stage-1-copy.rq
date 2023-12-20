@@ -5,8 +5,9 @@ prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 construct {
   ?this a sdo:Thing ;
     sdo:additionalType <http://vocab.getty.edu/aat/300343602>;
+    rdfs:comment "test5678";
     sdo:name ?name
-}
+} 
 where {
   $this rdfs:label ?name .
       filter(lang(?name) = 'en')

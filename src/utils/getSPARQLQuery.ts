@@ -50,7 +50,7 @@ export default function getSPARQLQuery<T extends QueryTypes>(
  * - SPARQL queries must not contain a VALUES clause
  * - SPARQL queries must not use the syntax form `AS ?var` for any potentially pre-bound variable
  */
-function checkSPARQLConstructQuery(patterns?: Pattern[]): void {
+export function checkSPARQLConstructQuery(patterns?: Pattern[]): void {
   if (patterns === undefined) return;
   for (const pattern of patterns) {
     if (pattern.type === 'bind') {

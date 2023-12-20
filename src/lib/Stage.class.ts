@@ -63,38 +63,28 @@ class Stage extends EventEmitter {
       this.emit('generatorResult', quadCount)
     })
     this.generator.on('end', _ => {
+      // when batchsize is used, the number of the generatorCount is the number of batchSize times smaller + the leftover elements that did not fit into the batch
       generatorCount++
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      const numberOfLeftoverNamedNodes = this.generator["batchArrayOfNamedNodes"]!.length
-      console.log('🪵  | file: Stage.class.ts:70 | Stage | run | numberOfLeftoverNamedNodes:', numberOfLeftoverNamedNodes)
-      const batchGeneratorCount = generatorCount * this.configuration.generator.batchSize!  + numberOfLeftoverNamedNodes
-      console.log('🪵  | file: Stage.class.ts:71 | Stage | run | generatorCount:', generatorCount)
-      console.log('🪵  | file: Stage.class.ts:71 | Stage | run | this.configuration.generator.batchSize!:', this.configuration.generator.batchSize!)
-      console.log('🪵  | file: Stage.class.ts:69 | Stage | run | batchGeneratorCount:', batchGeneratorCount)
-      console.log('🪵  | file: Stage.class.ts:77 | Stage | run | iteratorCount:', iteratorCount)
-      if (generatorCount === iteratorCount) {
-        console.log('🪵  | file: Stage.class.ts:70 | Stage | run | quadCount:', quadCount)
-        this.emit('end', iteratorCount, quadCount)
-      }
-      // with batchsize, the number of the generatorCount is the number of batchSize times smaller + the leftover elements that did not fit into the batch
-      else if ((this.configuration.generator.batchSize !== undefined) && (batchGeneratorCount === iteratorCount)) {
-        if (numberOfLeftoverNamedNodes !== 0){
-          // clean up generator and process quads
-          this.generator.end()        
-          this.generator.on('data', quad => {
-            writer.addQuad(quad)
-            quadCount++
-            this.emit('generatorResult', quadCount)
-          })
-          this.generator.on('end', _ => {
-            console.log('🪵  | file: Stage.class.ts:83 | Stage | run | quadCount:', quadCount)
-            this.emit('end', iteratorCount, quadCount)
-          })
-        }else{
-          console.log('🪵  | file: Stage.class.ts:83 | Stage | run | quadCount:', quadCount)
+      const batchGeneratorCount = generatorCount * this.configuration.generator.batchSize! + this.generator.$this.length
+        if (batchGeneratorCount === iteratorCount){
+          if (this.generator.$this.length > 0){
+            // clean up generator and process quad
+            this.generator.end()
+            this.generator.on('dataCleanup', quad => {
+              writer.addQuad(quad)
+              quadCount++
+              this.emit('generatorResult', quadCount)
+            })
+            this.generator.on('endCleanup', _ => {
+              this.emit('end', iteratorCount, quadCount)
+            })
+          // in case the batchSize exactly results in an empty array
+          }else{
+              this.emit('end', iteratorCount, quadCount)
+          }
+        }else if (generatorCount === iteratorCount){
           this.emit('end', iteratorCount, quadCount)
         }
-      }
     })
     this.iterator.on('data', $this => {
       this.generator.run($this)

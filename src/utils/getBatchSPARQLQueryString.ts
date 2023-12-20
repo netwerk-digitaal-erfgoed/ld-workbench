@@ -1,5 +1,5 @@
 import type { NamedNode, Variable } from "@rdfjs/types";
-import type { ConstructQuery, UnionPattern, Pattern, Triple } from "sparqljs";
+import type { ConstructQuery, UnionPattern } from "sparqljs";
 import sparqljs from 'sparqljs'
 import { v4 as uuidv4 } from 'uuid';
 const { Generator } = sparqljs
@@ -35,9 +35,6 @@ function isUUID(input: string): boolean {
   return uuidPattern.test(input);
 }
 
-// BUG known error: if the query uses BOUND($this) and $this is a named node (which it is), it will become an illegal query - since SPARQL expects $this in BIND($this) to be a variable
-// a correct query would be to add a join clause with . { BIND($this as <named node>)} (which should return false)
-// see DEFINITION: Values Insertion - https://www.w3.org/TR/shacl/#pre-binding
 function sparqlAstMutation(obj: any, namedNodeValue: string, variablesMap: UniqueUUIDMap): any {
   if (isVariable(obj)) {
     if(obj.value === "this"){
@@ -87,13 +84,13 @@ function unionizeConstructQueries(queries: ConstructQuery[]): ConstructQuery {
   // making sure queries have a template
  queries = queries.filter(({ template }) => template);
 
- const template = queries.flatMap(query => query.template!) satisfies Triple[]
+ const template = queries.flatMap(query => query.template!)
   // making sure queries have a where
   queries = queries.filter(({ where }) => where);
   // creating unionized query for every where clause beyond the first query
   const unionPattern: UnionPattern = {
     type: "union",
-    patterns: queries.map(q => ({ type: "group", patterns: q.where! } satisfies Pattern))
+    patterns: queries.map(q => ({ type: "group", patterns: q.where! }))
   }
   // adding the union pattern to the batchQuery
   const batchQuery = {

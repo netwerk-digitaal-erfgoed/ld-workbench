@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/method-signature-style */
 import ora from "ora";
 import kebabcase from "lodash.kebabcase";
 import type { LDWorkbenchConfiguration } from "./LDWorkbenchConfiguration.js";
@@ -9,8 +10,17 @@ import path from "node:path";
 import * as fs from "node:fs";
 import { isFilePathString, isTriplyDBPathString } from '../utils/guards.js';
 import TriplyDB from './TriplyDB.class.js';
+import EventEmitter from "node:events";
 
-class Pipeline {
+declare interface Pipeline {
+  on(event: "end", listener: () => void): this;
+  on(event: "error", listener: (error: Error) => void): this;
+
+  emit(event: "end"): boolean;
+  emit(event: "error", error: Error): boolean;
+}
+
+class Pipeline extends EventEmitter {
   public readonly stages = new Map<string, Stage>();
   public dataDir: string;
   private $isValidated: boolean = false;
@@ -21,6 +31,7 @@ class Pipeline {
   public constructor(
     private readonly $configuration: LDWorkbenchConfiguration
   ) {
+    super()
     //  create data folder:
     this.dataDir = path.join("pipelines", "data", kebabcase(this.$configuration.name));
     fs.mkdirSync(this.dataDir, { recursive: true });
@@ -144,6 +155,7 @@ class Pipeline {
     stage.on("iteratorResult", ($this) => {
       spinner.text = $this.value;
     });
+    // BUG number of statements seems to be inaccurate when using batchProcessing
     stage.on("end", (iris, statements) => {
       spinner.succeed(
         `stage "${chalk.bold(
@@ -155,6 +167,7 @@ class Pipeline {
       if (this.stageNames.length !== 0) {
         this.runRecursive();
       } else {
+        // BUG seems the buffer is not always updated and writes the file too soon
         this.writeResult()
           .then(_ => {
             console.info(
@@ -164,8 +177,10 @@ class Pipeline {
                 )}" was completed in ${duration(this.now)}`
               )
             );
+            this.emit('end')
           })
           .catch(e => {
+            this.emit('error', e)
             throw new Error('Pipeline failed: ' + (e as Error).message)
           })
       }
@@ -179,11 +194,20 @@ class Pipeline {
 
   private async writeResult(): Promise<void> {
     const spinner = ora('Writing results to destination').start();
-    await this.destination.write(this, spinner)
-    spinner.suffixText = this.destination.path
-    spinner.succeed()
+    await new Promise<void>((resolve, reject) => {
+      this.destination.write(this, spinner)
+        .then(() => {
+          spinner.suffixText = this.destination.path;
+          spinner.succeed();
+          resolve();
+        })
+        .catch((error) => {
+          spinner.fail();
+          reject(error);
+        });
+    });
   }
-
+  
   get name(): string {
     return this.$configuration.name;
   }
