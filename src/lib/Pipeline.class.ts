@@ -142,10 +142,10 @@ class Pipeline {
     Array.from(this.stages.keys()).slice(0, startFromStage).forEach(stagename => {
       ora().start().info(`stage "${chalk.bold(stagename)}" was skipped`).stop();
     })
-    this.runRecursive();
+    this.runRecursive(opts);
   }
 
-  private runRecursive(): void {
+  private runRecursive(opts?: RunnerOptions): void {
     const stage = this.stages.get(this.stageNames.shift()!)!;
     const spinner = ora("Loading results from Iterator")
     if (!(this.opts?.silent === true)) spinner.start();
@@ -167,7 +167,7 @@ class Pipeline {
       if (this.stageNames.length !== 0) {
         this.runRecursive();
       } else {
-        this.writeResult()
+        this.writeResult(opts)
           .then(_ => {
             if (!(this.opts?.silent === true)) console.info(
               chalk.green(

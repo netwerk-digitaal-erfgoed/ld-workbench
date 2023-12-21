@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import Stage from "../Stage.class.js";
 import Pipeline from "../Pipeline.class.js";
 import * as chai from 'chai'
+import * as fs from "fs"
 import chaiAsPromised from 'chai-as-promised'
 import { NamedNode } from "n3";
 import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
@@ -17,32 +18,33 @@ describe('Generator Class', () => {
                 description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
                 destination: 'file://pipelines/data/example-pipeline.nt',
                 stages: [
-                    {
-                        name: 'Stage 1',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
-                        },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
-                        }
+                  {
+                    name: 'Stage 1',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-1.rq',
+                      endpoint: 'file://static/tests/iris.nt'
                     },
-                    {
-                        name: 'Stage 2',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-2.rq',
-                        },
-                        generator: {
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-                    }
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-1-1.rq'}]
+                  },
+                  {
+                    name: 'Stage 2',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-2.rq'
+                    },
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-2.rq',
+                        endpoint: 'file://static/tests/wikidata.nt'
+                      }]
+                  }
                 ]
-            }
+              }
             const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig, )
-            const generator = new Generator(stage)
+            const generator = new Generator(stage, 0)
             expect(generator).to.be.an.instanceOf(Generator);
             expect(generator).to.be.an.instanceOf(EventEmitter);
             expect(generator).to.have.property('query');
@@ -53,38 +55,83 @@ describe('Generator Class', () => {
     });
     // BUG when both the generator and iterator tests are running, it seems the iterator will never terminate
     describe.skip('run', () => {
-        it('should emit "data" and "end" events with the correct number of statements', async () => {
-            const configuration : LDWorkbenchConfiguration = {
+        it('Should work with multiple generators for one pipeline', async function (){
+            this.timeout(5000)
+
+            const config: LDWorkbenchConfiguration = {
                 name: 'Example Pipeline',
                 description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
                 destination: 'file://pipelines/data/example-pipeline.nt',
                 stages: [
-                    {
-                        name: 'Stage 1',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
-                        },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
-                        }
+                  {
+                    name: 'Stage 1',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-1.rq',
+                      endpoint: 'file://static/tests/iris.nt'
                     },
-                    {
-                        name: 'Stage 2',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-2.rq',
-                        },
-                        generator: {
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-                    }
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-1-1.rq'},{
+                        query: 'file://static/example/generator-stage-1-2.rq'
+                      }]
+                  },
+                  {
+                    name: 'Stage 2',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-2.rq'
+                    },
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-2.rq',
+                        endpoint: 'file://static/tests/wikidata.nt'
+                      }]
+                  }
                 ]
-            }
+              }
+
+              const pipelineParallelGenerators = new Pipeline(config, {silent: true})
+              await pipelineParallelGenerators.run().then(() => {
+                expect(fs.existsSync("pipelines/data/example-pipeline.nt")).to.equal(true)
+                const file = fs.readFileSync("pipelines/data/example-pipeline.nt", 'utf-8')
+                const lines = file.split('\n')
+                // @mightymax it seems the file isn't always the same size -> same bug related to File class?
+                expect(lines.length).to.equal(741)
+              }).catch( e => { throw e } )
+
+        })
+        it.skip('should emit "data" and "end" events with the correct number of statements', async () => {
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                  {
+                    name: 'Stage 1',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-1.rq',
+                      endpoint: 'file://static/tests/iris.nt'
+                    },
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-1-1.rq'}]
+                  },
+                  {
+                    name: 'Stage 2',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-2.rq'
+                    },
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-2.rq',
+                        endpoint: 'file://static/tests/wikidata.nt'
+                      }]
+                  }
+                ]
+              }
             const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
-            const generator = new Generator(stage);
+            const generator = new Generator(stage, 0);
             const emittedEvents: any[] = [];
 
             const testNamedNode = new NamedNode('https://triplydb.com/triply/iris/id/floweringPlant/00106');

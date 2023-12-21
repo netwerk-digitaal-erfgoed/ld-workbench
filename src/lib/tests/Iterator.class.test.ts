@@ -16,28 +16,29 @@ describe('Iterator Class', () => {
                 description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
                 destination: 'file://pipelines/data/example-pipeline.nt',
                 stages: [
-                    {
-                        name: 'Stage 1',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
-                        },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
-                        }
+                  {
+                    name: 'Stage 1',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-1.rq',
+                      endpoint: 'file://static/tests/iris.nt'
                     },
-                    {
-                        name: 'Stage 2',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-2.rq',
-                        },
-                        generator: {
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-                    }
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-1-1.rq'}]
+                  },
+                  {
+                    name: 'Stage 2',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-2.rq'
+                    },
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-2.rq',
+                        endpoint: 'file://static/tests/wikidata.nt'
+                      }]
+                  }
                 ]
-            }
+              }
             const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
@@ -60,28 +61,29 @@ describe('Iterator Class', () => {
                 description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
                 destination: 'file://pipelines/data/example-pipeline.nt',
                 stages: [
-                    {
-                        name: 'Stage 1',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
-                        },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
-                        }
+                  {
+                    name: 'Stage 1',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-1.rq',
+                      endpoint: 'file://static/tests/iris.nt'
                     },
-                    {
-                        name: 'Stage 2',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-2.rq',
-                        },
-                        generator: {
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-                    }
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-1-1.rq'}]
+                  },
+                  {
+                    name: 'Stage 2',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-2.rq'
+                    },
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-2.rq',
+                        endpoint: 'file://static/tests/wikidata.nt'
+                      }]
+                  }
                 ]
-            }
+              }
             const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)

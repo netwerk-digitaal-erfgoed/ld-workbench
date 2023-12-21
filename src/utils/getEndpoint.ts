@@ -5,12 +5,15 @@ import type Stage from '../lib/Stage.class.js';
 import type { Endpoint } from '../lib/types.js';
 import { isFilePathString } from './guards.js';
 
-export default function getEndpoint(
+function getEndpoint(
   stage: Stage,
-  type: 'iterator' | 'generator' = 'iterator'
+  type: 'iterator' | 'generator' = 'iterator',
+  index?: number,
 ): Endpoint {
-  const t: keyof LDWorkbenchConfiguration['stages'][0] = type
-  const endpoint = stage.configuration[t]!.endpoint
+  const t: keyof LDWorkbenchConfiguration['stages'][0] = type;
+
+  const endpoint = t === "generator" ? stage.configuration[t]?.[index!]?.endpoint : stage.configuration[t]?.endpoint;
+
   if (isFilePathString(endpoint)) {
     return new File(endpoint);
   } else if (endpoint !== undefined) {
@@ -30,3 +33,5 @@ export default function getEndpoint(
     }
   }
 }
+
+export default getEndpoint

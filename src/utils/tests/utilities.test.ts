@@ -19,7 +19,7 @@ import { QueryEngine as QueryEngineSparql } from "@comunica/query-sparql";
 import { QueryEngine as QueryEngineFile } from "@comunica/query-sparql-file";
 import getEngineSource from "../getEngineSource.js"
 import { existsSync, rename } from "fs"
-import * as chai from 'chai'    
+import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import getSPARQLQuery from '../getSPARQLQuery.js'
 import getSPARQLQueryString from '../getSPARQLQueryString.js'
@@ -82,28 +82,28 @@ describe('Utilities', () => {
         description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
         destination: 'file://pipelines/data/example-pipeline.nt',
         stages: [
-            {
-                name: 'Stage 1',
-                iterator: {
-                    query: 'file://static/example/iterator-stage-1.rq',
-                    endpoint: 'file://static/tests/iris.nt'
-                },
-                generator: {
-                    query: 'file://static/example/generator-stage-1.rq'
-                }
+          {
+            name: 'Stage 1',
+            iterator: {
+              query: 'file://static/example/iterator-stage-1.rq',
+              endpoint: 'file://static/tests/iris.nt'
             },
-            {
-                name: 'Stage 2',
-                iterator: {
-                    query: 'file://static/example/iterator-stage-2.rq',
-                },
-                generator: {
-                    query: 'file://static/example/generator-stage-2.rq',
-                    endpoint: 'file://static/tests/wikidata.nt'
-                }
-            }
+            generator: [{
+              query: 'file://static/example/generator-stage-1.rq'
+            }]
+          },
+          {
+            name: 'Stage 2',
+            iterator: {
+              query: 'file://static/example/iterator-stage-2.rq',
+            },
+            generator: [{
+              query: 'file://static/example/generator-stage-2.rq',
+              endpoint: 'file://static/tests/wikidata.nt'
+            }]
+          }
         ]
-    }
+      }
       expect(isConfiguration(configuration)).to.equal(true)
     })
     it('should not assert an invalid configuration', () => {
@@ -142,11 +142,39 @@ describe('Utilities', () => {
       expect(result2).to.equal(false);
     });
     it('should return true for valid PreviousStage object with isPreviousStage', () => {
-      const configuration = parseYamlFile('./static/example/config.yml')
-      const pipeline = new Pipeline(configuration, {silent: true})
+      const configuration: LDWorkbenchConfiguration = {
+        name: 'Example Pipeline',
+        description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+        destination: 'file://pipelines/data/example-pipeline.nt',
+        stages: [
+          {
+            name: 'Stage 1',
+            iterator: {
+              query: 'file://static/example/iterator-stage-1.rq',
+              endpoint: 'file://static/tests/iris.nt'
+            },
+            generator:
+              [{
+                query: 'file://static/example/generator-stage-1-1.rq'
+              }]
+          },
+          {
+            name: 'Stage 2',
+            iterator: {
+              query: 'file://static/example/iterator-stage-2.rq'
+            },
+            generator:
+              [{
+                query: 'file://static/example/generator-stage-2.rq',
+                endpoint: 'file://static/tests/wikidata.nt'
+              }]
+          }
+        ]
+      }
+      const pipeline = new Pipeline(configuration, { silent: true })
       const stageConfig = configuration.stages[0]
       const stage = new Stage(pipeline, stageConfig)
-      const prevStage = new PreviousStage(stage, configuration.stages.names)
+      const prevStage = new PreviousStage(stage, configuration.stages[0].name)
       const result = isPreviousStage(prevStage);
       expect(result).to.equal(true);
     });
@@ -208,7 +236,7 @@ describe('Utilities', () => {
                   query: 'file://static/example/iterator-stage-1.rq',
                   endpoint: 'file://static/tests/iris.nt'
                 },
-                generator: { query: 'file://static/example/generator-stage-1.rq' }
+                generator: [{ query: 'file://static/example/generator-stage-1-1.rq' }]
               }
             ]
           }
@@ -226,7 +254,7 @@ describe('Utilities', () => {
                   query: 'file://static/example/iterator-stage-1.rq',
                   endpoint: 'file://static/tests/iris.nt'
                 },
-                generator: { query: 'file://static/example/generator-stage-1.rq' }
+                generator: [{ query: 'file://static/example/generator-stage-1-1.rq' }]
               }
             ]
           }
@@ -250,17 +278,18 @@ describe('Utilities', () => {
                 query: 'file://static/example/iterator-stage-1.rq',
                 endpoint: 'file://static/tests/iris.nt'
               },
-              generator: { query: 'file://static/example/generator-stage-1.rq' }
+              generator: [{ query: 'file://static/example/generator-stage-1-1.rq' }]
             },
             {
               name: 'Stage 2',
               iterator: {
                 query: 'file://static/example/iterator-stage-2.rq',
               },
-              generator: {
-                query: 'file://static/example/generator-stage-2.rq',
-                endpoint: 'file://static/tests/wikidata.nt'
-              }
+              generator: [
+                {
+                  query: 'file://static/example/generator-stage-2.rq',
+                  endpoint: 'file://static/tests/wikidata.nt'
+                }]
             }
           ]
         }
@@ -292,13 +321,14 @@ describe('Utilities', () => {
               query: 'file://static/example/iterator-stage-1.rq',
               endpoint: filePath
             },
-            generator: {
-              query: 'file://static/example/generator-stage-1.rq'
-            }
+            generator:
+              [{
+                query: 'file://static/example/generator-stage-1-1.rq'
+              }]
           }
         ]
       }
-      const pipeline = new Pipeline(config, {silent: true})
+      const pipeline = new Pipeline(config, { silent: true })
       const stageConfig = config.stages[0]
       const stage = new Stage(pipeline, stageConfig)
       const retrievedEndpoint = getEndpoint(stage)
@@ -317,13 +347,15 @@ describe('Utilities', () => {
               query: 'file://static/example/iterator-stage-1.rq',
               endpoint: url
             },
-            generator: {
-              query: 'file://static/example/generator-stage-1.rq'
-            }
-          }
-        ]
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-1-1.rq'
+              }
+            ]
+
+          }]
       }
-      const pipeline = new Pipeline(config, {silent: true})
+      const pipeline = new Pipeline(config, { silent: true })
       const stageConfig = config.stages[0]
       const stage = new Stage(pipeline, stageConfig)
       const retrievedEndpoint = getEndpoint(stage)
@@ -342,13 +374,13 @@ describe('Utilities', () => {
               query: 'file://static/example/iterator-stage-1.rq',
               endpoint: url
             },
-            generator: {
-              query: 'file://static/example/generator-stage-1.rq'
-            }
+            generator: [
+              { query: 'file://static/example/generator-stage-1-1.rq' }
+            ]
           }
         ]
       }
-      const pipeline = new Pipeline(config, {silent: true})
+      const pipeline = new Pipeline(config, { silent: true })
       const stageConfig = config.stages[0]
       // getEndpoint is use in Stage's Iterator, and it will throw there.
       expect(() => new Stage(pipeline, stageConfig)).to.throw('Error in the iterator of stage `Stage 1`: "invalidExample" is not a valid URL')
@@ -366,13 +398,13 @@ describe('Utilities', () => {
               query: 'file://static/example/iterator-stage-1.rq',
               endpoint
             },
-            generator: {
-              query: 'file://static/example/generator-stage-1.rq'
-            }
+            generator: [
+              { query: 'file://static/example/generator-stage-1-1.rq' }
+            ]
           }
         ]
       }
-      const pipeline = new Pipeline(config, {silent: true})
+      const pipeline = new Pipeline(config, { silent: true })
       const stageConfig = config.stages[0]
       expect(() => new Stage(pipeline, stageConfig)).to.throw('Error in the iterator of stage `Stage 1`: no destination defined for the iterator and no previous stage to use that result')
     })
@@ -389,23 +421,25 @@ describe('Utilities', () => {
               query: 'file://static/example/iterator-stage-1.rq',
               endpoint: url
             },
-            generator: {
-              query: 'file://static/example/generator-stage-1.rq'
-            }
+            generator: [
+              { query: 'file://static/example/generator-stage-1-1.rq' }
+            ]
           },
           {
             name: 'Stage 2',
             iterator: {
               query: 'file://static/example/iterator-stage-2.rq',
             },
-            generator: {
-              query: 'file://static/example/generator-stage-2.rq',
-              endpoint: 'file://static/tests/wikidata.nt'
-            }
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-2.rq',
+                endpoint: 'file://static/tests/wikidata.nt'
+              }
+            ]
           }
         ]
       }
-      const pipeline = new Pipeline(config, {silent: true})
+      const pipeline = new Pipeline(config, { silent: true })
       pipeline.validate()
       const stage = new Stage(pipeline, config.stages[1])
       const retrievedEndpoint = getEndpoint(stage)
@@ -433,25 +467,25 @@ describe('Utilities', () => {
             name: 'Stage 1',
             iterator: {
               query: 'file://static/example/iterator-stage-1.rq',
-              endpoint: 'file://static/tests/iris.nt'
+              endpoint: 'https://www.example.com/endpoint'
             },
-            generator: {
-              query: 'file://static/example/generator-stage-1.rq'
-            }
+            generator: [{ query: 'file://static/example/generator-stage-1-1.rq' }]
           },
           {
             name: 'Stage 2',
             iterator: {
               query: 'file://static/example/iterator-stage-2.rq',
             },
-            generator: {
-              query: 'file://static/example/generator-stage-2.rq',
-              endpoint: 'file://static/tests/wikidata.nt'
-            }
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-2.rq',
+                endpoint: 'file://static/tests/wikidata.nt'
+              }
+            ]
           }
         ]
       }
-      const pipeline = new Pipeline(config, {silent: true})
+      const pipeline = new Pipeline(config, { silent: true })
       pipeline.validate()
       const stage: Stage = new Stage(pipeline, config.stages[1])
       const stagesSoFar = Array.from(stage.pipeline.stages.keys());
@@ -481,23 +515,23 @@ describe('Utilities', () => {
               query: 'file://static/example/iterator-stage-1.rq',
               endpoint: 'file://static/tests/iris.nt'
             },
-            generator: {
-              query: 'file://static/example/generator-stage-1.rq'
-            }
+            generator: [{
+              query: 'file://static/example/generator-stage-1-1.rq'
+            }]
           },
           {
             name: 'Stage 2',
             iterator: {
               query: 'file://static/example/iterator-stage-2.rq',
             },
-            generator: {
+            generator: [{
               query: 'file://static/example/generator-stage-2.rq',
               endpoint: 'file://static/tests/wikidata.nt'
-            }
+            }]
           }
         ]
       }
-      const pipeline = new Pipeline(config, {silent: true})
+      const pipeline = new Pipeline(config, { silent: true })
       pipeline.validate()
       const stage2: Stage = new Stage(pipeline, config.stages[1])
       const stagesSoFar = Array.from(stage2.pipeline.stages.keys());
@@ -507,8 +541,36 @@ describe('Utilities', () => {
     })
     describe('should throw', () => {
       beforeEach(() => {
-        const configuration = parseYamlFile('./static/example/config.yml')
-        const pipeline = new Pipeline(configuration, {silent: true})
+        const configuration: LDWorkbenchConfiguration = {
+          name: 'Example Pipeline',
+          description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+          destination: 'file://pipelines/data/example-pipeline.nt',
+          stages: [
+            {
+              name: 'Stage 1',
+              iterator: {
+                query: 'file://static/example/iterator-stage-1.rq',
+                endpoint: 'file://static/tests/iris.nt'
+              },
+              generator:
+                [{
+                  query: 'file://static/example/generator-stage-1-1.rq'
+                }]
+            },
+            {
+              name: 'Stage 2',
+              iterator: {
+                query: 'file://static/example/iterator-stage-2.rq'
+              },
+              generator:
+                [{
+                  query: 'file://static/example/generator-stage-2.rq',
+                  endpoint: 'file://static/tests/wikidata.nt'
+                }]
+            }
+          ]
+        }
+        const pipeline = new Pipeline(configuration, { silent: true })
         pipeline.validate()
         const stage: Stage = new Stage(pipeline, configuration.stages[1])
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());
@@ -529,8 +591,36 @@ describe('Utilities', () => {
         }
       })
       afterEach(() => {
-        const configuration = parseYamlFile('./static/example/config.yml')
-        const pipeline = new Pipeline(configuration, {silent: true})
+        const configuration: LDWorkbenchConfiguration = {
+          name: 'Example Pipeline',
+          description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+          destination: 'file://pipelines/data/example-pipeline.nt',
+          stages: [
+            {
+              name: 'Stage 1',
+              iterator: {
+                query: 'file://static/example/iterator-stage-1.rq',
+                endpoint: 'file://static/tests/iris.nt'
+              },
+              generator:
+                [{
+                  query: 'file://static/example/generator-stage-1-1.rq'
+                }]
+            },
+            {
+              name: 'Stage 2',
+              iterator: {
+                query: 'file://static/example/iterator-stage-2.rq'
+              },
+              generator:
+                [{
+                  query: 'file://static/example/generator-stage-2.rq',
+                  endpoint: 'file://static/tests/wikidata.nt'
+                }]
+            }
+          ]
+        }
+        const pipeline = new Pipeline(configuration, { silent: true })
         pipeline.validate()
         const stage: Stage = new Stage(pipeline, configuration.stages[1])
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());
@@ -548,15 +638,43 @@ describe('Utilities', () => {
         }
       })
       it('should throw when input is PreviousStage and destinationPath does not exist', () => {
-        const configuration = parseYamlFile('./static/example/config.yml')
-        const pipeline = new Pipeline(configuration, {silent: true})
+        const configuration: LDWorkbenchConfiguration = {
+          name: 'Example Pipeline',
+          description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+          destination: 'file://pipelines/data/example-pipeline.nt',
+          stages: [
+            {
+              name: 'Stage 1',
+              iterator: {
+                query: 'file://static/example/iterator-stage-1.rq',
+                endpoint: 'file://static/tests/iris.nt'
+              },
+              generator:
+                [{
+                  query: 'file://static/example/generator-stage-1-1.rq'
+                }]
+            },
+            {
+              name: 'Stage 2',
+              iterator: {
+                query: 'file://static/example/iterator-stage-2.rq'
+              },
+              generator:
+                [{
+                  query: 'file://static/example/generator-stage-2.rq',
+                  endpoint: 'file://static/tests/wikidata.nt'
+                }]
+            }
+          ]
+        }
+        const pipeline = new Pipeline(configuration, { silent: true })
         pipeline.validate()
         const stage: Stage = new Stage(pipeline, configuration.stages[1])
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());
         const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
         const loadedPreviousStage = previousStage.load()
         const destPath = loadedPreviousStage?.destinationPath
-        
+
         expect(() => getEngineSource(previousStage)).to.throw(`The result from stage "${loadedPreviousStage?.name}" (${destPath}) is not available, make sure to run that stage first`)
       })
     })
@@ -600,7 +718,7 @@ describe('Utilities', () => {
         failed = false
       } catch (error) {
         // @ts-expect-error error has no type so we check if hash is invalid
-        if (error.hash.token === "INVALID"){
+        if (error.hash.token === "INVALID") {
           failed = true
         }
         else {
@@ -779,8 +897,8 @@ SELECT ?city ?population WHERE { ?city ex:hasPopulation ?population. }`
       const expectedConstructQuery = `PREFIX ex: <http://example.org/>
 CONSTRUCT { ?city ex:hasPopulation ?population. }
 WHERE { ?city ex:hasPopulation ?population. }`
-      
-      const selectStr =  getSPARQLQueryString(getSPARQLQuery(selectQuery, 'select'))
+
+      const selectStr = getSPARQLQueryString(getSPARQLQuery(selectQuery, 'select'))
       const constructStr = getSPARQLQueryString(getSPARQLQuery(constructQuery, 'construct'))
 
       expect(selectStr).to.equal(expectedSelectQuery)
@@ -788,7 +906,7 @@ WHERE { ?city ex:hasPopulation ?population. }`
     })
     describe('should throw error for incorrect SPARQL queries', () => {
       it('should throw for incorrect syntax SPARQL query', () => {
-        const incorrectQuery =`SELECT ?subject ?predicate ?object
+        const incorrectQuery = `SELECT ?subject ?predicate ?object
         WHERE {
           ?subject ?predicate ?object
           FILTER (?object > 100)

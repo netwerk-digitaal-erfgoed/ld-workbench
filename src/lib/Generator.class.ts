@@ -24,18 +24,20 @@ class Generator extends EventEmitter {
   private readonly engine: QueryEngine;
   private source: string = ''
   private readonly endpoint: Endpoint;
-  public constructor(stage: Stage) {
-    if (stage.configuration.generator === undefined) throw new Error('Error in Generator: no generator was present in stage configuration')
+  private readonly index: number
+  public constructor(stage: Stage, index: number) {
+    if (stage.configuration.generator === undefined) throw new Error('Error in Generator: no generators were present in stage configuration')
     super()
+    this.index = index
     this.query = getSPARQLQuery(
-      stage.configuration.generator.query,
+      stage.configuration.generator[this.index].query,
       "construct"
     );
     
     this.endpoint =
-      stage.configuration.generator.endpoint === undefined
+      stage.configuration.generator[this.index].endpoint === undefined
         ? stage.iterator.endpoint
-        : getEndpoint(stage, "generator");
+        : getEndpoint(stage, "generator", this.index);
 
     this.engine = getEngine(this.endpoint)
   }

@@ -39,18 +39,14 @@ class Stage extends EventEmitter {
     }
 
     // Handle both single generator and array of generators
-   if (this.configuration.generators !== undefined && this.configuration.generators?.length > 0){
-    for  (const generatorConfig of this.configuration.generators){
+    for (let index = 0; index < this.configuration.generator.length; index++) {
+      const generatorConfig = this.configuration.generator[index];
       try {
-        this.generators.push(new Generator({...this, generator: generatorConfig}))
+        this.generators.push(new Generator({...this, generators: [generatorConfig]}, index))
       } catch(e) {
         throw new Error(`Error in the generator of stage \`${configuration.name}\`: ${(e as Error).message}`)
       }
-    }}
-    else if (this.configuration.generator !== undefined){
-      this.generators.push(new Generator(this))
     }
-
     this.destination = () => new File(this.destinationPath).getStream()
   }
 
@@ -63,40 +59,42 @@ class Stage extends EventEmitter {
   }
 
   public run(): void {
-    let quadCount = 0
-    let iteratorCount = 0
-    let generatorCount = 0
-    const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' })
+    let quadCount = 0;
+    let iteratorCount = 0;
+    let generatorCount = 0;
+    const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' });
 
-    this.generators.forEach(generator => {
-      generator.on('data', quad => {
-        writer.addQuad(quad)
-        quadCount ++
-        this.emit('generatorResult', quadCount)
-      })
-      generator.on('end', _ => {
-        generatorCount++
-        if (generatorCount === iteratorCount) {
-          this.emit('end', iteratorCount, quadCount)
-        }
-      })
-    });
-
-    this.iterator.on('data', $this => {
-      this.generators.forEach(generator => {
-        generator.run($this);
-      });
-      this.emit('iteratorResult', $this)
+    this.iterator.on('data', ($this) => {
+        this.generators.forEach(generator => {
+            generator.run($this);
+        });
+        this.emit('iteratorResult', $this);
     });
 
     this.iterator.on('end', count => {
-      iteratorCount = count
-    })
-    this.iterator.on('error', e => {
-      this.emit('error', e)
-    })
-    this.iterator.run()
-  }
+        iteratorCount = count;
+    });
+
+    this.generators.forEach(generator => {
+        generator.on('data', (quad) => {
+            writer.addQuad(quad);
+            quadCount++;
+            this.emit('generatorResult', quadCount);
+        });
+
+        generator.on('end', () => {
+            generatorCount++;
+            if (generatorCount === iteratorCount * this.generators.length) {
+                // Emit the 'end' event when all generators have finished
+                this.emit('end', iteratorCount, quadCount);
+            }
+        });
+    });
+
+    // Start the iterator
+    this.iterator.run();
+}
+
 }
 
 export default Stage;

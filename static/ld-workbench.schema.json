@@ -49,8 +49,9 @@
               }
             }
           },
-          "generators": {
+          "generator": {
             "type": "array",
+            "minItems": 1,
             "items": {
               "type": "object",
               "additionalProperties": false,
@@ -62,31 +63,12 @@
                 },
                 "endpoint": {
                   "type": "string",
-                  "description": "The SPARQL endpoint for the generator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommitted the endpoint of the Iterator is used."
+                  "description": "The SPARQL endpoint for the generator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf omitted the endpoint of the Iterator is used."
                 },
                 "batchSize": {
                   "type": "number",
-                  "description": "Overrule the generator's behaviour of fetching results for 10 bindings of $this per request."
+                  "description": "Overrule the generator's behavior of fetching results for 10 bindings of $this per request."
                 }
-              }
-            }
-          },
-          "generator": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["query"],
-            "properties": {
-              "query": {
-                "type": "string",
-                "description": "Path (prefixed with \"file://\") or SPARQL Query \nthat makes the generator using SPARQL construct."
-              },
-              "endpoint": {
-                "type": "string",
-                "description": "The SPARQL endpoint for the generator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf omitted the endpoint of the Iterator is used."
-              },
-              "batchSize": {
-                "type": "number",
-                "description": "Overrule the generator's behavior of fetching results for 10 bindings of $this per request."
               }
             }
           },
@@ -95,11 +77,7 @@
             "description": "The file where the results are saved. \nThis is not a required property, \nif omitted a temporary file will be created automatically."
           }
         },
-        "required": ["name", "iterator"],
-        "dependencies": {
-          "generator": ["generator"],
-          "generators": ["generators"]
-        }
+        "required": ["name", "iterator", "generator"]
       }
     }
   },

@@ -15,13 +15,13 @@ export default function validate(filePathOrObject: object | string): ErrorObject
   const filename = path.resolve(path.join(dirname, '..', '..', 'static', 'ld-workbench.schema.json'))
   const schema = parseYamlFile(filename);
   const configuration = typeof filePathOrObject === 'string' 
-    ? parseYamlFile(filePathOrObject)
-    : filePathOrObject
-
+  ? parseYamlFile(filePathOrObject)
+  : filePathOrObject
+  
   // Create an Ajv instance
   // @ts-expect-error This expression is constructable, probably an error in the types..
   const ajv = new Ajv();
-
+  
   // Compile the schema
   const validate: ValidateFunction = ajv.compile(schema);
 
