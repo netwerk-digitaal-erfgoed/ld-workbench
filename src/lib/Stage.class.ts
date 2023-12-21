@@ -56,27 +56,24 @@ class Stage extends EventEmitter {
 
   public run(): void {
     let quadCount = 0
-    let iteratorCount = 0
-    let generatorCount = 0
+    // let iteratorCount = 0
     const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' })
+
     this.generator.on('data', quad => {
       writer.addQuad(quad)
       quadCount ++
       this.emit('generatorResult', quadCount)
     })
-    this.generator.on('end', _ => {
-      generatorCount++
-      if (generatorCount === iteratorCount) {
-        this.emit('end', iteratorCount, quadCount)
-      }
+
+    this.generator.on('error', e => {
+      this.emit('error', e)
     })
+
     this.iterator.on('data', $this => {
       this.generator.run($this)
       this.emit('iteratorResult', $this)
     })
-    this.iterator.on('end', count => {
-      iteratorCount = count
-    })
+
     this.iterator.on('error', e => {
       this.emit('error', e)
     })
