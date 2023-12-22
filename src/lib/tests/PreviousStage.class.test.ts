@@ -37,7 +37,7 @@ describe('PreviousStage Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(config)
+            const pipeline = new Pipeline(config, {silent: true})
             pipeline.validate()
             const stage: Stage = new Stage(pipeline, config.stages[1])
             const stagesSoFar = Array.from(stage.pipeline.stages.keys());
@@ -77,7 +77,7 @@ describe('PreviousStage Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(config)
+            const pipeline = new Pipeline(config, {silent: true})
             pipeline.validate()
             const stage: Stage = new Stage(pipeline, config.stages[0])
             const stagesSoFar = Array.from(stage.pipeline.stages.keys());
@@ -114,7 +114,7 @@ describe('PreviousStage Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(config)
+            const pipeline = new Pipeline(config, {silent: true})
             pipeline.validate()
             const stageTwo: Stage = new Stage(pipeline, config.stages[1])
             const stagesSoFar = Array.from(stageTwo.pipeline.stages.keys());
@@ -155,7 +155,7 @@ describe('PreviousStage Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(config)
+            const pipeline = new Pipeline(config, {silent: true})
             pipeline.validate()
             const stage: Stage = new Stage(pipeline, config.stages[1])
             const stagesSoFar = Array.from(stage.pipeline.stages.keys());

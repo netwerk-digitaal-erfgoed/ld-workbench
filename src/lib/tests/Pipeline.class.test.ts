@@ -37,7 +37,7 @@ describe('Pipeline Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configuration);
+            const pipeline = new Pipeline(configuration, {silent: true});
             expect(pipeline).to.be.an.instanceOf(Pipeline);
             expect(pipeline).to.have.property('stages').that.is.a('Map');
             expect(pipeline).to.have.property('dataDir').that.is.a('string');
@@ -77,7 +77,7 @@ describe('Pipeline Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configuration);
+            const pipeline = new Pipeline(configuration, {silent: true});
             pipeline.validate()
 
             const stage1 = pipeline.stages.get('Stage 1')!;
@@ -115,7 +115,7 @@ describe('Pipeline Class', () => {
                     }
                 ]
             } as unknown as LDWorkbenchConfiguration
-            const pipeline = new Pipeline(configuration);
+            const pipeline = new Pipeline(configuration, {silent: true});
             const stage2: Stage = new Stage(pipeline, configuration.stages[1])
             pipeline.getPreviousStage(stage2)
 
@@ -303,7 +303,7 @@ describe('Pipeline Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configuration)
+            const pipeline = new Pipeline(configuration, {silent: true})
             
             await expect(Promise.resolve(pipeline.run())).to.eventually.fulfilled
 

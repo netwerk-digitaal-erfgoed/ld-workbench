@@ -9,7 +9,10 @@ import path from "node:path";
 import * as fs from "node:fs";
 import { isFilePathString, isTriplyDBPathString } from '../utils/guards.js';
 import TriplyDB from './TriplyDB.class.js';
-
+interface PipelineOptions {
+  startFromStageName?: string
+  silent?: boolean
+}
 class Pipeline {
   public readonly stages = new Map<string, Stage>();
   public dataDir: string;
@@ -17,11 +20,14 @@ class Pipeline {
   private stageNames: string[] = [];
   private now = new Date();
   private readonly destination: File | TriplyDB
+  private readonly opts?: PipelineOptions
 
   public constructor(
-    private readonly $configuration: LDWorkbenchConfiguration
+    private readonly $configuration: LDWorkbenchConfiguration,
+    pipelineOptions?: PipelineOptions
   ) {
     //  create data folder:
+    this.opts = pipelineOptions
     this.dataDir = path.join("pipelines", "data", kebabcase(this.$configuration.name));
     fs.mkdirSync(this.dataDir, { recursive: true });
     const destinationFile = this.configuration.destination ?? `file://${path.join(this.dataDir, 'statements.nt')}`
@@ -89,42 +95,43 @@ class Pipeline {
     return this.$configuration;
   }
 
-  public async run(startFromStageName?: string): Promise<void> {
+  public async run(): Promise<void> {
     this.now = new Date();
-    console.info(chalk.cyan(`🏁 starting pipeline "${chalk.bold(this.name)}"`));
-    const spinner = ora("validating pipeline").start();
+    if (!(this.opts?.silent === true)) console.info(chalk.cyan(`🏁 starting pipeline "${chalk.bold(this.name)}"`));
+    const spinner = ora("validating pipeline")
+    if (!(this.opts?.silent === true)) spinner.start();
     let startFromStage = 0;
     try {
       this.validate();
-      if (startFromStageName !== undefined) {
-        if (/^\d+$/.test(startFromStageName)) {
-          const ix = parseInt(startFromStageName);
+      if (this.opts?.startFromStageName !== undefined) {
+        if (/^\d+$/.test(this.opts.startFromStageName)) {
+          const ix = parseInt(this.opts.startFromStageName);
           if (Array.from(this.stages.keys()).length < ix) {
             const e = new Error(
               `Pipeline ${chalk.italic(
                 this.name
-              )} does not have stage #${chalk.italic(startFromStageName)}.`
+              )} does not have stage #${chalk.italic(this.opts.startFromStageName)}.`
             );
-            spinner.fail(e.message);
+            if (!(this.opts?.silent === true)) spinner.fail(e.message);
             this.error(e);
           } else {
             startFromStage = ix - 1;
           }
-        } else if (!this.stages.has(startFromStageName)) {
+        } else if (!this.stages.has(this.opts.startFromStageName)) {
           const e = new Error(
             `Pipeline ${chalk.italic(
               this.name
-            )} does not have stage ${chalk.italic(startFromStageName)}.`
+            )} does not have stage ${chalk.italic(this.opts.startFromStageName)}.`
           );
-          spinner.fail(e.message);
+          if (!(this.opts?.silent === true)) spinner.fail(e.message);
           this.error(e);
         } else {
           startFromStage = Array.from(this.stages.keys()).findIndex(
-            (value) => value === startFromStageName
+            (value) => value === this.opts?.startFromStageName
           );
         }
       }
-      spinner.succeed();
+      if (!(this.opts?.silent === true)) spinner.succeed();
     } catch (e) {
       spinner.fail((e as Error).message);
       this.error(e as Error);
@@ -140,16 +147,17 @@ class Pipeline {
 
   private runRecursive(): void {
     const stage = this.stages.get(this.stageNames.shift()!)!;
-    const spinner = ora("Loading results from Iterator").start();
+    const spinner = ora("Loading results from Iterator")
+    if (!(this.opts?.silent === true)) spinner.start();
     stage.on("iteratorResult", ($this) => {
-      spinner.text = $this.value;
+      if (!(this.opts?.silent === true)) spinner.text = $this.value;
     });
     stage.on('error', (e) => {
       spinner.fail()
       this.error(e)
     })
     stage.on("end", (iris, statements) => {
-      spinner.succeed(
+      if (!(this.opts?.silent === true)) spinner.succeed(
         `stage "${chalk.bold(
           stage.name
         )}" resulted in ${statements.toLocaleString()} statement${
@@ -161,7 +169,7 @@ class Pipeline {
       } else {
         this.writeResult()
           .then(_ => {
-            console.info(
+            if (!(this.opts?.silent === true)) console.info(
               chalk.green(
                 `✔ your pipeline "${chalk.bold(
                   this.name
@@ -182,10 +190,11 @@ class Pipeline {
   }
 
   private async writeResult(): Promise<void> {
-    const spinner = ora('Writing results to destination').start();
+    const spinner = ora('Writing results to destination')
+    if (!(this.opts?.silent === true)) spinner.start();
     await this.destination.write(this, spinner)
-    spinner.suffixText = this.destination.path
-    spinner.succeed()
+    if (!(this.opts?.silent === true)) spinner.suffixText = this.destination.path
+    if (!(this.opts?.silent === true)) spinner.succeed()
   }
 
   get name(): string {

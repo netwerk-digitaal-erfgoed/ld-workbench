@@ -143,7 +143,7 @@ describe('Utilities', () => {
     });
     it('should return true for valid PreviousStage object with isPreviousStage', () => {
       const configuration = parseYamlFile('./static/example/config.yml')
-      const pipeline = new Pipeline(configuration)
+      const pipeline = new Pipeline(configuration, {silent: true})
       const stageConfig = configuration.stages[0]
       const stage = new Stage(pipeline, stageConfig)
       const prevStage = new PreviousStage(stage, configuration.stages.names)
@@ -298,7 +298,7 @@ describe('Utilities', () => {
           }
         ]
       }
-      const pipeline = new Pipeline(config)
+      const pipeline = new Pipeline(config, {silent: true})
       const stageConfig = config.stages[0]
       const stage = new Stage(pipeline, stageConfig)
       const retrievedEndpoint = getEndpoint(stage)
@@ -323,7 +323,7 @@ describe('Utilities', () => {
           }
         ]
       }
-      const pipeline = new Pipeline(config)
+      const pipeline = new Pipeline(config, {silent: true})
       const stageConfig = config.stages[0]
       const stage = new Stage(pipeline, stageConfig)
       const retrievedEndpoint = getEndpoint(stage)
@@ -348,7 +348,7 @@ describe('Utilities', () => {
           }
         ]
       }
-      const pipeline = new Pipeline(config)
+      const pipeline = new Pipeline(config, {silent: true})
       const stageConfig = config.stages[0]
       // getEndpoint is use in Stage's Iterator, and it will throw there.
       expect(() => new Stage(pipeline, stageConfig)).to.throw('Error in the iterator of stage `Stage 1`: "invalidExample" is not a valid URL')
@@ -372,7 +372,7 @@ describe('Utilities', () => {
           }
         ]
       }
-      const pipeline = new Pipeline(config)
+      const pipeline = new Pipeline(config, {silent: true})
       const stageConfig = config.stages[0]
       expect(() => new Stage(pipeline, stageConfig)).to.throw('Error in the iterator of stage `Stage 1`: no destination defined for the iterator and no previous stage to use that result')
     })
@@ -405,7 +405,7 @@ describe('Utilities', () => {
           }
         ]
       }
-      const pipeline = new Pipeline(config)
+      const pipeline = new Pipeline(config, {silent: true})
       pipeline.validate()
       const stage = new Stage(pipeline, config.stages[1])
       const retrievedEndpoint = getEndpoint(stage)
@@ -451,7 +451,7 @@ describe('Utilities', () => {
           }
         ]
       }
-      const pipeline = new Pipeline(config)
+      const pipeline = new Pipeline(config, {silent: true})
       pipeline.validate()
       const stage: Stage = new Stage(pipeline, config.stages[1])
       const stagesSoFar = Array.from(stage.pipeline.stages.keys());
@@ -497,7 +497,7 @@ describe('Utilities', () => {
           }
         ]
       }
-      const pipeline = new Pipeline(config)
+      const pipeline = new Pipeline(config, {silent: true})
       pipeline.validate()
       const stage2: Stage = new Stage(pipeline, config.stages[1])
       const stagesSoFar = Array.from(stage2.pipeline.stages.keys());
@@ -508,7 +508,7 @@ describe('Utilities', () => {
     describe('should throw', () => {
       beforeEach(() => {
         const configuration = parseYamlFile('./static/example/config.yml')
-        const pipeline = new Pipeline(configuration)
+        const pipeline = new Pipeline(configuration, {silent: true})
         pipeline.validate()
         const stage: Stage = new Stage(pipeline, configuration.stages[1])
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());
@@ -530,7 +530,7 @@ describe('Utilities', () => {
       })
       afterEach(() => {
         const configuration = parseYamlFile('./static/example/config.yml')
-        const pipeline = new Pipeline(configuration)
+        const pipeline = new Pipeline(configuration, {silent: true})
         pipeline.validate()
         const stage: Stage = new Stage(pipeline, configuration.stages[1])
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());
@@ -549,7 +549,7 @@ describe('Utilities', () => {
       })
       it('should throw when input is PreviousStage and destinationPath does not exist', () => {
         const configuration = parseYamlFile('./static/example/config.yml')
-        const pipeline = new Pipeline(configuration)
+        const pipeline = new Pipeline(configuration, {silent: true})
         pipeline.validate()
         const stage: Stage = new Stage(pipeline, configuration.stages[1])
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());

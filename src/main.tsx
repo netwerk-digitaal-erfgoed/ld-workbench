@@ -55,8 +55,8 @@ inquirer.prompt(
   if (configuration === undefined) {
     throw new Error("Unable to get a configuration based on the CLI arguments.")
   }
-  const pipeline = new Pipeline(configuration)
-  pipeline.run(cliArgs.stage).then(_ => {})
+  const pipeline = new Pipeline(configuration, {startFromStageName: cliArgs.stage})
+  pipeline.run().then(_ => {})
   .catch(e => {
     error(`Error in pipeline ${chalk.italic(configuration!.name)}`, 5, e as Error)
   })
