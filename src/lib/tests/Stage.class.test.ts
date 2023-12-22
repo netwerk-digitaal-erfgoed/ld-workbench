@@ -5,9 +5,9 @@ import Iterator from '../Iterator.class.js';
 import Generator from '../Generator.class.js';
 import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import parseYamlFile from "../../utils/parseYamlFile.js";
 import path from "path";
 import type { NamedNode } from "n3";
+import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -15,7 +15,33 @@ const expect = chai.expect
 describe('Stage Class', () => {
     describe('constructor', () => {
         it('should set properties correctly', () => {
-            const configuration = parseYamlFile('./static/example/config.yml')
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                    {
+                        name: 'Stage 1',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-1.rq',
+                            endpoint: 'file://static/tests/iris.nt'
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-1.rq'
+                        }
+                    },
+                    {
+                        name: 'Stage 2',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-2.rq',
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-2.rq',
+                            endpoint: 'file://static/tests/wikidata.nt'
+                        }
+                    }
+                ]
+            }
             const pipeline = new Pipeline(configuration)
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
@@ -33,7 +59,33 @@ describe('Stage Class', () => {
 
     describe('destinationPath', () => {
         it('should return the correct destination path', () => {
-            const configuration = parseYamlFile('./static/example/config.yml')
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                    {
+                        name: 'Stage 1',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-1.rq',
+                            endpoint: 'file://static/tests/iris.nt'
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-1.rq'
+                        }
+                    },
+                    {
+                        name: 'Stage 2',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-2.rq',
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-2.rq',
+                            endpoint: 'file://static/tests/wikidata.nt'
+                        }
+                    }
+                ]
+            }
             const pipeline = new Pipeline(configuration)
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig);
@@ -44,7 +96,33 @@ describe('Stage Class', () => {
 
     describe('name', () => {
         it('should return the correct stage name', () => {
-            const configuration = parseYamlFile('./static/example/config.yml')
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                    {
+                        name: 'Stage 1',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-1.rq',
+                            endpoint: 'file://static/tests/iris.nt'
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-1.rq'
+                        }
+                    },
+                    {
+                        name: 'Stage 2',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-2.rq',
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-2.rq',
+                            endpoint: 'file://static/tests/wikidata.nt'
+                        }
+                    }
+                ]
+            }
             const pipeline = new Pipeline(configuration)
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig);
@@ -55,7 +133,33 @@ describe('Stage Class', () => {
     describe('run', () => {
         it('should run the stage correctly', async function () {
             this.timeout(5000)
-            const configuration = parseYamlFile('./static/example/config.yml')
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                    {
+                        name: 'Stage 1',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-1.rq',
+                            endpoint: 'file://static/tests/iris.nt'
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-1.rq'
+                        }
+                    },
+                    {
+                        name: 'Stage 2',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-2.rq',
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-2.rq',
+                            endpoint: 'file://static/tests/wikidata.nt'
+                        }
+                    }
+                ]
+            }
             const pipeline = new Pipeline(configuration)
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig);
