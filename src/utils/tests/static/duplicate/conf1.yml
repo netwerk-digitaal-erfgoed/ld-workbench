@@ -13,7 +13,7 @@ stages:
   - name: "Stage One"
     iterator:
       query: file://static/example/iterator-stage-1.rq
-      endpoint: file://static/tests/iris.nt
+      endpoint: https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql
     generator: 
       - query: file://static/example/generator-stage-1-1.rq
 

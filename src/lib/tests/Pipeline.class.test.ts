@@ -22,7 +22,7 @@ describe('Pipeline Class', () => {
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [{
-                            query: 'file://static/example/generator-stage-1.rq'
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }]
                     },
                     {
@@ -62,7 +62,7 @@ describe('Pipeline Class', () => {
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [{
-                            query: 'file://static/example/generator-stage-1.rq'
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }]
                     },
                     {
@@ -97,7 +97,7 @@ describe('Pipeline Class', () => {
                     {
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-1-1.rq'
@@ -106,7 +106,7 @@ describe('Pipeline Class', () => {
                     {
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-2.rq',
@@ -209,7 +209,7 @@ describe('Pipeline Class', () => {
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
+                            endpoint: 'https://query.wikidata.org/sparql'
                         }]
                     }
                 ]
@@ -255,7 +255,7 @@ describe('Pipeline Class', () => {
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
+                            endpoint: 'https://query.wikidata.org/sparql'
                         }]
                     }
                 ]
@@ -288,7 +288,7 @@ describe('Pipeline Class', () => {
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [{
-                            query: 'file://static/example/generator-stage-1.rq'
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }]
                     },
                     {

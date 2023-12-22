@@ -22,7 +22,7 @@ describe('Generator Class', () => {
                     name: 'Stage 1',
                     iterator: {
                       query: 'file://static/example/iterator-stage-1.rq',
-                      endpoint: 'file://static/tests/iris.nt'
+                      endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                     },
                     generator:
                       [{
@@ -36,7 +36,7 @@ describe('Generator Class', () => {
                     generator:
                       [{
                         query: 'file://static/example/generator-stage-2.rq',
-                        endpoint: 'file://static/tests/wikidata.nt'
+                        endpoint: 'https://query.wikidata.org/sparql'
                       }]
                   }
                 ]
@@ -67,7 +67,7 @@ describe('Generator Class', () => {
                     name: 'Stage 1',
                     iterator: {
                       query: 'file://static/example/iterator-stage-1.rq',
-                      endpoint: 'file://static/tests/iris.nt'
+                      endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                     },
                     generator:
                       [{
@@ -83,7 +83,7 @@ describe('Generator Class', () => {
                     generator:
                       [{
                         query: 'file://static/example/generator-stage-2.rq',
-                        endpoint: 'file://static/tests/wikidata.nt'
+                        endpoint: 'https://query.wikidata.org/sparql'
                       }]
                   }
                 ]
@@ -109,7 +109,7 @@ describe('Generator Class', () => {
                     name: 'Stage 1',
                     iterator: {
                       query: 'file://static/example/iterator-stage-1.rq',
-                      endpoint: 'file://static/tests/iris.nt'
+                      endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                     },
                     generator:
                       [{
@@ -123,7 +123,7 @@ describe('Generator Class', () => {
                     generator:
                       [{
                         query: 'file://static/example/generator-stage-2.rq',
-                        endpoint: 'file://static/tests/wikidata.nt'
+                        endpoint: 'https://query.wikidata.org/sparql'
                       }]
                   }
                 ]

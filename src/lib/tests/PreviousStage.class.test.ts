@@ -19,7 +19,7 @@ describe('PreviousStage Class', () => {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-1-1.rq'
@@ -32,7 +32,7 @@ describe('PreviousStage Class', () => {
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
+                            endpoint: 'https://query.wikidata.org/sparql'
                         }]
                     }
                 ]
@@ -59,7 +59,7 @@ describe('PreviousStage Class', () => {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-1-1.rq'
@@ -72,7 +72,7 @@ describe('PreviousStage Class', () => {
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
+                            endpoint: 'https://query.wikidata.org/sparql'
                         }]
                     }
                 ]
@@ -95,7 +95,7 @@ describe('PreviousStage Class', () => {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-1-1.rq'
@@ -105,11 +105,11 @@ describe('PreviousStage Class', () => {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
+                            endpoint: 'https://query.wikidata.org/sparql'
                         }]
                     }
                 ]
@@ -136,7 +136,7 @@ describe('PreviousStage Class', () => {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                         },
                         generator:
                             [{ query: 'file://static/example/generator-stage-1-1.rq' }]
@@ -146,11 +146,11 @@ describe('PreviousStage Class', () => {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                         },
                         generator: [{
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
+                            endpoint: 'https://query.wikidata.org/sparql'
                         }]
                     }
                 ]
