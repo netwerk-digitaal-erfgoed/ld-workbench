@@ -129,7 +129,7 @@ describe('Pipeline Class', () => {
                 destination: 'file://pipelines/data/example-pipeline.nt',
                 stages: []
             } as unknown as LDWorkbenchConfiguration
-            const pipeline = new Pipeline(invalidConfiguration);
+            const pipeline = new Pipeline(invalidConfiguration, {silent: true});
             let failed = false
             try {
                 pipeline.validate()
@@ -170,7 +170,7 @@ describe('Pipeline Class', () => {
                     }
                 ]
             } as unknown as LDWorkbenchConfiguration
-            const pipeline = new Pipeline(invalidConfiguration);
+            const pipeline = new Pipeline(invalidConfiguration, {silent: true});
             let failed = false
             try {
                 pipeline.validate()
@@ -214,7 +214,7 @@ describe('Pipeline Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configDuplicateStageName);
+            const pipeline = new Pipeline(configDuplicateStageName, {silent: true});
             let failed = false
             try {
                 pipeline.validate()
@@ -260,7 +260,7 @@ describe('Pipeline Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configDuplicateStageName);
+            const pipeline = new Pipeline(configDuplicateStageName, {silent: true});
             let failed = false
             try {
                 pipeline.validate()
