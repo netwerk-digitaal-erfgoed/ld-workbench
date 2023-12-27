@@ -234,7 +234,7 @@ describe('Utilities', () => {
                 name: 'Stage 1A',
                 iterator: {
                   query: 'file://static/example/iterator-stage-1.rq',
-                  endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+                  endpoint: 'file://static/tests/iris.nt'
                 },
                 generator: [{ query: 'file://static/example/generator-stage-1-1.rq' }]
               }
@@ -252,7 +252,7 @@ describe('Utilities', () => {
                 name: 'Stage 1B',
                 iterator: {
                   query: 'file://static/example/iterator-stage-1.rq',
-                  endpoint: 'file://static/tests/iris.nt'
+                  endpoint: 'file://static/tests/wikidata.nt'
                 },
                 generator: [{ query: 'file://static/example/generator-stage-1-1.rq' }]
               }
@@ -260,6 +260,7 @@ describe('Utilities', () => {
           }
         ]
       ]
+      
       expect(testDeepEqualTwoObjects(loadedElements, testElements)).to.equal(true)
     })
     it('should load single configuration file in directory', () => {

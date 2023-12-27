@@ -70,10 +70,10 @@ describe('Generator Class', () => {
                       endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
                     },
                     generator:
-                      [{
-                        query: 'file://static/example/generator-stage-1-1.rq'},{
-                        query: 'file://static/example/generator-stage-1-2.rq'
-                      }]
+                      [
+                        {query: 'file://static/example/generator-stage-1-1.rq'},
+                        {query: 'file://static/example/generator-stage-1-2.rq'}
+                      ]
                   },
                   {
                     name: 'Stage 2',
