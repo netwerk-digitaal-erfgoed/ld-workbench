@@ -37,7 +37,7 @@ class Generator extends EventEmitter {
       stage.configuration.generator.query,
       "construct"
     );
-    
+
     this.endpoint =
       stage.configuration.generator.endpoint === undefined
         ? stage.iterator.endpoint
@@ -71,20 +71,20 @@ class Generator extends EventEmitter {
           $this
         ]
       }
-   }
+    }
   }
 
   public run($this?: NamedNode, batchSize?: number): void {
     if ($this !== undefined) this.$thisList.push($this)
-    const union: UnionPattern = { type: 'union', patterns: []}
+    const union: UnionPattern = { type: 'union', patterns: [] }
     const error = (e: any): Error => new Error(`The Generator did not run succesfully, it could not get the results from the endpoint ${this.source}: ${(e as Error).message}`)
+    // @mightymax problem - what  if the this.$thisList length is smaller than the batchsize? => and cleanup$thisList() (like the end() function previously) is needed
     if (this.$thisList.length >= (batchSize ?? this.batchSize)) {
       if (this.source === '') this.source = getEngineSource(this.endpoint)
-
       const unionQuery = getSPARQLQuery(getSPARQLQueryString(this.query), "construct");
       for (const $this of this.$thisList) {
         this.iterationsProcessed++
-        const group: GroupPattern = { type: 'group', patterns: [...unionQuery.where ?? []]}
+        const group: GroupPattern = { type: 'group', patterns: [...unionQuery.where ?? []] }
         group.patterns.push(this.$thisToFilter($this))
         union.patterns.push(group)
       }
@@ -94,14 +94,14 @@ class Generator extends EventEmitter {
         sources: [this.source]
       }).then(stream => {
         stream.on('data', (quad: Quad) => {
-          this.statements ++
+          this.statements++
           this.emit('data', quad)
         })
         stream.on('error', (e) => {
           this.emit("error", error(e))
         })
         stream.on('end', () => {
-          if(this.iterationsIncoming !== undefined && this.iterationsProcessed >= this.iterationsIncoming) {
+          if (this.iterationsIncoming !== undefined && this.iterationsProcessed >= this.iterationsIncoming) {
             this.emit('end', this.iterationsIncoming, this.statements)
           }
         })
