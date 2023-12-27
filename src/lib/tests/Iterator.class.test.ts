@@ -38,7 +38,7 @@ describe('Iterator Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configuration)
+            const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
             const iterator = new Iterator(stage);
@@ -82,7 +82,7 @@ describe('Iterator Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configuration)
+            const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
             const iterator = new Iterator(stage);

@@ -39,7 +39,7 @@ describe('Generator Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configuration)
+            const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
             const generator = new Generator(stage)
@@ -81,7 +81,7 @@ describe('Generator Class', () => {
                     }
                 ]
             }
-            const pipeline = new Pipeline(configuration)
+            const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
             const generator = new Generator(stage);
