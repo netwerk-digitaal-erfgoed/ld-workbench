@@ -78,7 +78,6 @@ class Generator extends EventEmitter {
     if ($this !== undefined) this.$thisList.push($this)
     const union: UnionPattern = { type: 'union', patterns: [] }
     const error = (e: any): Error => new Error(`The Generator did not run succesfully, it could not get the results from the endpoint ${this.source}: ${(e as Error).message}`)
-    // @mightymax problem - what  if the this.$thisList length is smaller than the batchsize? => and cleanup$thisList() (like the end() function previously) is needed
     if (this.$thisList.length >= (batchSize ?? this.batchSize)) {
       if (this.source === '') this.source = getEngineSource(this.endpoint)
       const unionQuery = getSPARQLQuery(getSPARQLQueryString(this.query), "construct");
