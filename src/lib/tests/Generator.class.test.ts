@@ -77,7 +77,7 @@ describe('Generator Class', () => {
                     }
                 ]
             }
-            const pipelineBatch = new Pipeline(batchConfiguration)
+            const pipelineBatch = new Pipeline(batchConfiguration, {silent: true})
             pipelineBatch.validate()
             const stage = pipelineBatch.stages.get('Stage 1')
 
