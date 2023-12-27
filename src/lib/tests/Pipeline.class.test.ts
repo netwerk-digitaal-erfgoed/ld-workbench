@@ -1,4 +1,3 @@
-import parseYamlFile from "../../utils/parseYamlFile.js";
 import File from "../File.class.js";
 import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
 import Pipeline from "../Pipeline.class.js";
@@ -11,7 +10,33 @@ const expect = chai.expect
 describe('Pipeline Class', () => {
     describe('constructor', () => {
         it('should set properties correctly', () => {
-            const configuration = parseYamlFile('./static/example/config.yml');
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                    {
+                        name: 'Stage 1',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-1.rq',
+                            endpoint: 'file://static/tests/iris.nt'
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-1.rq'
+                        }
+                    },
+                    {
+                        name: 'Stage 2',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-2.rq',
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-2.rq',
+                            endpoint: 'file://static/tests/wikidata.nt'
+                        }
+                    }
+                ]
+            }
             const pipeline = new Pipeline(configuration);
             expect(pipeline).to.be.an.instanceOf(Pipeline);
             expect(pipeline).to.have.property('stages').that.is.a('Map');
@@ -25,7 +50,33 @@ describe('Pipeline Class', () => {
 
     describe('getPreviousStage', () => {
         it('should return the previous stage correctly', () => {
-            const configuration = parseYamlFile('./static/example/config.yml');
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                    {
+                        name: 'Stage 1',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-1.rq',
+                            endpoint: 'file://static/tests/iris.nt'
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-1.rq'
+                        }
+                    },
+                    {
+                        name: 'Stage 2',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-2.rq',
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-2.rq',
+                            endpoint: 'file://static/tests/wikidata.nt'
+                        }
+                    }
+                ]
+            }
             const pipeline = new Pipeline(configuration);
             pipeline.validate()
 
@@ -46,7 +97,7 @@ describe('Pipeline Class', () => {
                     {
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+                            endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: {
                             query: 'file://static/example/generator-stage-1.rq'
@@ -55,11 +106,11 @@ describe('Pipeline Class', () => {
                     {
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
-                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+                            endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: {
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'https://query.wikidata.org/sparql'
+                            endpoint: 'file://static/tests/wikidata.nt'
                         }
                     }
                 ]
@@ -145,7 +196,7 @@ describe('Pipeline Class', () => {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'https://www.example.com/endpoint'
+                            endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: {
                             query: 'file://static/example/generator-stage-1.rq'
@@ -158,7 +209,7 @@ describe('Pipeline Class', () => {
                         },
                         generator: {
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'https://query.wikidata.org/sparql'
+                            endpoint: 'file://static/tests/wikidata.nt'
                         }
                     }
                 ]
@@ -191,7 +242,7 @@ describe('Pipeline Class', () => {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'https://www.example.com/endpoint'
+                            endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: {
                             query: 'file://static/example/generator-stage-1.rq'
@@ -204,7 +255,7 @@ describe('Pipeline Class', () => {
                         },
                         generator: {
                             query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'https://query.wikidata.org/sparql'
+                            endpoint: 'file://static/tests/wikidata.nt'
                         }
                     }
                 ]
@@ -225,7 +276,33 @@ describe('Pipeline Class', () => {
 
     describe('run', () => {
         it('should run the pipeline correctly', async () => {
-            const configuration = parseYamlFile('./static/example/config.yml')
+            const configuration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://pipelines/data/example-pipeline.nt',
+                stages: [
+                    {
+                        name: 'Stage 1',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-1.rq',
+                            endpoint: 'file://static/tests/iris.nt'
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-1.rq'
+                        }
+                    },
+                    {
+                        name: 'Stage 2',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-2.rq',
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-2.rq',
+                            endpoint: 'file://static/tests/wikidata.nt'
+                        }
+                    }
+                ]
+            }
             const pipeline = new Pipeline(configuration)
             
             await expect(Promise.resolve(pipeline.run())).to.eventually.fulfilled

@@ -77,7 +77,33 @@ describe('Utilities', () => {
   })
   describe('Type guards', () => {
     it('should assert a configuration', () => {
-      const configuration = parseYamlFile('./static/example/config.yml')
+      const configuration: LDWorkbenchConfiguration = {
+        name: 'Example Pipeline',
+        description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+        destination: 'file://pipelines/data/example-pipeline.nt',
+        stages: [
+            {
+                name: 'Stage 1',
+                iterator: {
+                    query: 'file://static/example/iterator-stage-1.rq',
+                    endpoint: 'file://static/tests/iris.nt'
+                },
+                generator: {
+                    query: 'file://static/example/generator-stage-1.rq'
+                }
+            },
+            {
+                name: 'Stage 2',
+                iterator: {
+                    query: 'file://static/example/iterator-stage-2.rq',
+                },
+                generator: {
+                    query: 'file://static/example/generator-stage-2.rq',
+                    endpoint: 'file://static/tests/wikidata.nt'
+                }
+            }
+        ]
+    }
       expect(isConfiguration(configuration)).to.equal(true)
     })
     it('should not assert an invalid configuration', () => {
@@ -180,7 +206,7 @@ describe('Utilities', () => {
                 name: 'Stage 1A',
                 iterator: {
                   query: 'file://static/example/iterator-stage-1.rq',
-                  endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+                  endpoint: 'file://static/tests/iris.nt'
                 },
                 generator: { query: 'file://static/example/generator-stage-1.rq' }
               }
@@ -198,7 +224,7 @@ describe('Utilities', () => {
                 name: 'Stage 1B',
                 iterator: {
                   query: 'file://static/example/iterator-stage-1.rq',
-                  endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+                  endpoint: 'file://static/tests/iris.nt'
                 },
                 generator: { query: 'file://static/example/generator-stage-1.rq' }
               }
@@ -222,7 +248,7 @@ describe('Utilities', () => {
               name: 'Stage 1',
               iterator: {
                 query: 'file://static/example/iterator-stage-1.rq',
-                endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+                endpoint: 'file://static/tests/iris.nt'
               },
               generator: { query: 'file://static/example/generator-stage-1.rq' }
             },
@@ -233,7 +259,7 @@ describe('Utilities', () => {
               },
               generator: {
                 query: 'file://static/example/generator-stage-2.rq',
-                endpoint: 'https://query.wikidata.org/sparql'
+                endpoint: 'file://static/tests/wikidata.nt'
               }
             }
           ]
@@ -374,7 +400,7 @@ describe('Utilities', () => {
             },
             generator: {
               query: 'file://static/example/generator-stage-2.rq',
-              endpoint: 'https://query.wikidata.org/sparql'
+              endpoint: 'file://static/tests/wikidata.nt'
             }
           }
         ]
@@ -407,7 +433,7 @@ describe('Utilities', () => {
             name: 'Stage 1',
             iterator: {
               query: 'file://static/example/iterator-stage-1.rq',
-              endpoint: 'https://www.example.com/endpoint'
+              endpoint: 'file://static/tests/iris.nt'
             },
             generator: {
               query: 'file://static/example/generator-stage-1.rq'
@@ -420,7 +446,7 @@ describe('Utilities', () => {
             },
             generator: {
               query: 'file://static/example/generator-stage-2.rq',
-              endpoint: 'https://query.wikidata.org/sparql'
+              endpoint: 'file://static/tests/wikidata.nt'
             }
           }
         ]
@@ -453,7 +479,7 @@ describe('Utilities', () => {
             name: 'Stage 1',
             iterator: {
               query: 'file://static/example/iterator-stage-1.rq',
-              endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+              endpoint: 'file://static/tests/iris.nt'
             },
             generator: {
               query: 'file://static/example/generator-stage-1.rq'
@@ -466,7 +492,7 @@ describe('Utilities', () => {
             },
             generator: {
               query: 'file://static/example/generator-stage-2.rq',
-              endpoint: 'https://query.wikidata.org/sparql'
+              endpoint: 'file://static/tests/wikidata.nt'
             }
           }
         ]
