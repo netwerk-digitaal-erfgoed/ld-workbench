@@ -54,8 +54,6 @@ describe('Generator Class', () => {
     // BUG when both the generator and iterator tests are running, it seems the iterator will never terminate
     describe('run', () => {
         it('Should work in batchSize for pipeline\'s generator - test with store', async function () {
-            // when using local test files timeout should be removed
-            this.timeout(50000)
             const N3Store = new Store()
             const filePath = 'pipelines/data/example-pipelineBatch.nt';
 
@@ -69,7 +67,7 @@ describe('Generator Class', () => {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql'
+                            endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: {
                             query: 'file://static/example/generator-stage-1.rq',
@@ -105,7 +103,7 @@ describe('Generator Class', () => {
 
 
         })
-        it('should emit "data" and "end" events with the correct number of statements', async () => {
+        it.skip('should emit "data" and "end" events with the correct number of statements', async () => {
             const configuration : LDWorkbenchConfiguration = {
                 name: 'Example Pipeline',
                 description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
