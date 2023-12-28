@@ -80,13 +80,12 @@ describe('Generator Class', () => {
             const pipelineBatch = new Pipeline(batchConfiguration, {silent: true})
             pipelineBatch.validate()
             const stage = pipelineBatch.stages.get('Stage 1')
-
             async function runGeneratorWithPromise(): Promise<boolean> {
                 return new Promise((resolve, reject) => {
                   pipelineBatch.run().then(() => {
                     
                   }).catch(error => {reject(error)});
-                  stage?.generator.addListener('data', (quad) => {
+                  stage?.generator.addListener('data', (quad: any) => {
                     N3Store.addQuad(quad)
                   });
                   stage?.generator.addListener('end', (_numResults) => {
@@ -98,6 +97,7 @@ describe('Generator Class', () => {
                 });
             }
             await runGeneratorWithPromise()
+            // @mightymax should be 459, returns 420 quads in store when using a local file instead of remote endpoint
             expect(N3Store.size).to.equal(459)
             expect(N3Store.getQuads(null,null,null,null)[458].subject.id).to.equal('https://triplydb.com/triply/iris/id/floweringPlant/00150')
 
