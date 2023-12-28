@@ -4,7 +4,8 @@ import Stage from "../Stage.class.js";
 import Pipeline from "../Pipeline.class.js";
 import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import { NamedNode, Store } from "n3";
+import { NamedNode } from "n3";
+import * as fs from "fs"
 import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -53,8 +54,7 @@ describe('Generator Class', () => {
     });
     // BUG when both the generator and iterator tests are running, it seems the iterator will never terminate
     describe('run', () => {
-        it('Should work in batchSize for pipeline\'s generator - test with store', async function () {
-            const N3Store = new Store()
+        it('Should work in batchSize for pipeline\'s generator', async function () {
             const filePath = 'pipelines/data/example-pipelineBatch.nt';
 
 
@@ -79,27 +79,15 @@ describe('Generator Class', () => {
             }
             const pipelineBatch = new Pipeline(batchConfiguration, {silent: true})
             pipelineBatch.validate()
-            const stage = pipelineBatch.stages.get('Stage 1')
-            async function runGeneratorWithPromise(): Promise<boolean> {
-                return new Promise((resolve, reject) => {
-                  pipelineBatch.run().then(() => {
-                    
-                  }).catch(error => {reject(error)});
-                  stage?.generator.addListener('data', (quad: any) => {
-                    N3Store.addQuad(quad)
-                  });
-                  stage?.generator.addListener('end', (_numResults) => {
-                      resolve(true)
-                    });
-                    stage?.generator.addListener('error', (error) => {
-                        reject(error);
-                    });
-                });
-            }
-            await runGeneratorWithPromise()
-            // @mightymax should be 459, returns 420 quads in store when using a local file instead of remote endpoint
-            expect(N3Store.size).to.equal(459)
-            expect(N3Store.getQuads(null,null,null,null)[458].subject.id).to.equal('https://triplydb.com/triply/iris/id/floweringPlant/00150')
+            pipelineBatch.run().then(() => {
+                // read file after pipeline has finished
+                const file = fs.readFileSync(filePath, {encoding: "utf-8"})
+                const fileLines = file.split("\n").sort()
+                expect(fileLines.length).to.equal(460)
+                expect(fileLines[0]).to.equal('')
+                expect(fileLines[1]).to.equal('<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .')
+                expect(fileLines[fileLines.length - 1]).to.equal('<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .')
+            }).catch(error => {throw error});
 
 
         })
