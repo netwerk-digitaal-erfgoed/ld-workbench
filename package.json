@@ -4,7 +4,7 @@
   "bin": {
     "ld-workbench": "dist/main.js"
   },
-  "version": "0.0.1-rc3",
+  "version": "0.0.1-rc4",
   "description": "LDWorkbench is a Linked Data Transformation tool designed to use only SPARQL as transformation language.",
   "main": "dist/main.js",
   "scripts": {
