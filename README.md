@@ -32,7 +32,7 @@ Both commands should print the version to your terminal. For Node.js we recommen
 The quickest way to get started with LDWorkbench is to follow these instruction:
 
 ```bash
-npx @netwerkdigitaalergoed/ld-workbench --init
+npx @netwerk-digitaal-ergoed/ld-workbench --init
 ```
 
 Your workbench is now ready for use. An example workbench is provided, run it with this command:
