@@ -50,23 +50,45 @@ export interface LDWorkbenchConfiguration {
          */
         batchSize?: number;
       };
-      generator: {
-        /**
-         * Path (prefixed with "file://") or SPARQL Query
-         * that makes the generator using SPARQL construct.
-         */
-        query: string;
-        /**
-         * The SPARQL endpoint for the generator.
-         * If it starts with "file://", a local RDF file is queried.
-         * If ommmitted the endpoint of the Iterator is used.
-         */
-        endpoint?: string;
-        /**
-         * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
-         */
-        batchSize?: number;
-      };
+      /**
+       * @minItems 1
+       */
+      generator: [
+        {
+          /**
+           * Path (prefixed with "file://") or SPARQL Query
+           * that makes the generator using SPARQL construct.
+           */
+          query: string;
+          /**
+           * The SPARQL endpoint for the generator.
+           * If it starts with "file://", a local RDF file is queried.
+           * If ommmitted the endpoint of the Iterator is used.
+           */
+          endpoint?: string;
+          /**
+           * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
+           */
+          batchSize?: number;
+        },
+        ...{
+          /**
+           * Path (prefixed with "file://") or SPARQL Query
+           * that makes the generator using SPARQL construct.
+           */
+          query: string;
+          /**
+           * The SPARQL endpoint for the generator.
+           * If it starts with "file://", a local RDF file is queried.
+           * If ommmitted the endpoint of the Iterator is used.
+           */
+          endpoint?: string;
+          /**
+           * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
+           */
+          batchSize?: number;
+        }[]
+      ];
       /**
        * The file where the results are saved.
        * This is not a required property,
@@ -96,23 +118,45 @@ export interface LDWorkbenchConfiguration {
          */
         batchSize?: number;
       };
-      generator: {
-        /**
-         * Path (prefixed with "file://") or SPARQL Query
-         * that makes the generator using SPARQL construct.
-         */
-        query: string;
-        /**
-         * The SPARQL endpoint for the generator.
-         * If it starts with "file://", a local RDF file is queried.
-         * If ommmitted the endpoint of the Iterator is used.
-         */
-        endpoint?: string;
-        /**
-         * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
-         */
-        batchSize?: number;
-      };
+      /**
+       * @minItems 1
+       */
+      generator: [
+        {
+          /**
+           * Path (prefixed with "file://") or SPARQL Query
+           * that makes the generator using SPARQL construct.
+           */
+          query: string;
+          /**
+           * The SPARQL endpoint for the generator.
+           * If it starts with "file://", a local RDF file is queried.
+           * If ommmitted the endpoint of the Iterator is used.
+           */
+          endpoint?: string;
+          /**
+           * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
+           */
+          batchSize?: number;
+        },
+        ...{
+          /**
+           * Path (prefixed with "file://") or SPARQL Query
+           * that makes the generator using SPARQL construct.
+           */
+          query: string;
+          /**
+           * The SPARQL endpoint for the generator.
+           * If it starts with "file://", a local RDF file is queried.
+           * If ommmitted the endpoint of the Iterator is used.
+           */
+          endpoint?: string;
+          /**
+           * Overrule the generator's behaviour of fetching results for 10 bindings of $this per request.
+           */
+          batchSize?: number;
+        }[]
+      ];
       /**
        * The file where the results are saved.
        * This is not a required property,

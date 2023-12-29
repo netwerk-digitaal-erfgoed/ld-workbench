@@ -15,11 +15,11 @@ const DEFAULT_BATCH_SIZE = 10
 
 declare interface Generator {
   on(event: "data", listener: (statement: Quad) => void): this;
-  on(event: "end", listener: (iterations: number, statements: number) => void): this;
+  on(event: "end", listener: (iterations: number, statements: number, processed: number) => void): this;
   on(event: "error", listener: (e: Error) => void): this;
 
   emit(event: "data", statement: Quad): boolean;
-  emit(event: "end", iterations: number, statements: number): boolean;
+  emit(event: "end", iterations: number, statements: number, processed: number): boolean;
   emit(event: "error", e: Error): boolean;
 }
 class Generator extends EventEmitter {
@@ -31,17 +31,19 @@ class Generator extends EventEmitter {
   private source: string = ''
   private readonly $thisList: NamedNode[] = []
   private readonly endpoint: Endpoint;
-  public constructor(private readonly stage: Stage) {
+  public constructor(private readonly stage: Stage, private readonly index: number) {
+    if (stage.configuration.generator === undefined) throw new Error('Error in Generator: no generators were present in stage configuration')
     super()
+    this.index = index
     this.query = getSPARQLQuery(
-      stage.configuration.generator.query,
+      stage.configuration.generator[this.index].query,
       "construct"
     );
 
     this.endpoint =
-      stage.configuration.generator.endpoint === undefined
+      stage.configuration.generator[this.index].endpoint === undefined
         ? stage.iterator.endpoint
-        : getEndpoint(stage, "generator");
+        : getEndpoint(stage, "generator", this.index);
 
     this.engine = getEngine(this.endpoint)
 
@@ -56,7 +58,7 @@ class Generator extends EventEmitter {
   }
 
   private get batchSize(): number {
-    return this.stage.configuration.generator.batchSize ?? DEFAULT_BATCH_SIZE
+    return this.stage.configuration.generator[this.index].batchSize ?? DEFAULT_BATCH_SIZE
   }
 
   private $thisToBind($this: NamedNode): BindPattern {
@@ -72,7 +74,7 @@ class Generator extends EventEmitter {
       variable: DataFactory.variable('this')
       
     }
-  }
+  } 
 
 
   public run($this?: NamedNode, batchSize?: number): void {
@@ -102,7 +104,7 @@ class Generator extends EventEmitter {
         })
         stream.on('end', () => {
           if (this.iterationsIncoming !== undefined && this.iterationsProcessed >= this.iterationsIncoming) {
-            this.emit('end', this.iterationsIncoming, this.statements)
+            this.emit('end', this.iterationsIncoming, this.statements, this.iterationsProcessed)
           }
         })
       }).catch(e => {

@@ -24,26 +24,28 @@ describe('Generator Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
-            const generator = new Generator(stage)
+            const generator = new Generator(stage, 0)
             expect(generator).to.be.an.instanceOf(Generator);
             expect(generator).to.be.an.instanceOf(EventEmitter);
             expect(generator).to.have.property('query');
@@ -52,8 +54,52 @@ describe('Generator Class', () => {
             expect(generator).to.have.property('source');
         });
     });
-    // BUG when both the generator and iterator tests are running, it seems the iterator will never terminate
     describe('run', () => {
+        it('Should work with multiple generators in parallel for one pipeline', async function (){
+            const filePath = 'pipelines/data/example-pipelineParallel.nt';
+
+            const config: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: 'file://'+ filePath,
+                stages: [
+                  {
+                    name: 'Stage 1',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-1.rq',
+                      endpoint: 'file://static/tests/iris.nt'
+                    },
+                    generator:
+                      [
+                        {query: 'file://static/example/generator-stage-1-1.rq'},
+                        {query: 'file://static/example/generator-stage-1-2.rq'}
+                      ]
+                  },
+                  {
+                    name: 'Stage 2',
+                    iterator: {
+                      query: 'file://static/example/iterator-stage-2.rq'
+                    },
+                    generator:
+                      [{
+                        query: 'file://static/example/generator-stage-2.rq',
+                        endpoint: 'file://static/tests/wikidata.nt'
+                      }]
+                  }
+                ]
+              }
+            // read file after pipeline has finished
+              const pipelineParallelGenerators = new Pipeline(config, {silent: true})
+              pipelineParallelGenerators.validate()
+              pipelineParallelGenerators.run().then(() => {
+                const file = fs.readFileSync(filePath, {encoding: 'utf-8'})
+                const fileLines = file.split('\n').sort()
+                expect(fileLines.length).to.equal(873)
+                expect(fileLines[0]).to.equal('')
+                expect(fileLines[1]).to.equal('<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .')
+                expect(fileLines[fileLines.length - 1]).to.equal('<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .')
+              }).catch( e => { throw e } )
+        })
         it('Should work in batchSize for pipeline\'s generator', async function () {
             const filePath = 'pipelines/data/example-pipelineBatch.nt';
 
@@ -69,12 +115,13 @@ describe('Generator Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq',
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq',
                             // adjust batchsize for test here
                             batchSize: 7
                         }
-                    }
+]                    }
                 ]
             }
             const pipelineBatch = new Pipeline(batchConfiguration, {silent: true})
@@ -103,26 +150,28 @@ describe('Generator Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true})
             const stageConfig = configuration.stages[0]
             const stage = new Stage(pipeline, stageConfig)
-            const generator = new Generator(stage);
+            const generator = new Generator(stage, 0);
             const emittedEvents: any[] = [];
 
             const testNamedNode = new NamedNode('https://triplydb.com/triply/iris/id/floweringPlant/00106');
