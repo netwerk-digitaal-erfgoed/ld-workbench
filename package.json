@@ -1,5 +1,5 @@
 {
-  "name": "@netwerkdigitaalerfgoed/ld-workbench",
+  "name": "@netwerk-digitaal-erfgoed/ld-workbench",
   "type": "module",
   "bin": {
     "ld-workbench": "dist/main.js"
