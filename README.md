@@ -66,11 +66,13 @@ npm run build
 ```
 
 To start the CLI tool you can use this command:
+
 ```bash
-npm run ld-workbench -- --configDir static/example
+npm run ldworkbench -- --configDir static/example
 ```
+
+**Notice that the repository is called `ld-workbench` (with hyphen), but the command is called `ldworkbench` (without hyphen).**
 
 Since this project is written in Typescript, your code needs to be traspiled to Javascript before you can run it (using `npm run build`). With `npm run dev` the transpiler will watch changes in the Typescript code an transpiles on each change.
 
 The configuration of this project is validated and defined by [JSON Schema](https://json-schema.org). The schema is located in `./static/ld-workbench-schema.json`. To create the types from this schema, run `npm run util:json-schema-to-typescript`. This will regenerate `./src/types/LDWorkbenchConfiguration.d.ts`, do not modify this file by hand.
-
