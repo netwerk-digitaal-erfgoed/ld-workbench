@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/method-signature-style */
-import type { ConstructQuery, FilterPattern, GroupPattern, UnionPattern } from "sparqljs";
+import type { BindPattern, ConstructQuery, GroupPattern, UnionPattern } from "sparqljs";
 import type Stage from "./Stage.class.js";
 import getSPARQLQuery from "../utils/getSPARQLQuery.js";
 import type { Quad, NamedNode } from "@rdfjs/types";
@@ -47,10 +47,9 @@ class Generator extends EventEmitter {
 
     stage.iterator.on('end', count => {
       this.iterationsIncoming = count
-      if (this.$thisList.length > 0) {
         for (const $this of this.$thisList) {
           this.run($this, this.$thisList.length)
-        }
+       
       }
     })
 
@@ -60,31 +59,33 @@ class Generator extends EventEmitter {
     return this.stage.configuration.generator.batchSize ?? DEFAULT_BATCH_SIZE
   }
 
-  private $thisToFilter($this: NamedNode): FilterPattern {
+  private $thisToBind($this: NamedNode): BindPattern {
     return {
-      type: 'filter',
+      type: 'bind',
       expression: {
-        type: 'operation',
-        operator: '=',
+        type:"operation",
+        operator:"",
         args: [
-          DataFactory.variable('this'),
           $this
         ]
-      }
+      },
+      variable: DataFactory.variable('this')
+      
     }
   }
 
+
   public run($this?: NamedNode, batchSize?: number): void {
     if ($this !== undefined) this.$thisList.push($this)
-    const union: UnionPattern = { type: 'union', patterns: [] }
     const error = (e: any): Error => new Error(`The Generator did not run succesfully, it could not get the results from the endpoint ${this.source}: ${(e as Error).message}`)
     if (this.$thisList.length >= (batchSize ?? this.batchSize)) {
       if (this.source === '') this.source = getEngineSource(this.endpoint)
       const unionQuery = getSPARQLQuery(getSPARQLQueryString(this.query), "construct");
+      const union: UnionPattern = { type: 'union', patterns: [] }
       for (const $this of this.$thisList) {
         this.iterationsProcessed++
         const group: GroupPattern = { type: 'group', patterns: [...unionQuery.where ?? []] }
-        group.patterns.push(this.$thisToFilter($this))
+        group.patterns.unshift(this.$thisToBind($this))
         union.patterns.push(group)
       }
       unionQuery.where = [union]
