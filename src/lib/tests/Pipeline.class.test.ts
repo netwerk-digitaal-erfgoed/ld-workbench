@@ -21,20 +21,22 @@ describe('Pipeline Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true});
@@ -61,20 +63,22 @@ describe('Pipeline Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true});
@@ -99,20 +103,22 @@ describe('Pipeline Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             } as unknown as LDWorkbenchConfiguration
             const pipeline = new Pipeline(configuration, {silent: true});
@@ -155,19 +161,21 @@ describe('Pipeline Class', () => {
                         iterator: {
                             query: 'file://static/example/iterator-stage-1.rq',
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                         }
-                    }
+]                    }
                 ]
             } as unknown as LDWorkbenchConfiguration
             const pipeline = new Pipeline(invalidConfiguration, {silent: true});
@@ -198,20 +206,22 @@ describe('Pipeline Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configDuplicateStageName, {silent: true});
@@ -244,20 +254,22 @@ describe('Pipeline Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configDuplicateStageName, {silent: true});
@@ -287,20 +299,22 @@ describe('Pipeline Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true})

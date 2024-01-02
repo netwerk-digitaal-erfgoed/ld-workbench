@@ -26,20 +26,22 @@ describe('Stage Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true})
@@ -48,9 +50,9 @@ describe('Stage Class', () => {
             expect(stage).to.be.an.instanceOf(Stage);
             expect(stage).to.have.property('destination');
             expect(stage).to.have.property('iterator');
-            expect(stage).to.have.property('generator');
+            expect(stage).to.have.property('generators');
             expect(stage.iterator).to.be.an.instanceOf(Iterator);
-            expect(stage.generator).to.be.an.instanceOf(Generator);
+            expect(stage.generators[0]).to.be.an.instanceOf(Generator);
             expect(stage.pipeline).to.be.an.instanceOf(Pipeline);
             expect(stage).to.have.property('pipeline', pipeline);
             expect(stage).to.have.property('configuration');
@@ -70,20 +72,22 @@ describe('Stage Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true})
@@ -107,20 +111,22 @@ describe('Stage Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true})
@@ -133,7 +139,6 @@ describe('Stage Class', () => {
     // BUG throws error when in combined test on stage's Iterator, when set to only it will pass.
     describe.skip('run', () => {
         it('should run the stage correctly', async function () {
-            this.timeout(5000)
             const configuration: LDWorkbenchConfiguration = {
                 name: 'Example Pipeline',
                 description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -145,20 +150,22 @@ describe('Stage Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
-                        generator: {
-                            query: 'file://static/example/generator-stage-1.rq'
+                        generator: [
+{
+                            query: 'file://static/example/generator-stage-1-1.rq'
                         }
-                    },
+]                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
-                        generator: {
+                        generator: [
+{
                             query: 'file://static/example/generator-stage-2.rq',
                             endpoint: 'file://static/tests/wikidata.nt'
                         }
-                    }
+]                    }
                 ]
             }
             const pipeline = new Pipeline(configuration, {silent: true})

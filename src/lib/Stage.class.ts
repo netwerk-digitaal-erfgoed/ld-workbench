@@ -25,23 +25,29 @@ declare interface Stage {
 class Stage extends EventEmitter {
   public destination: () => WriteStream
   public iterator: Iterator
-  public generator: Generator
+  public generators: Generator[] = []
+  private totalProcessed: number
 
   public constructor(
     public readonly pipeline: Pipeline,
     public readonly configuration: LDWorkbenchConfiguration['stages'][0]
   ) {
     super()
+    this.totalProcessed = 0
     try {
       this.iterator = new Iterator(this)
     } catch(e) {
       throw new Error(`Error in the iterator of stage \`${configuration.name}\`: ${(e as Error).message}`)
     }
 
-    try {
-      this.generator = new Generator(this)
-    } catch(e) {
-      throw new Error(`Error in the generator of stage \`${configuration.name}\`: ${(e as Error).message}`)
+    // Handle both single generator and array of generators
+    for (let index = 0; index < this.configuration.generator.length; index++) {
+      const generatorConfig = this.configuration.generator[index];
+      try {
+        this.generators.push(new Generator({...this, generators: [generatorConfig]}, index))
+      } catch(e) {
+        throw new Error(`Error in the generator of stage \`${configuration.name}\`: ${(e as Error).message}`)
+      }
     }
     this.destination = () => new File(this.destinationPath).getStream()
   }
@@ -55,30 +61,44 @@ class Stage extends EventEmitter {
   }
 
   public run(): void {
-    let quadCount = 0
-    // let iteratorCount = 0
-    const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' })
+    const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' });
+    let quadCount = 0;
 
-    this.generator.on('data', quad => {
-      writer.addQuad(quad)
-      quadCount ++
-      this.emit('generatorResult', quadCount)
-    })
+    this.generators.forEach(generator => {
+      generator.on('data', (quad) => {
+          writer.addQuad(quad);
+          quadCount++;
+          this.emit('generatorResult', quadCount);
+      });
 
-    this.generator.on('error', e => {
-      this.emit('error', e)
-    })
+      generator.on('end', (iterationsIncoming, statements, processed) => {
+        this.totalProcessed += processed
+        if (this.totalProcessed >= (iterationsIncoming * this.configuration.generator.length)){
+          this.emit('end', iterationsIncoming, statements);
+        }
+    });
 
-    this.iterator.on('data', $this => {
-      this.generator.run($this)
-      this.emit('iteratorResult', $this)
-    })
+      generator.on('error', e => {
+        this.emit('error', e)
+      })
+    });
 
-    this.iterator.on('error', e => {
-      this.emit('error', e)
-    })
-    this.iterator.run()
-  }
+    this.iterator.on('data', ($this) => {
+      this.generators.forEach(generator => {
+        generator.run($this);
+      });
+      this.emit('iteratorResult', $this);
+  });
+
+  this.iterator.on('error', e => {
+    this.emit('error', e)
+  })
+
+  // Start the iterator
+  this.iterator.run();
+
+
+}
 
 }
 

@@ -15,5 +15,5 @@ stages:
       query: file://static/example/iterator-stage-1.rq
       endpoint: file://static/tests/iris.nt
     generator: 
-      query: file://static/example/generator-stage-1.rq
+      - query: file://static/example/generator-stage-1-1.rq
 
