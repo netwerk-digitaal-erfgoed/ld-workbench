@@ -15,4 +15,4 @@ stages:
       query: file://static/kb-nbt/iterator-stage-1.rq
       endpoint: https://api.data.netwerkdigitaalerfgoed.nl/datasets/Fedor/Nederlandse-Bibliografie-Totaal-NBT/services/Nederlandse-Bibliografie-Totaal-NBT/sparql
     generator:
-      query: file://static/kb-nbt/generator-stage-1.rq
+      - query: file://static/kb-nbt/generator-stage-1.rq
