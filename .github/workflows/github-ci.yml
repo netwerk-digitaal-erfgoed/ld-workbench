@@ -41,7 +41,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: LDWorkbench init & test run
-        run: rm -rf ./pipelines && npx ld-workbench --init && npx ld-workbench
+        run: rm -rf ./pipelines && npx ld-workbench --init && npx ld-workbench -c "src/utils/tests/static/single/conf.yml"
       - name: Test
         run: npm run test
       - run: echo "Job status ${{ job.status }}."

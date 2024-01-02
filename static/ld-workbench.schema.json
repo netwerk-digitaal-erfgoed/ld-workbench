@@ -45,6 +45,7 @@
               },
               "batchSize": {
                 "type": "number",
+                "minimum": 1,
                 "description": "Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query."
               }
             }
@@ -64,6 +65,7 @@
               },
               "batchSize": {
                 "type": "number",
+                "minimum": 1,
                 "description": "Overrule the generator's behaviour of fetching results for 10 bindings of $this per request."
               }
             }

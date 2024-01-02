@@ -5,6 +5,7 @@ import Pipeline from "../Pipeline.class.js";
 import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { NamedNode } from "n3";
+import * as fs from "fs"
 import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -52,8 +53,45 @@ describe('Generator Class', () => {
         });
     });
     // BUG when both the generator and iterator tests are running, it seems the iterator will never terminate
-    describe.skip('run', () => {
-        it('should emit "data" and "end" events with the correct number of statements', async () => {
+    describe('run', () => {
+        it('Should work in batchSize for pipeline\'s generator', async function () {
+            const filePath = 'pipelines/data/example-pipelineBatch.nt';
+
+
+            const batchConfiguration: LDWorkbenchConfiguration = {
+                name: 'Example Pipeline Batch',
+                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                destination: "file://" + filePath,
+                stages: [
+                    {
+                        name: 'Stage 1',
+                        iterator: {
+                            query: 'file://static/example/iterator-stage-1.rq',
+                            endpoint: 'file://static/tests/iris.nt'
+                        },
+                        generator: {
+                            query: 'file://static/example/generator-stage-1.rq',
+                            // adjust batchsize for test here
+                            batchSize: 7
+                        }
+                    }
+                ]
+            }
+            const pipelineBatch = new Pipeline(batchConfiguration, {silent: true})
+            pipelineBatch.validate()
+            pipelineBatch.run().then(() => {
+                // read file after pipeline has finished
+                const file = fs.readFileSync(filePath, {encoding: "utf-8"})
+                const fileLines = file.split("\n").sort()
+                expect(fileLines.length).to.equal(460)
+                expect(fileLines[0]).to.equal('')
+                expect(fileLines[1]).to.equal('<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .')
+                expect(fileLines[fileLines.length - 1]).to.equal('<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .')
+            }).catch(error => {throw error});
+
+
+        })
+        it.skip('should emit "data" and "end" events with the correct number of statements', async () => {
             const configuration : LDWorkbenchConfiguration = {
                 name: 'Example Pipeline',
                 description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
