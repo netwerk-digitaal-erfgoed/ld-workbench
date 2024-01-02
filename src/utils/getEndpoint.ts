@@ -7,10 +7,19 @@ import { isFilePathString } from './guards.js';
 
 export default function getEndpoint(
   stage: Stage,
+  type?: 'iterator'
+): Endpoint;
+export default function getEndpoint(
+  stage: Stage,
+  type: 'generator',
+  index: number
+): Endpoint;
+export default function getEndpoint(
+  stage: Stage,
   type: 'iterator' | 'generator' = 'iterator',
   index?: number
 ): Endpoint {
-  const t: keyof LDWorkbenchConfiguration['stages'][0] = type
+  const t: keyof LDWorkbenchConfiguration['stages'][number] = type
   const endpoint = t === "generator" ? stage.configuration[t]?.[index!]?.endpoint : stage.configuration[t]?.endpoint;
   if (isFilePathString(endpoint)) {
     return new File(endpoint);
