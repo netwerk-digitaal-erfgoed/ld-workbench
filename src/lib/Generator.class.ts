@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/method-signature-style */
-import type { BindPattern, ConstructQuery, GroupPattern, UnionPattern } from "sparqljs";
+import type { ConstructQuery, ValuePatternRow } from "sparqljs";
 import type Stage from "./Stage.class.js";
 import getSPARQLQuery from "../utils/getSPARQLQuery.js";
 import type { Quad, NamedNode } from "@rdfjs/types";
@@ -9,7 +9,6 @@ import type { Endpoint, QueryEngine } from "./types.js";
 import getEngine from '../utils/getEngine.js';
 import getEngineSource from '../utils/getEngineSource.js';
 import EventEmitter from 'node:events';
-import { DataFactory } from 'n3';
 
 const DEFAULT_BATCH_SIZE = 10
 
@@ -61,21 +60,6 @@ class Generator extends EventEmitter {
     return this.stage.configuration.generator[this.index].batchSize ?? DEFAULT_BATCH_SIZE
   }
 
-  private $thisToBind($this: NamedNode): BindPattern {
-    return {
-      type: 'bind',
-      expression: {
-        type:"operation",
-        operator:"",
-        args: [
-          $this
-        ]
-      },
-      variable: DataFactory.variable('this')
-      
-    }
-  } 
-
 
   public run($this?: NamedNode, batchSize?: number): void {
     if ($this !== undefined) this.$thisList.push($this)
@@ -83,14 +67,14 @@ class Generator extends EventEmitter {
     if (this.$thisList.length >= (batchSize ?? this.batchSize)) {
       if (this.source === '') this.source = getEngineSource(this.endpoint)
       const unionQuery = getSPARQLQuery(getSPARQLQueryString(this.query), "construct");
-      const union: UnionPattern = { type: 'union', patterns: [] }
+      const patterns = unionQuery.where ?? [];
+      const valuePatterns: ValuePatternRow[] = []
       for (const $this of this.$thisList) {
         this.iterationsProcessed++
-        const group: GroupPattern = { type: 'group', patterns: [...unionQuery.where ?? []] }
-        group.patterns.unshift(this.$thisToBind($this))
-        union.patterns.push(group)
+        valuePatterns.push({'?this': $this})
       }
-      unionQuery.where = [union]
+      patterns.push({ type: 'values', values: valuePatterns });
+      unionQuery.where = [{ type: 'group', patterns }]
 
       this.engine.queryQuads(getSPARQLQueryString(unionQuery), {
         sources: [this.source]
