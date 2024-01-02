@@ -2,6 +2,7 @@ import ora from "ora";
 import kebabcase from "lodash.kebabcase";
 import type { LDWorkbenchConfiguration } from "./LDWorkbenchConfiguration.js";
 import chalk from "chalk";
+import humanNumber from "human-number"
 import Stage from "./Stage.class.js";
 import duration from "../utils/duration.js";
 import File from './File.class.js'
@@ -9,6 +10,7 @@ import path from "node:path";
 import * as fs from "node:fs";
 import { isFilePathString, isTriplyDBPathString } from '../utils/guards.js';
 import TriplyDB from './TriplyDB.class.js';
+import formatDuration from "../utils/formatDuration.js";
 interface PipelineOptions {
   startFromStageName?: string
   silent?: boolean
@@ -148,9 +150,12 @@ class Pipeline {
   private runRecursive(): void {
     const stage = this.stages.get(this.stageNames.shift()!)!;
     const spinner = ora("Loading results from Iterator")
+    const startTime = performance.now()
+    let iterationsProcessed = 0
     if (!(this.opts?.silent === true)) spinner.start();
-    stage.on("iteratorResult", ($this) => {
-      if (!(this.opts?.silent === true)) spinner.text = $this.value;
+    stage.on("iteratorResult", (_$this) => {
+      iterationsProcessed++
+      if (!(this.opts?.silent === true)) spinner.text = `Running ${stage.name}:\n\n  Elements processed: ${humanNumber(iterationsProcessed)} \n  Duration: ${formatDuration(startTime, performance.now())} `;
     });
     stage.on('error', (e) => {
       spinner.fail()
