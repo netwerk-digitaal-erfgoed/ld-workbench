@@ -1,7 +1,7 @@
 # Metadata for your pipeline:
 name: KB NBT Pipeline
 description: >
-  This is an example pipeline. It uses files that are available in this repository 
+  This is an example pipeline. It uses files that are available in this repository
   and SPARQL endpoints that should work.
 
 
@@ -13,6 +13,6 @@ stages:
   - name: "Stage 1"
     iterator:
       query: file://static/kb-nbt/iterator-stage-1.rq
-      endpoint: https://api.data.netwerkdigitaalerfgoed.nl/datasets/Fedor/Nederlandse-Bibliografie-Totaal-NBT/sparql
-    generator: 
+      endpoint: https://api.data.netwerkdigitaalerfgoed.nl/datasets/Fedor/Nederlandse-Bibliografie-Totaal-NBT/services/Nederlandse-Bibliografie-Totaal-NBT/sparql
+    generator:
       query: file://static/kb-nbt/generator-stage-1.rq
