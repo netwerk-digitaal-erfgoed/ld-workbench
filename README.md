@@ -60,18 +60,17 @@ npx @netwerkdigitaalergoed/ld-workbench
 
 ### Configuring a workbench pipeline
 
-To keep your workbench workspace clean, create a folder for each pipeline that contains the configuration and the SPARQL Select and Construct queries. The application uses the folder `pipelines/configurations` by default to look for YAML configurations of pipelines, so it is easiest to save your configuration there.
+To keep your workbench workspace clean, create a folder for each pipeline that contains the configuration and the SPARQL Select and Construct queries. Use the `static` directory for this.
 
-You file structure may look like this:
+Here is an example of how your file structure may look:
 
 ```
-your-working-dir
-|-- pipelines
-|   |-- configurations
-|   |   |-- my-pipeline
-|   |   |   |-- configuration.yaml
-|   |   |   |-- select.rq
-|   |   |   |-- construct.rq
+ld-workbench
+|-- static
+|   |-- my-pipeline
+|   |   |-- configuration.yaml
+|   |   |-- select.rq
+|   |   |-- construct.rq
 ```
 
 
