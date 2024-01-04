@@ -3,7 +3,6 @@ import parseYamlFile from '../parseYamlFile.js'
 import validate from '../validate.js'
 import { isConfiguration, isFile, isFilePathString, isPreviousStage } from '../guards.js'
 import loadConfiguration from '../loadConfiguration.js'
-import duration from '../duration.js'
 import Pipeline from "../../lib/Pipeline.class.js"
 import Stage from "../../lib/Stage.class.js"
 import PreviousStage from "../../lib/PreviousStage.class.js"
@@ -39,10 +38,6 @@ function testDeepEqualTwoObjects(objectOne: any, objectTwo: any): boolean {
 describe('Utilities', () => {
   it('should correctly get a version number', () => {
     expect(version()).match(/^\d+\.\d+\.\d+(?:-rc.+)?$/)
-  })
-
-  it('should correctly get a duration string', () => {
-    expect(duration(new Date())).match(/^[0-5]ms$/)
   })
 
   describe('YAML Parser', () => {

@@ -3,14 +3,26 @@ import { EventEmitter } from 'events';
 import Stage from "../Stage.class.js";
 import Pipeline from "../Pipeline.class.js";
 import * as chai from 'chai'
+import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised'
 import { NamedNode } from "n3";
 import * as fs from "fs"
 import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
+import { fileURLToPath } from "url";
+import removeDirectory from "../../utils/removeDir.js";
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
 describe('Generator Class', () => {
+    const _filename = fileURLToPath(import.meta.url);
+    const _dirname = path.dirname(_filename);
+    const dataDirectoryPath = path.join(_dirname, 'pipelines', 'data');
+
+    before(async function () {
+        // Remove the data directory before running tests
+        await removeDirectory(dataDirectoryPath);
+    });
+
     describe('constructor', () => {
         it('should set query, engine, endpoint, and source properties correctly', () => {
             const configuration: LDWorkbenchConfiguration = {

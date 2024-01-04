@@ -63,7 +63,7 @@ class Generator extends EventEmitter {
 
   public run($this?: NamedNode, batchSize?: number): void {
     if ($this !== undefined) this.$thisList.push($this)
-    const error = (e: any): Error => new Error(`The Generator did not run succesfully, it could not get the results from the endpoint ${this.source}: ${(e as Error).message}`)
+    const error = (e: any): Error => new Error(`The Generator did not run successfully, it could not get the results from the endpoint ${this.source}: ${(e as Error).message}`)
     if (this.$thisList.length >= (batchSize ?? this.batchSize)) {
       if (this.source === '') this.source = getEngineSource(this.endpoint)
       const unionQuery = getSPARQLQuery(getSPARQLQueryString(this.query), "construct");
