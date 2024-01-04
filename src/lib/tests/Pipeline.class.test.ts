@@ -9,8 +9,9 @@ import removeDirectory from "../../utils/removeDir.js";
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
+
 // BUG currently the pipeline class fails with no such file or directory, open 'pipelines/data/example-pipeline-batch/stage-1.nt and done() called multiple times in test <Pipeline Class run should run the pipeline correctly> of file /Users/work/triply/NDE-LDWorkbench/ld-workbench/dist/lib/tests/Pipeline.class.test.js
-describe.skip('Pipeline Class', () => {
+describe('Pipeline Class', () => {
     const dataDirectoryPath = path.join('pipelines', 'data');
 
     before(async function () {
@@ -310,40 +311,46 @@ describe.skip('Pipeline Class', () => {
 
     describe('run', () => {
         it('should run the pipeline correctly', async () => {
-            const configuration: LDWorkbenchConfiguration = {
-                name: 'Example Pipeline',
-                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-                destination: 'file://pipelines/data/example-pipeline.nt',
-                stages: [
-                    {
-                        name: 'Stage 1',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
-                        },
-                        generator: [
-                            {
-                                query: 'file://static/example/generator-stage-1-1.rq'
-                            }
-                        ]
-                    },
-                    {
-                        name: 'Stage 2',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-2.rq',
-                        },
-                        generator: [
-                            {
-                                query: 'file://static/example/generator-stage-2.rq',
-                                endpoint: 'file://static/tests/wikidata.nt'
-                            }
-                        ]
-                    }
-                ]
-            }
-            const pipeline = new Pipeline(configuration, { silent: true })
+            try {
 
-            await expect(Promise.resolve(pipeline.run())).to.eventually.fulfilled
+                const configuration: LDWorkbenchConfiguration = {
+                    name: 'Example Pipeline',
+                    description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                    destination: 'file://pipelines/data/example-pipeline.nt',
+                    stages: [
+                        {
+                            name: 'Stage 1',
+                            iterator: {
+                                query: 'file://static/example/iterator-stage-1.rq',
+                                endpoint: 'file://static/tests/iris.nt'
+                            },
+                            generator: [
+                                {
+                                    query: 'file://static/example/generator-stage-1-1.rq'
+                                }
+                            ]
+                        },
+                        {
+                            name: 'Stage 2',
+                            iterator: {
+                                query: 'file://static/example/iterator-stage-2.rq',
+                            },
+                            generator: [
+                                {
+                                    query: 'file://static/example/generator-stage-2.rq',
+                                    endpoint: 'file://static/tests/wikidata.nt'
+                                }
+                            ]
+                        }
+                    ]
+                }
+                const pipeline = new Pipeline(configuration, { silent: true })
+    
+                await pipeline.run()
+            } catch(e) {
+                console.log(e)
+            throw e
+            }
 
         });
     });

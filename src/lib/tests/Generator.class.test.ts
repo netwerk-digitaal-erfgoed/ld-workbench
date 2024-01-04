@@ -103,14 +103,14 @@ describe('Generator Class', () => {
             // read file after pipeline has finished
               const pipelineParallelGenerators = new Pipeline(config, {silent: true})
               pipelineParallelGenerators.validate()
-              pipelineParallelGenerators.run().then(() => {
-                const file = fs.readFileSync(filePath, {encoding: 'utf-8'})
-                const fileLines = file.split('\n').sort()
-                expect(fileLines.length).to.equal(873)
-                expect(fileLines[0]).to.equal('')
-                expect(fileLines[1]).to.equal('<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .')
-                expect(fileLines[fileLines.length - 1]).to.equal('<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .')
-              }).catch( e => { throw e } )
+              
+              await pipelineParallelGenerators.run()
+              const file = fs.readFileSync(filePath, {encoding: 'utf-8'})
+              const fileLines = file.split('\n').sort()
+              expect(fileLines.length).to.equal(873)
+              expect(fileLines[0]).to.equal('')
+              expect(fileLines[1]).to.equal('<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .')
+              expect(fileLines[fileLines.length - 1]).to.equal('<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .')
         })
         it('Should work in batchSize for pipeline\'s generator', async function () {
             const filePath = 'pipelines/data/example-pipelineBatch.nt';
