@@ -9,7 +9,6 @@ import type { Endpoint, QueryEngine } from "./types.js";
 import getEngine from '../utils/getEngine.js';
 import getEngineSource from '../utils/getEngineSource.js';
 import EventEmitter from 'node:events';
-import { setTimeout } from 'node:timers/promises';
 import parse from 'parse-duration'
 
 const DEFAULT_BATCH_SIZE = 10
@@ -97,18 +96,19 @@ class Generator extends EventEmitter {
         })
         stream.on('end', () => {
           if (this.iterationsIncoming !== undefined && this.iterationsProcessed >= this.iterationsIncoming) {
-            this.emit('end', this.iterationsIncoming, this.statements, this.iterationsProcessed)
+            setTimeout(() => {
+              this.emit('end', this.iterationsIncoming!, this.statements, this.iterationsProcessed)
+            }, this.delay ?? 0)
+            
           }
         })
       }).catch(e => {
         this.emit("error", error(e))
       })
       this.$thisList.length = 0
-      console.log(this.delay)
-      if (this.delay !== undefined) setTimeout(this.delay).then(() => {}).catch(e => {throw e})
-      }
     }
   }
+}
 
 
 export default Generator
