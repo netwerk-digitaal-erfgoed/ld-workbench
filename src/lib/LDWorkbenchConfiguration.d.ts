@@ -49,6 +49,10 @@ export interface LDWorkbenchConfiguration {
          * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
          */
         batchSize?: number;
+        /**
+         * Human readable delay for the iterator between endpoint requests (e.g. '1s', '2m', '3 hours')
+         */
+        delay?: string;
       };
       /**
        * @minItems 1
@@ -117,6 +121,10 @@ export interface LDWorkbenchConfiguration {
          * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
          */
         batchSize?: number;
+        /**
+         * Human readable delay for the iterator between endpoint requests (e.g. '1s', '2m', '3 hours')
+         */
+        delay?: string;
       };
       /**
        * @minItems 1

@@ -47,6 +47,10 @@
                 "type": "number",
                 "minimum": 1,
                 "description": "Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query."
+              },
+              "delay": {
+                "type": "string",
+                "description": "Human readable delay for the iterator between endpoint requests (e.g. '1s', '2m', '3 hours')"
               }
             }
           },
