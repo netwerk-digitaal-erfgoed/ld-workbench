@@ -2,12 +2,23 @@ import File from "../File.class.js";
 import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
 import Pipeline from "../Pipeline.class.js";
 import * as chai from 'chai'
+import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised'
 import Stage from "../Stage.class.js";
+import removeDirectory from "../../utils/removeDir.js";
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
+
+// BUG currently the pipeline class fails with no such file or directory, open 'pipelines/data/example-pipeline-batch/stage-1.nt and done() called multiple times in test <Pipeline Class run should run the pipeline correctly> of file /Users/work/triply/NDE-LDWorkbench/ld-workbench/dist/lib/tests/Pipeline.class.test.js
 describe('Pipeline Class', () => {
+    const dataDirectoryPath = path.join('pipelines', 'data');
+
+    before(async function () {
+        // Remove the data directory before running tests
+        await removeDirectory(dataDirectoryPath);
+    });
+
     describe('constructor', () => {
         it('should set properties correctly', () => {
             const configuration: LDWorkbenchConfiguration = {
@@ -22,30 +33,32 @@ describe('Pipeline Class', () => {
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-1-1.rq'
-                        }
-]                    },
+                            {
+                                query: 'file://static/example/generator-stage-1-1.rq'
+                            }
+                        ]
+                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-]                    }
+                            {
+                                query: 'file://static/example/generator-stage-2.rq',
+                                endpoint: 'file://static/tests/wikidata.nt'
+                            }
+                        ]
+                    }
                 ]
             }
-            const pipeline = new Pipeline(configuration, {silent: true});
+            const pipeline = new Pipeline(configuration, { silent: true });
             expect(pipeline).to.be.an.instanceOf(Pipeline);
             expect(pipeline).to.have.property('stages').that.is.a('Map');
             expect(pipeline).to.have.property('dataDir').that.is.a('string');
             expect(pipeline).to.have.property('$isValidated', false);
             expect(pipeline).to.have.property('stageNames').that.is.an('array');
-            expect(pipeline).to.have.property('now').that.is.an.instanceOf(Date);
+            expect(pipeline).to.have.property('startTime').that.is.an('number');
             expect(pipeline).to.have.property('destination').that.is.an.instanceOf(File);
         });
     });
@@ -64,24 +77,26 @@ describe('Pipeline Class', () => {
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-1-1.rq'
-                        }
-]                    },
+                            {
+                                query: 'file://static/example/generator-stage-1-1.rq'
+                            }
+                        ]
+                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-]                    }
+                            {
+                                query: 'file://static/example/generator-stage-2.rq',
+                                endpoint: 'file://static/tests/wikidata.nt'
+                            }
+                        ]
+                    }
                 ]
             }
-            const pipeline = new Pipeline(configuration, {silent: true});
+            const pipeline = new Pipeline(configuration, { silent: true });
             pipeline.validate()
 
             const stage1 = pipeline.stages.get('Stage 1')!;
@@ -104,24 +119,26 @@ describe('Pipeline Class', () => {
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-1-1.rq'
-                        }
-]                    },
+                            {
+                                query: 'file://static/example/generator-stage-1-1.rq'
+                            }
+                        ]
+                    },
                     {
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-]                    }
+                            {
+                                query: 'file://static/example/generator-stage-2.rq',
+                                endpoint: 'file://static/tests/wikidata.nt'
+                            }
+                        ]
+                    }
                 ]
             } as unknown as LDWorkbenchConfiguration
-            const pipeline = new Pipeline(configuration, {silent: true});
+            const pipeline = new Pipeline(configuration, { silent: true });
             const stage2: Stage = new Stage(pipeline, configuration.stages[1])
             pipeline.getPreviousStage(stage2)
 
@@ -135,7 +152,7 @@ describe('Pipeline Class', () => {
                 destination: 'file://pipelines/data/example-pipeline.nt',
                 stages: []
             } as unknown as LDWorkbenchConfiguration
-            const pipeline = new Pipeline(invalidConfiguration, {silent: true});
+            const pipeline = new Pipeline(invalidConfiguration, { silent: true });
             let failed = false
             try {
                 pipeline.validate()
@@ -162,23 +179,25 @@ describe('Pipeline Class', () => {
                             query: 'file://static/example/iterator-stage-1.rq',
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-1-1.rq'
-                        }
-]                    },
+                            {
+                                query: 'file://static/example/generator-stage-1-1.rq'
+                            }
+                        ]
+                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-2.rq',
-                        }
-]                    }
+                            {
+                                query: 'file://static/example/generator-stage-2.rq',
+                            }
+                        ]
+                    }
                 ]
             } as unknown as LDWorkbenchConfiguration
-            const pipeline = new Pipeline(invalidConfiguration, {silent: true});
+            const pipeline = new Pipeline(invalidConfiguration, { silent: true });
             let failed = false
             try {
                 pipeline.validate()
@@ -207,24 +226,26 @@ describe('Pipeline Class', () => {
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-1-1.rq'
-                        }
-]                    },
+                            {
+                                query: 'file://static/example/generator-stage-1-1.rq'
+                            }
+                        ]
+                    },
                     {
                         name: 'Stage 1',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-]                    }
+                            {
+                                query: 'file://static/example/generator-stage-2.rq',
+                                endpoint: 'file://static/tests/wikidata.nt'
+                            }
+                        ]
+                    }
                 ]
             }
-            const pipeline = new Pipeline(configDuplicateStageName, {silent: true});
+            const pipeline = new Pipeline(configDuplicateStageName, { silent: true });
             let failed = false
             try {
                 pipeline.validate()
@@ -255,24 +276,26 @@ describe('Pipeline Class', () => {
                             endpoint: 'file://static/tests/iris.nt'
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-1-1.rq'
-                        }
-]                    },
+                            {
+                                query: 'file://static/example/generator-stage-1-1.rq'
+                            }
+                        ]
+                    },
                     {
                         name: 'Stage 2',
                         iterator: {
                             query: 'file://static/example/iterator-stage-2.rq',
                         },
                         generator: [
-{
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-]                    }
+                            {
+                                query: 'file://static/example/generator-stage-2.rq',
+                                endpoint: 'file://static/tests/wikidata.nt'
+                            }
+                        ]
+                    }
                 ]
             }
-            const pipeline = new Pipeline(configDuplicateStageName, {silent: true});
+            const pipeline = new Pipeline(configDuplicateStageName, { silent: true });
             let failed = false
             try {
                 pipeline.validate()
@@ -288,38 +311,46 @@ describe('Pipeline Class', () => {
 
     describe('run', () => {
         it('should run the pipeline correctly', async () => {
-            const configuration: LDWorkbenchConfiguration = {
-                name: 'Example Pipeline',
-                description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-                destination: 'file://pipelines/data/example-pipeline.nt',
-                stages: [
-                    {
-                        name: 'Stage 1',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-1.rq',
-                            endpoint: 'file://static/tests/iris.nt'
+            try {
+
+                const configuration: LDWorkbenchConfiguration = {
+                    name: 'Example Pipeline',
+                    description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+                    destination: 'file://pipelines/data/example-pipeline.nt',
+                    stages: [
+                        {
+                            name: 'Stage 1',
+                            iterator: {
+                                query: 'file://static/example/iterator-stage-1.rq',
+                                endpoint: 'file://static/tests/iris.nt'
+                            },
+                            generator: [
+                                {
+                                    query: 'file://static/example/generator-stage-1-1.rq'
+                                }
+                            ]
                         },
-                        generator: [
-{
-                            query: 'file://static/example/generator-stage-1-1.rq'
+                        {
+                            name: 'Stage 2',
+                            iterator: {
+                                query: 'file://static/example/iterator-stage-2.rq',
+                            },
+                            generator: [
+                                {
+                                    query: 'file://static/example/generator-stage-2.rq',
+                                    endpoint: 'file://static/tests/wikidata.nt'
+                                }
+                            ]
                         }
-]                    },
-                    {
-                        name: 'Stage 2',
-                        iterator: {
-                            query: 'file://static/example/iterator-stage-2.rq',
-                        },
-                        generator: [
-{
-                            query: 'file://static/example/generator-stage-2.rq',
-                            endpoint: 'file://static/tests/wikidata.nt'
-                        }
-]                    }
-                ]
+                    ]
+                }
+                const pipeline = new Pipeline(configuration, { silent: true })
+    
+                await pipeline.run()
+            } catch(e) {
+                console.log(e)
+            throw e
             }
-            const pipeline = new Pipeline(configuration, {silent: true})
-            
-            await expect(Promise.resolve(pipeline.run())).to.eventually.fulfilled
 
         });
     });

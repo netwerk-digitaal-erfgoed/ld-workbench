@@ -1,10 +1,10 @@
-import { type WriteStream, createWriteStream, existsSync, statSync, mkdirSync, readFile } from 'fs'
+import { type WriteStream, createWriteStream, existsSync, statSync, mkdirSync,  createReadStream } from 'fs'
 import { isFile, isFilePathString } from '../utils/guards.js'
 import { dirname } from 'path'
 import chalk from 'chalk'
 import { type Ora } from 'ora'
 import type Pipeline from './Pipeline.class.js'
-
+import {pipeline as streamPipeline} from 'stream/promises'
 
 export default class File {
   public readonly $id = 'File'
@@ -50,14 +50,14 @@ export default class File {
   }
 
   public async write(pipeline: Pipeline, spinner: Ora): Promise<void> {
-    const destinationStream = this.getStream()
     const stageNames = Array.from(pipeline.stages.keys())
     for (const stageName of stageNames) {
       if (spinner !== undefined) spinner.suffixText = chalk.bold(stageName)
-      readFile(pipeline.stages.get(stageName)!.destinationPath, (error, buffer) => {
-        if(error !== null) throw error
-        destinationStream.write(buffer)
-      })
+      await streamPipeline(
+        createReadStream(pipeline.stages.get(stageName)!.destinationPath), 
+        this.getStream(true)
+      )
+      
     }
   }
 }

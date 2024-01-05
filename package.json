@@ -57,6 +57,7 @@
   "devDependencies": {
     "@types/chai": "^4.3.11",
     "@types/chai-as-promised": "^7.1.8",
+    "@types/human-number": "^1.0.2",
     "@types/inquirer": "^9.0.7",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash.kebabcase": "^4.1.9",
@@ -90,6 +91,7 @@
     "inquirer": "^9.2.12",
     "js-yaml": "^4.1.0",
     "lodash.kebabcase": "^4.1.1",
+    "millify": "^6.1.0",
     "n3": "^1.17.2",
     "ora": "^7.0.1",
     "pretty-ms": "^8.0.0",

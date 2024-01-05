@@ -4,15 +4,27 @@ import kebabcase from 'lodash.kebabcase'
 import Iterator from '../Iterator.class.js';
 import Generator from '../Generator.class.js';
 import * as chai from 'chai'
+import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised'
-import path from "path";
 import type { NamedNode } from "n3";
 import type { LDWorkbenchConfiguration } from "../LDWorkbenchConfiguration.js";
+import { fileURLToPath } from "url";
+import removeDirectory from "../../utils/removeDir.js";
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
 describe('Stage Class', () => {
+    const _filename = fileURLToPath(import.meta.url);
+    const _dirname = path.dirname(_filename);
+    const dataDirectoryPath = path.join(_dirname, 'pipelines', 'data');
+
+    before(async function () {
+        // Remove the data directory before running tests
+        await removeDirectory(dataDirectoryPath);
+    });
+
+
     describe('constructor', () => {
         it('should set properties correctly', () => {
             const configuration: LDWorkbenchConfiguration = {
