@@ -10,6 +10,7 @@ import getEndpoint from "../utils/getEndpoint.js";
 import type { Endpoint, QueryEngine } from "./types.js";
 import getEngine from "../utils/getEngine.js";
 import getEngineSource from "../utils/getEngineSource.js";
+import parse from 'parse-duration'
 
 const DEFAULT_LIMIT = 10;
 declare interface Iterator {
@@ -26,6 +27,7 @@ class Iterator extends EventEmitter {
   private readonly query: SelectQuery;
   public readonly endpoint: Endpoint;
   private readonly engine: QueryEngine;
+  private readonly delay: number | undefined
   private source: string = "";
   private $offset = 0;
   private totalResults = 0;
@@ -39,52 +41,58 @@ class Iterator extends EventEmitter {
       DEFAULT_LIMIT;
     this.endpoint = getEndpoint(stage);
     this.engine = getEngine(this.endpoint);
+    if (stage.configuration.iterator.delay !== undefined){
+      const delay = parse(stage.configuration.iterator.delay)
+      if (delay === undefined) throw new Error(`Error in stage \`${stage.configuration.name}\`: incorrect delay format was provided.`)
+      this.delay = delay
+    }
   }
 
   public run(): void {
-    let resultsPerPage = 0;
-    if (this.source === "") this.source = getEngineSource(this.endpoint);
-    this.query.offset = this.$offset;
-    const queryString = getSPARQLQueryString(this.query);
-    const error = (e: any): Error => new Error(
-      `The Iterator did not run succesfully, it could not get the results from the endpoint ${this.source} (offset: ${this.$offset}, limit ${this.query.limit}): ${(e as Error).message}`
-    )
-    this.engine
-      .queryBindings(queryString, {
-        sources: [this.source],
-      })
-      .then((stream) => {
-        stream.on("data", (binding: Bindings) => {
-          resultsPerPage++;
-          if (!binding.has("this"))
-            throw new Error("Missing binding $this in the Iterator result.");
-          const $this = binding.get("this")!;
-          if ($this.termType !== "NamedNode") {
-            throw new Error(
-              `Binding $this in the Iterator result must be an Iri/NamedNode, but it is of type ${$this.termType}.`
-            );
-          } else {
-            this.emit("data", $this);
-          }
-        });
-
-        stream.on("end", () => {
-          this.totalResults += resultsPerPage;
-          this.$offset += this.query.limit!;
-          if (resultsPerPage < this.query.limit!) {
-            this.emit("end", this.totalResults);
-          } else {
-            this.run();
-          }
-        });
-
-        stream.on('error', (e) => {
-          this.emit("error", error(e))
+    setTimeout(() => {                
+      let resultsPerPage = 0;
+      if (this.source === "") this.source = getEngineSource(this.endpoint);
+      this.query.offset = this.$offset;
+      const queryString = getSPARQLQueryString(this.query);
+      const error = (e: any): Error => new Error(
+        `The Iterator did not run succesfully, it could not get the results from the endpoint ${this.source} (offset: ${this.$offset}, limit ${this.query.limit}): ${(e as Error).message}`
+      )
+      this.engine
+        .queryBindings(queryString, {
+          sources: [this.source],
         })
-      })
-      .catch((e) => {
-        this.emit("error", error(e))
-      });
+        .then((stream) => {
+          stream.on("data", (binding: Bindings) => {
+            resultsPerPage++;
+            if (!binding.has("this"))
+              throw new Error("Missing binding $this in the Iterator result.");
+            const $this = binding.get("this")!;
+            if ($this.termType !== "NamedNode") {
+              throw new Error(
+                `Binding $this in the Iterator result must be an Iri/NamedNode, but it is of type ${$this.termType}.`
+              );
+            } else {
+              this.emit("data", $this);
+            }
+          });
+          stream.on("end", () => {
+            this.totalResults += resultsPerPage;
+            this.$offset += this.query.limit!;
+            if (resultsPerPage < this.query.limit!) {
+              this.emit("end", this.totalResults);
+            } else {
+              this.run();
+            }
+          });
+  
+          stream.on('error', (e) => {
+            this.emit("error", error(e))
+          })
+        })
+        .catch((e) => {
+          this.emit("error", error(e))
+        });
+    }, this.delay ?? 0)
   }
 }
 

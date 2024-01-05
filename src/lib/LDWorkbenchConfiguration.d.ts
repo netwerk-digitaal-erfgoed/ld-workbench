@@ -50,7 +50,7 @@ export interface LDWorkbenchConfiguration {
          */
         batchSize?: number;
         /**
-         * Human readable delay for the iterator between endpoint requests (e.g. '1s', '2m', '3 hours')
+         * Human readable time delay for the iterator's SPARQL endpoint requests - recommended to keep the delay below 1 second (e.g. '5ms', '100 milliseconds', '1s').
          */
         delay?: string;
       };
@@ -122,7 +122,7 @@ export interface LDWorkbenchConfiguration {
          */
         batchSize?: number;
         /**
-         * Human readable delay for the iterator between endpoint requests (e.g. '1s', '2m', '3 hours')
+         * Human readable time delay for the iterator's SPARQL endpoint requests - recommended to keep the delay below 1 second (e.g. '5ms', '100 milliseconds', '1s').
          */
         delay?: string;
       };

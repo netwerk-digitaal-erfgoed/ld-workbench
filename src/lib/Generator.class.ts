@@ -9,7 +9,6 @@ import type { Endpoint, QueryEngine } from "./types.js";
 import getEngine from '../utils/getEngine.js';
 import getEngineSource from '../utils/getEngineSource.js';
 import EventEmitter from 'node:events';
-import parse from 'parse-duration'
 
 const DEFAULT_BATCH_SIZE = 10
 
@@ -25,7 +24,6 @@ declare interface Generator {
 class Generator extends EventEmitter {
   private readonly query: ConstructQuery;
   private readonly engine: QueryEngine;
-  private readonly delay: number | undefined
   private iterationsProcessed: number = 0
   private iterationsIncoming?: number
   private statements: number = 0
@@ -36,12 +34,6 @@ class Generator extends EventEmitter {
     if (stage.configuration.generator === undefined) throw new Error('Error in Generator: no generators were present in stage configuration')
     super()
     this.index = index
-    if (stage.configuration.iterator.delay !== undefined){
-      console.log('🪵  | file: Generator.class.ts:41 | Generator | constructor | stage.configuration.iterator.delay:', stage.configuration.iterator.delay)
-      const delay = parse(stage.configuration.iterator.delay)
-      if (delay === undefined) throw new Error(`Error in stage \`${stage.configuration.name}\`: incorrect delay format was provided.`)
-      this.delay = delay
-    }
     this.query = getSPARQLQuery(
       stage.configuration.generator[this.index].query,
       "construct"
@@ -96,10 +88,7 @@ class Generator extends EventEmitter {
         })
         stream.on('end', () => {
           if (this.iterationsIncoming !== undefined && this.iterationsProcessed >= this.iterationsIncoming) {
-            setTimeout(() => {
-              this.emit('end', this.iterationsIncoming!, this.statements, this.iterationsProcessed)
-            }, this.delay ?? 0)
-            
+            this.emit('end', this.iterationsIncoming, this.statements, this.iterationsProcessed)
           }
         })
       }).catch(e => {
