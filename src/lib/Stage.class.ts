@@ -85,6 +85,8 @@ class Stage extends EventEmitter {
 
     this.iterator.on('data', ($this) => {
       this.generators.forEach(generator => {
+        // should give iterator information of current generator's batchSize and elements processed
+        this.iterator.checkGeneratorBatchSize(generator.getBatchSize(), generator.getCurrentProcessedInBatch());
         generator.run($this);
       });
       this.emit('iteratorResult', $this);

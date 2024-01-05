@@ -24,6 +24,7 @@ declare interface Generator {
 class Generator extends EventEmitter {
   private readonly query: ConstructQuery;
   private readonly engine: QueryEngine;
+  private currentProcessedInBatch: number = 0;
   private iterationsProcessed: number = 0
   private iterationsIncoming?: number
   private statements: number = 0
@@ -70,6 +71,7 @@ class Generator extends EventEmitter {
       const patterns = unionQuery.where ?? [];
       const valuePatterns: ValuePatternRow[] = []
       for (const $this of this.$thisList) {
+        this.currentProcessedInBatch++;  
         this.iterationsProcessed++
         valuePatterns.push({'?this': $this})
       }
@@ -90,12 +92,21 @@ class Generator extends EventEmitter {
           if (this.iterationsIncoming !== undefined && this.iterationsProcessed >= this.iterationsIncoming) {
             this.emit('end', this.iterationsIncoming, this.statements, this.iterationsProcessed)
           }
+          this.currentProcessedInBatch = 0;
         })
       }).catch(e => {
         this.emit("error", error(e))
       })
       this.$thisList.length = 0
     }
+  }
+
+  public getBatchSize(): number {
+    return this.batchSize;
+  }
+
+  public getCurrentProcessedInBatch(): number {
+    return this.currentProcessedInBatch;
   }
 }
 

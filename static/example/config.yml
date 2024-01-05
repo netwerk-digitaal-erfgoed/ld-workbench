@@ -14,10 +14,11 @@ stages:
     iterator:
       query: file://static/example/iterator-stage-1.rq
       endpoint: https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql
-      delay: "50ms"
+      delay: "5s"
     generator: 
       # First generator
-      -  query: file://static/example/generator-stage-1-1.rq 
+      -  query: file://static/example/generator-stage-1-1.rq
+         batchSize: 50
       # Second generator
       -  query: file://static/example/generator-stage-1-2.rq
   - name: "Stage 2"
