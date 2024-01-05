@@ -50,7 +50,7 @@
               },
               "delay": {
                 "type": "string",
-                "description": "Human readable time delay for the iterator's SPARQL endpoint requests - recommended to keep the delay below 1 second (e.g. '5ms', '100 milliseconds', '1s'). "
+                "description": "Human readable time delay for the iterator's SPARQL endpoint requests (e.g. '5ms', '100 milliseconds', '1s'). "
               }
             }
           },
