@@ -49,6 +49,10 @@ export interface LDWorkbenchConfiguration {
          * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
          */
         batchSize?: number;
+        /**
+         * Human readable time delay for the iterator's SPARQL endpoint requests (e.g. '5ms', '100 milliseconds', '1s').
+         */
+        delay?: string;
       };
       /**
        * @minItems 1
@@ -117,6 +121,10 @@ export interface LDWorkbenchConfiguration {
          * Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query.
          */
         batchSize?: number;
+        /**
+         * Human readable time delay for the iterator's SPARQL endpoint requests (e.g. '5ms', '100 milliseconds', '1s').
+         */
+        delay?: string;
       };
       /**
        * @minItems 1

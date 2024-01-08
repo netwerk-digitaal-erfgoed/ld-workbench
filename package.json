@@ -94,6 +94,7 @@
     "millify": "^6.1.0",
     "n3": "^1.17.2",
     "ora": "^7.0.1",
+    "parse-duration": "^1.1.0",
     "pretty-ms": "^8.0.0",
     "sparqljs": "^3.7.1"
   }

@@ -47,6 +47,10 @@
                 "type": "number",
                 "minimum": 1,
                 "description": "Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query."
+              },
+              "delay": {
+                "type": "string",
+                "description": "Human readable time delay for the iterator's SPARQL endpoint requests (e.g. '5ms', '100 milliseconds', '1s'). "
               }
             }
           },
