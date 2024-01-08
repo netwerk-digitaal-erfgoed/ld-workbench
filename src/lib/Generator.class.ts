@@ -50,7 +50,6 @@ class Generator extends EventEmitter {
       this.iterationsIncoming = count
         for (const $this of this.$thisList) {
           this.run($this, this.$thisList.length)
-       
       }
     })
 
