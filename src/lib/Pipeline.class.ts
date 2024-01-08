@@ -5,6 +5,7 @@ import chalk from "chalk";
 import Stage from "./Stage.class.js";
 import formatDuration from "../utils/formatDuration.js";
 import { millify } from "millify";
+import { setTimeout } from "node:timers/promises";
 import File from "./File.class.js";
 import path from "node:path";
 import * as fs from "node:fs";
@@ -38,6 +39,11 @@ class Pipeline {
     const destinationFile =
       this.configuration.destination ??
       `file://${path.join(this.dataDir, "statements.nt")}`;
+    const actualPath = destinationFile.replace(/^file:\/\//, '')
+    if (fs.existsSync(actualPath)) {
+      // removing destintation if it already exists
+        fs.unlinkSync(actualPath)
+      }
     if (
       !isFilePathString(destinationFile) &&
       !isTriplyDBPathString(destinationFile)
@@ -207,6 +213,7 @@ class Pipeline {
 
     if (this.stageNames.length !== 0) return this.runRecursive();
     try {
+      await setTimeout(3000)
       await this.writeResult();
     } catch (e) {
       throw new Error("Pipeline failed: " + (e as Error).message);
@@ -220,6 +227,7 @@ class Pipeline {
           )}" was completed in ${formatDuration(this.startTime, performance.now())}`
         )
       );
+    process.exit(0)
   }
 
   private async writeResult(): Promise<void> {
