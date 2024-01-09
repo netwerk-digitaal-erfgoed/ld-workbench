@@ -5,7 +5,6 @@ import chalk from "chalk";
 import Stage from "./Stage.class.js";
 import formatDuration from "../utils/formatDuration.js";
 import { millify } from "millify";
-import { setTimeout } from "node:timers/promises";
 import File from "./File.class.js";
 import path from "node:path";
 import * as fs from "node:fs";
@@ -183,9 +182,9 @@ class Pipeline {
     let iterationsProcessed = 0
     if (!(this.opts?.silent === true)) spinner.start();
     await new Promise<void>((resolve, reject) => {
-      stage.on("iteratorResult", (_$this) => {
+      stage.on("iteratorResult", (_$this, quadsGenerated) => {
         iterationsProcessed++
-        if (!(this.opts?.silent === true)) spinner.text = `Running ${stage.name}:\n\n  Elements processed: ${millify(iterationsProcessed)} \n  Duration: ${formatDuration(startTime, performance.now())} `;
+        if (!(this.opts?.silent === true)) spinner.text = `Running ${stage.name}:\n\n  Processed elements: ${millify(iterationsProcessed)}\n  Generated quads: ${millify(quadsGenerated)}\n  Duration: ${formatDuration(startTime, performance.now())} `;
       });
       stage.on("error", (e) => {
         spinner.fail();
@@ -213,7 +212,6 @@ class Pipeline {
 
     if (this.stageNames.length !== 0) return this.runRecursive();
     try {
-      await setTimeout(3000)
       await this.writeResult();
     } catch (e) {
       throw new Error("Pipeline failed: " + (e as Error).message);
@@ -227,7 +225,6 @@ class Pipeline {
           )}" was completed in ${formatDuration(this.startTime, performance.now())}`
         )
       );
-    process.exit(0)
   }
 
   private async writeResult(): Promise<void> {

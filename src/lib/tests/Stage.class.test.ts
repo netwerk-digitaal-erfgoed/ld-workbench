@@ -148,7 +148,6 @@ describe('Stage Class', () => {
         });
     });
 
-    // BUG throws error when in combined test on stage's Iterator, when set to only it will pass.
     describe.skip('run', () => {
         it('should run the stage correctly', async function () {
             const configuration: LDWorkbenchConfiguration = {

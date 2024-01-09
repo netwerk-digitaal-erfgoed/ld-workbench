@@ -13,12 +13,12 @@ import type { WriteStream } from 'node:fs';
 declare interface Stage {
   on(event: "generatorResult", listener: (count: number) => void): this;
   on(event: "end", listener: (iteratorCount: number, statements: number) => void): this;
-  on(event: "iteratorResult", listener: ($this: NamedNode) => void): this;
+  on(event: "iteratorResult", listener: ($this: NamedNode, quadsGenerated: number) => void): this;
   on(event: "error", listener: (e: Error) => void): this;
 
   emit(event: "generatorResult", count: number): boolean;
   emit(event: "end", iteratorCount: number, statements: number): boolean;
-  emit(event: "iteratorResult", $this: NamedNode): boolean;
+  emit(event: "iteratorResult", $this: NamedNode, quadsGenerated: number): boolean;
   emit(event: "error", e: Error): boolean;
 }
 
@@ -26,14 +26,12 @@ class Stage extends EventEmitter {
   public destination: () => WriteStream
   public iterator: Iterator
   public generators: Generator[] = []
-  private totalProcessed: number
 
   public constructor(
     public readonly pipeline: Pipeline,
     public readonly configuration: LDWorkbenchConfiguration['stages'][0]
   ) {
     super()
-    this.totalProcessed = 0
     try {
       this.iterator = new Iterator(this)
     } catch(e) {
@@ -59,35 +57,50 @@ class Stage extends EventEmitter {
   public get name(): string {
     return this.configuration.name
   }
-
+  
   public run(): void {
     const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' });
     let quadCount = 0;
 
-    this.generators.forEach(generator => {
+    const generatorProcessedCounts = new Map<number, number>();
+    let generatorsFinished = 0;
+    let quadsGenerated = 0;
+
+    const checkEnd = (iterationsIncoming: number, statements: number): void => {
+      // Check if all generators have processed all iterations
+      if (generatorsFinished === this.configuration.generator.length) {
+        this.emit('end', iterationsIncoming, statements);
+      }
+    };
+
+    this.generators.forEach((generator, index) => {
+      generatorProcessedCounts.set(index, 0);
+
       generator.on('data', (quad) => {
-          writer.addQuad(quad);
-          quadCount++;
-          this.emit('generatorResult', quadCount);
+        quadsGenerated++
+        writer.addQuad(quad);
+        quadCount++;
+        this.emit('generatorResult', quadCount);
       });
 
       generator.on('end', (iterationsIncoming, statements, processed) => {
-        this.totalProcessed += processed
-        if (this.totalProcessed >= (iterationsIncoming * this.configuration.generator.length)){
-          this.emit('end', iterationsIncoming, statements);
+        generatorProcessedCounts.set(index, generatorProcessedCounts.get(index)! + processed);
+        if (generatorProcessedCounts.get(index)! >= iterationsIncoming) {
+          generatorsFinished++;
         }
-    });
+        checkEnd(iterationsIncoming, statements);
+      });
 
-      generator.on('error', e => {
-        this.emit('error', e)
-      })
+      generator.on('error', (e) => {
+        this.emit('error', e);
+      });
     });
 
     this.iterator.on('data', ($this) => {
       this.generators.forEach(generator => {
         generator.run($this);
       });
-      this.emit('iteratorResult', $this);
+      this.emit('iteratorResult', $this, quadsGenerated);
   });
 
   this.iterator.on('error', e => {
