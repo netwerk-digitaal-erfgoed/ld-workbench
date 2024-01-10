@@ -62,11 +62,11 @@ stages:
 |                                  | destination        | The file where the final result of your pipeline is saved.                                                          | No       |
 | Stage                            | name               | The name of your pipeline step, it must be unique within one configuration.                                         | Yes      |
 |                                  | destination        | The file where the results are saved. This is not a required property; if omitted, a temporary file will be created automatically. | No       |
-| Iterator                         | query              | Path (prefixed with "file://") or SPARQL Query that makes the iterator using SPARQL select.                        | Yes      |
-|                                  | endpoint           | The SPARQL endpoint for the iterator. If it starts with "file://", a local RDF file is queried. If omitted, the result of the previous file is used. | No       |
+| Iterator                         | query              | Path (prefixed with "file://") of SPARQL Query `.rq` file or SPARQL Query string that makes the iterator using SPARQL select.                        | Yes      |
+|                                  | endpoint           | The SPARQL endpoint for the iterator. If it starts with "file://", a local RDF file is queried. If omitted, the result of the previous stage is used. | No       |
 |                                  | batchSize          | Overrule the iterator's behavior of fetching 10 results per request, regardless of any limits in your query.       | No       |
 |                                  | delay              | Human-readable time delay for the iterator's SPARQL endpoint requests (e.g., '5ms', '100 milliseconds', '1s').   | No       |
-| Generator                        | query              | Path (prefixed with "file://") or SPARQL Query that makes the generator using SPARQL construct.                    | Yes      |
+| Generator                        | query              | Path (prefixed with "file://") of SPARQL Query `.rq` file or SPARQL Query string that makes the generator using SPARQL construct.                    | Yes      |
 |                                  | endpoint           | The SPARQL endpoint for the generator. If it starts with "file://", a local RDF file is queried. If omitted, the endpoint of the Iterator is used. | No       |
 |                                  | batchSize          | Overrule the generator's behavior of fetching results for 10 bindings of $this per request.                          | No       |
 
