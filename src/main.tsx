@@ -61,6 +61,7 @@ async function main(): Promise<void> {
 
   try {
     await pipeline.run();
+    process.exit(0)
   } catch (e) {
     error(`Error in pipeline ${chalk.italic(configuration.name)}`, 5, e as Error);
   }

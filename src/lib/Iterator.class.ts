@@ -30,14 +30,14 @@ class Iterator extends EventEmitter {
   private readonly delay: number | undefined
   private source: string = "";
   private $offset = 0;
-  private totalResults = 0;
+  public totalResults = 0;
 
   constructor(stage: Stage) {
     super();
     this.query = getSPARQLQuery(stage.configuration.iterator.query, "select");
     this.query.limit =
-      this.query.limit ??
       stage.configuration.iterator.batchSize ??
+      this.query.limit ??
       DEFAULT_LIMIT;
     this.endpoint = getEndpoint(stage);
     this.engine = getEngine(this.endpoint);

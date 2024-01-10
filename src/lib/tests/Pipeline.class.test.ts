@@ -9,8 +9,6 @@ import removeDirectory from "../../utils/removeDir.js";
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
-
-// BUG currently the pipeline class fails with no such file or directory, open 'pipelines/data/example-pipeline-batch/stage-1.nt and done() called multiple times in test <Pipeline Class run should run the pipeline correctly> of file /Users/work/triply/NDE-LDWorkbench/ld-workbench/dist/lib/tests/Pipeline.class.test.js
 describe('Pipeline Class', () => {
     const dataDirectoryPath = path.join('pipelines', 'data');
 
