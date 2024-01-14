@@ -1,0 +1,32 @@
+name: AO
+stages:
+  - name: "Events"
+    iterator:
+      batchSize: 10000
+      delay: 50ms
+      endpoint: https://api.test.triply.cc/datasets/colonialHeritage-test/graph/sparql
+      #endpoint: https://api.test.triply.cc/datasets/colonialHeritage-test/graph/services/backup/sparql
+      query: file://static/ao/events-iterator.rq
+    generator:
+      -  batchSize: 100
+         query: file://static/ao/events-generator.rq
+  - name: "Makers"
+    iterator:
+      batchSize: 10000
+      delay: 50ms
+      endpoint: https://api.test.triply.cc/datasets/colonialHeritage-test/graph/sparql
+      #endpoint: https://api.test.triply.cc/datasets/colonialHeritage-test/graph/services/backup/sparql
+      query: file://static/ao/makers-iterator.rq
+    generator:
+      -  batchSize: 100
+         query: file://static/ao/makers-generator.rq
+  - name: "Sites"
+    iterator:
+      batchSize: 10000
+      delay: 50ms
+      endpoint: https://api.test.triply.cc/datasets/colonialHeritage-test/graph/sparql
+      #endpoint: https://api.test.triply.cc/datasets/colonialHeritage-test/graph/services/backup/sparql
+      query: file://static/ao/sites-iterator.rq
+    generator:
+      -  batchSize: 100
+         query: file://static/ao/sites-generator.rq
