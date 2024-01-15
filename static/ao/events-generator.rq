@@ -3,129 +3,103 @@ prefix dct: <http://purl.org/dc/terms/>
 prefix crm: <http://www.cidoc-crm.org/cidoc-crm/>
 prefix histEvents: <https://colonial-heritage.triply.cc/Iva/test-colonialHeritage/HistEvents_w_EventTypes.csv/def/>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
 construct {
-  ?HistEventID a crm:E5_Event.
-   #HistEventID
-  ?HistEventID crm:P1_is_identified_by _:HistEventID.
-  _:HistEventID a crm:E42_Identifier;
+  ?histEventID a crm:E5_Event.
+  #histEventID
+  ?histEventID crm:P1_is_identified_by _:histEventID.
+  _:histEventID a crm:E42_Identifier;
     crm:P2_has_type aat:300404626;
     rdfs:label "Identification number";
     crm:P190_has_symbolic_content ?oldobject.
-
-    #EventName
-  ?HistEventID crm:P1_is_identified_by _:eventName.
+  #EventName
+  ?histEventID crm:P1_is_identified_by _:eventName.
   _:eventName a crm:E42_Identifier;
     crm:P2_has_type aat:300404650;
     rdfs:label "Event name";
     crm:P190_has_symbolic_content ?eventName.
-
-    #EventType
-  ?HistEventID crm:P67i_is_referred_to_by _:eventType.
+  #EventType
+  ?histEventID crm:P67i_is_referred_to_by _:eventType.
   _:eventType a crm:E33_Linguistic_Object;
     rdfs:label "Event type";
     crm:P190_has_symbolic_content ?eventType;
     crm:P1_is_identified_by _:eventTypeD.
-
-     #EventTypeID
+  #EventTypeID
   _:eventTypeID a crm:E42_Identifier;
     crm:P2_has_type aat:300404626;
     rdfs:label "Identification number";
     crm:P190_has_symbolic_content ?eventTypeID.
-
-     #IsPublic (should only be created when IsPublic is equal to "1")
-  ?HistEventID dct:accessRights ?bnIsTrue.
+  #IsPublic (should only be created when IsPublic is equal to "1")
+  ?histEventID dct:accessRights ?bnIsTrue.
   ?bnIsTrue a dct:RightsStatement;
     rdfs:label "Yes, for public use".
-
-   	 #DateBegin and DateEnd are not empty
-  ?HistEventID crm:P4_has_time-span ?timeSpan.
+  #DateBegin and DateEnd are not empty
+  ?histEventID crm:P4_has_time-span ?timeSpan.
   ?timeSpan a crm:E52_Time-Span;
     rdfs:label "DateBegin and DateEnd";
     crm:P82a_begin_of_the_begin ?dateBegin;
     crm:P82b_end_of_the_end ?dateEnd.
-
-  	#DateBegin is empty and DateEnd is not empty
-  ?HistEventID crm:P4_has_time-span ?dateBeginEmpty.
+  #DateBegin is empty and DateEnd is not empty
+  ?histEventID crm:P4_has_time-span ?dateBeginEmpty.
   ?dateBeginEmpty a crm:E52_Time-Span;
     rdfs:label "DateEnd";
     crm:P82b_end_of_the_end ?dateEnd.
-
-    #DateBegin is not empty and DateEnd is empty
-  ?HistEventID crm:P4_has_time-span ?dateEndEmpty.
+  #DateBegin is not empty and DateEnd is empty
+  ?histEventID crm:P4_has_time-span ?dateEndEmpty.
   ?dateEndEmpty a crm:E52_Time-Span;
     rdfs:label "DateBegin";
     crm:P82b_end_of_the_end ?dateBegin.
-
-    #Description - check if description is empty or not
-  ?HistEventID crm:P67i_is_referred_to_by ?descriptionBlankNode.
+  #Description - check if description is empty or not
+  ?histEventID crm:P67i_is_referred_to_by ?descriptionBlankNode.
   ?descriptionBlankNode a crm:E33_Linguistic_Object;
     crm:P2_has_type aat:300435416;
     rdfs:label "Description";
     crm:P190_has_symbolic_content ?description.
-
-
   # SubTitle - check if SubTitle is empty or not
-  ?HistEventID crm:P3_has_note ?subtitles.
+  ?histEventID crm:P3_has_note ?subtitles.
 }
 where {
-  	graph <https://colonial-heritage.triply.cc/Iva/test-colonialHeritage/eventsCsv> {
-#  	$this histEvents:HistEventID ?oldobject.
-  	bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/id/site/>), str(?oldobject))) as ?HistEventID).
-  	$this histEvents:EventName ?eventName.
-  	$this histEvents:EventType ?eventType.
-  	$this histEvents:EventTypeID ?eventTypeID.
+  graph <https://colonial-heritage.triply.cc/Iva/test-colonialHeritage/eventsCsv> {
+    #  	$this histEvents:histEventID ?oldobject.
+    bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/id/site/>), str(?oldobject))) as ?histEventID).
+    $this histEvents:EventName ?eventName.
+    $this histEvents:EventType ?eventType.
+    $this histEvents:EventTypeID ?eventTypeID.
     $this histEvents:PublicAccess ?isPublic.
-  	optional {
-    	filter(?isPublic = "1")
-    	bind(bnode() as ?bnIsTrue).
-    }
-   	# DateBegin and DateEnd are not empty
     optional {
-      filter exists {
-    	$this histEvents:DateBegin ?dateBegin.
-    	$this histEvents:DateEnd ?dateEnd.
-      }
+      filter(?isPublic = "1")
+      bind(bnode() as ?bnIsTrue).
+    } 
+    # DateBegin and DateEnd are not empty
+    optional {
       $this histEvents:DateBegin ?dateBegin.
       $this histEvents:DateEnd ?dateEnd.
       bind(bnode() as ?timeSpan)
     }
-  	# DateBegin is empty and DateEnd is not empty
+    # DateBegin is empty and DateEnd is not empty
     optional {
-      filter exists {
-      	$this histEvents:DateEnd ?dateEnd.
-      }
+      $this histEvents:DateEnd ?dateEnd.
       filter not exists {
-     	$this histEvents:DateBegin ?dateBegin.
+        $this histEvents:DateBegin ?dateBegin.
       }
       bind (bnode() as ?dateBeginEmpty)
     }
     # DateBegin is not empty and DateEnd is empty
-     optional {
-      filter exists {
-      	$this histEvents:DateBegin ?dateBegin.
-      }
+    optional {
+      $this histEvents:DateBegin ?dateBegin.
       filter not exists {
-      	$this histEvents:DateEnd ?dateEnd.
+        $this histEvents:DateEnd ?dateEnd.
       }
       $this histEvents:DateBegin ?dateBegin.
       bind (bnode() as ?dateEndEmpty)
     }
-
-   # Description - check if description is empty or not
+    # Description - check if description is empty or not
     optional {
-      filter exists {
-        $this histEvents:Description ?description.
-      }
-        $this histEvents:Description ?description.
+      $this histEvents:Description ?description.
       bind (bnode() as ?descriptionBlankNode).
     }
     # SubTitle - check if SubTitle is empty or not
-     optional {
-      filter exists {
-        $this histEvents:SubTitle ?subtitles.
-      }
-        $this histEvents:SubTitle ?subtitles.
+    optional {
+      $this histEvents:SubTitle ?subtitles.
     }
-  }
+  }  
 }

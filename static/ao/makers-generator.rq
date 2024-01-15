@@ -2,17 +2,17 @@ prefix aat:  <http://vocab.getty.edu/aat/>
 prefix dct: <http://purl.org/dc/terms/>
 prefix crm: <http://www.cidoc-crm.org/cidoc-crm/>
 prefix crmdig: <http://www.ics.forth.gr/isl/CRMdig/>
-prefix makerPerson: <https://test.triply.cc/colonialHeritage-test/graph/Maker-related_Constituents.csv/def/>
 prefix la: <https://linked.art/ns/terms/>
+prefix makerPerson: <https://test.triply.cc/colonialHeritage-test/graph/Maker-related_Constituents.csv/def/>
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 construct {
   ?_constituentID a crm:E21_Person.
-  #ConstituentID
+  #constituentID
   ?_constituentID crm:P1_is_identified_by ?_number.
   ?_number a crm:E42_Identifier;
     crm:P2_has_type aat:300404626;
     rdfs:label "Identification number";
-    crm:P190_has_symbolic_content ?ConstituentID.
+    crm:P190_has_symbolic_content ?constituentID.
   ?_constituentID rdfs:label ?displayName.
   ?_constituentID crm:P2_has_type aat:300386174.
   aat:300386174 a crm:E55_Type;
@@ -94,109 +94,68 @@ construct {
 }
 where {
   graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/makers> {
-#    filter exists {
-#      $this makerPerson:ConstituentID ?ConstituentID.
-#      filter(?ConstituentID != "NULL")
-#    }
-    $this makerPerson:ConstituentID ?ConstituentID.
-    bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/id/site/>), str(?ConstituentID))) as ?_constituentID).
-    bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), str(?ConstituentID))) as ?_number).
+    #    filter exists {
+    #      $this makerPerson:constituentID ?constituentID.
+    #      filter(?constituentID != "NULL")
+    #    }
+    $this makerPerson:constituentID ?constituentID.
+    bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/id/site/>), str(?constituentID))) as ?_constituentID).
+    bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), str(?constituentID))) as ?_number).
     $this makerPerson:DisplayName ?displayName.
     bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), str(?displayName))) as ?_name).
     optional {
-      filter exists {
-        $this makerPerson:AlphaSort ?alphaSort.
-      }
       $this makerPerson:AlphaSort ?alphaSort.
-    }
+    }    
     optional {
-      filter exists {
-        $this makerPerson:FirstName ?firstName.
-      }
       $this makerPerson:FirstName ?firstName.
       bind(bnode() as ?_firstName).
     }
     optional {
-      filter exists {
-        $this makerPerson:MiddleName ?middleName.
-      }
       $this makerPerson:MiddleName ?middleName.
       bind(bnode() as ?_middleName).
-    }
+    }    
     optional {
-      filter exists {
-        $this makerPerson:LastName ?lastName.
-      }
       $this makerPerson:LastName ?lastName.
       bind(bnode() as ?_lastName).
     }
     optional {
-      filter exists {
-        $this makerPerson:NameTitle ?nameTitle.
-      }
       $this makerPerson:NameTitle ?nameTitle.
       bind(bnode() as ?_nameTitle).
-    }
+    }    
     optional {
-      filter exists {
-        $this makerPerson:Suffix ?suffix.
-      }
       $this makerPerson:Suffix ?suffix.
       bind(bnode() as ?_suffix).
     }
     optional {
-      filter exists {
-        $this makerPerson:salutation ?salutation.
-      }
       $this makerPerson:salutation ?salutation.
       bind(bnode() as ?_salutation).
     }
     optional {
-      filter exists {
-        $this makerPerson:Institution ?institution.
-      }
       $this makerPerson:Institution ?institution.
       bind(bnode() as ?_institution).
     }
     optional {
-      filter exists {
-        $this makerPerson:Biography ?biography.
-      }
       $this makerPerson:Biography ?biography.
       bind(bnode() as ?_biography).
     }
     optional {
-      filter exists {
-        $this makerPerson:Nationality ?nationality.
-      }
       $this makerPerson:Nationality ?nationality.
       bind(bnode() as ?_nationality).
     }
     optional {
-      filter exists {
-        $this makerPerson:School ?school.
-      }
       $this makerPerson:School ?school.
       bind(bnode() as ?_school).
     }
     optional {
-      filter exists {
-        $this makerPerson:Remarks ?remarks.
-      }
       $this makerPerson:Remarks ?remarks.
       bind(bnode() as ?_remarks).
-    }
+    }   
     optional {
-      filter exists {
-        $this makerPerson:Position ?position.
-      }
+      $this makerPerson:Position ?position.
       $this makerPerson:Remarks ?position.
       bind(bnode() as ?_position).
-    }
+    }    
     optional {
-      filter exists {
-        $this makerPerson:CultureGroup ?cultureGroup.
-      }
       $this makerPerson:CultureGroup ?cultureGroup.
       bind(bnode() as ?_cultureGroup).
     }

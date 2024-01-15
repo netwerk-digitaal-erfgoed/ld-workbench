@@ -1,6 +1,4 @@
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix colonialHeritage: <https://test.triply.cc/colonialHeritage-test/graph/Sites(1).csv/def/>
-SELECT * WHERE {
+select * where {
   $this colonialHeritage:SiteID ?oldobject.
 }
