@@ -1,0 +1,5 @@
+
+prefix archiveRelated: <https://test.triply.cc/colonialHeritage-test/graph/Archive-related_Objects.csv/def/>
+select * where {
+    $this archiveRelated:ObjectNumber ?objectNumber.
+}

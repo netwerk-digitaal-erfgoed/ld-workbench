@@ -1,0 +1,4 @@
+prefix objectImageURLs: <https://test.triply.cc/colonialHeritage-test/graph/Object_image_URIs_00.csv/def/>
+select * where {
+  $this objectImageURLs:ObjectNumber ?object.
+}

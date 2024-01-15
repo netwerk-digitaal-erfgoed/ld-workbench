@@ -1,0 +1,201 @@
+prefix aat:  <http://vocab.getty.edu/aat/>
+prefix dct: <http://purl.org/dc/terms/>
+prefix crm: <http://www.cidoc-crm.org/cidoc-crm/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix objectLocations: <https://test.triply.cc/colonialHeritage-test/graph/Location-related_Object_Term_IRIs_00.csv/def/>
+prefix skos: <http://www.w3.org/2004/02/skos/core#>
+construct {
+  ?_objectNumber a crm:E22_Human-Made_Object.
+  #ObjectNumber
+  ?_objectNumber crm:P1_is_identified_by ?_number.
+  ?_number a crm:E42_Identifier;
+    crm:P2_has_type aat:300404626;
+    rdfs:label "Identification number";
+    crm:P190_has_symbolic_content ?objectNumber.
+  #ObjectID
+  ?_objectNumber crm:P1_is_identified_by _:objectID.
+  _:objectID a crm:E42_Identifier;
+    crm:P2_has_type aat:300445023;
+    crm:P2_has_type aat:300404664;
+    rdfs:label "Alias of the identification number";
+    crm:P190_has_symbolic_content ?objectID.
+  #  #ObjectName
+  ?_objectNumber crm:P1_is_identified_by _:objectName.
+  _:objectName a crm:E55_Type;
+    rdfs:label "Intended use";
+    crm:P190_has_symbolic_content ?objectID.
+  #Title - check if it is present
+  ?objects dct:title ?title.
+  #Medium - check if it is present
+  ?objects crm:P45_consists_of ?skolemMeduim.
+  ?skolemMeduim a crm:E57_Material;
+    rdfs:label "Material";
+    crm:P190_has_symbolic_content ?medium.
+  # Remarks (should only be created when Remarks is not empty)
+  ?objects crm:P67i_is_referred_to_by ?skolemNodeRemarks.
+  ?skolemNodeRemarks a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435415;
+    rdfs:label "Remarks" ;
+    crm:P190_has_symbolic_content ?remarks.
+  #Description - check if it is empty
+  ?objects crm:P67i_is_referred_to_by ?skolemDescription.
+  ?skolemDescription a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435416;
+    rdfs:label "Description";
+    crm:P190_has_symbolic_content ?description.
+  #Provenance - check if it is empty
+  ?objects crm:P67i_is_referred_to_by ?skolemProvenance.
+  ?skolemProvenance a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300444173;
+    rdfs:label "Provenance";
+    crm:P190_has_symbolic_content ?provenance.
+  #Notes - check if it is empty
+  ?objects crm:P3_has_note ?notes.
+  #RelatedWorks - check if it is empty
+  ?objects crm:P67i_is_referred_to_by ?skolemRelatedWorks.
+  ?skolemRelatedWorks a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300444120;
+    rdfs:label "Related works";
+    crm:P190_has_symbolic_content ?relatedWorks.
+  # HistAttributions - check if it is empty
+  ?objects skos:historyNote ?histAttributions.
+  #CuratorialRemarks - check if it is empty
+  ?objects crm:P67i_is_referred_to_by ?skolemCuratorialRemarks.
+  ?skolemCuratorialRemarks a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435415;
+    rdfs:label "Curatorial remarks";
+    crm:P190_has_symbolic_content ?curatorialRemarks.
+  #Dimensions & DimensionRemarks  
+  #Dimensions and Dimesions remarks not empty
+  ?objects crm:P43_has_dimension ?dimensionsAndRemarks.
+  ?dimensionsAndRemarks a crm:E54_Dimension;
+    rdfs:label "Dimesions";
+    crm:P3_has_note ?dimesionsRemarks.
+  #DimensionRemarks is not empty
+  ?object crm:P43_has_dimension ?onlyDimesionsRemarks.
+  ?onlyDimesionsRemarks a crm:E54_Dimension;
+    rdfs:label "DimensionRemarks";
+    crm:P3_has_note ?dimesionsRemarks.
+  #Dimension is not empty
+  ?object crm:P43_has_dimension ?onlyDimesions.
+  ?onlyDimesions a crm:E54_Dimension;
+    rdfs:label "Dimensions";
+    crm:P3_has_note ?dimensions.
+  #Signed
+  ?objects crm:P128_carries ?hashedSigned.
+  ?hashedSigned a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300189326;
+    rdfs:label "Signed";
+    crm:P190_has_symbolic_content ?signed.
+  #Inscribed
+  ?objects crm:P128_carries ?hashedInscribed.
+  ?hashedInscribed a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300028702;
+    rdfs:label "Inscribed";
+    crm:P190_has_symbolic_content ?inscribed.
+  #Markings
+  ?objects crm:P128_carries ?hashedMarkings.
+  ?hashedMarkings a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300028744;
+    rdfs:label "Markings";
+    crm:P190_has_symbolic_content ?markings.
+}
+where {
+  graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/objectLocations> {
+    #objectNumber
+    $this objectLocations:ObjectNumber ?objectNumber.
+    bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/id/objects/>), str(?objectNumber))) as ?_objectNumber).
+    bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), str(?objectNumber))) as ?_number).
+    optional {
+      $this objectLocations:ObjectID ?objectID.
+    }
+    #Title
+    optional {
+      $this objectLocations:Title ?title.
+    }    
+    # Medium - check if medium is empty or not
+    optional {
+      $this objectLocations:Medium ?medium.
+      bind (bnode() as ?skolemMeduim).
+    }
+    # Remarks (should only be created when Remarks is not empty)
+    optional {
+      $this objectLocations:Remarks ?remarks.
+      filter(?remarks != "\r\n")
+      bind(bnode() as ?skolemNodeRemarks).
+    }
+    # Description - check if description is empty or not
+    optional {
+      $this objectLocations:Description ?description.
+      bind (bnode() as ?skolemDescription).
+    }
+    #Provenance 
+    optional {
+      $this objectLocations:Provenance ?provenance.
+      bind (bnode() as ?skolemProvenance).
+    }       
+    #Notes
+    optional {
+      $this objectLocations:Notes ?notes.
+    }
+    #RelatedWorks
+    optional {
+      $this objectLocations:RelatedWorks ?relatedWorks.
+      bind (bnode() as ?skolemRelatedWorks).
+    }
+    #HistAttributions
+    optional {
+      $this objectLocations:HistAttributions ?histAttributions.
+    }
+    #CuratorialRemarks
+    optional {
+      $this objectLocations:CuratorialRemarks ?curatorialRemarks.
+      bind (bnode() as ?skolemCuratorialRemarks).
+    }
+    #Dimensions and DimensionRemarks are not empty
+    optional {
+      $this objectLocations:Dimensions ?dimesions.
+      filter (?dimesions != "[N.B.]" && ?dimesions != "[N.I.]")
+      $this objectLocations:DimensionRemarks ?dimesionsRemarks.
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), md5(str(?dimesions)), md5(str(?dimesionsRemarks)), md5(str(?objectNumber)))) as ?dimensionsAndRemarks).
+    }  
+    #DimensionRemarks is not empty
+    optional {
+      $this objectLocations:DimensionRemarks ?dimesionsRemarks.
+      filter not exists {
+        $this objectLocations:Dimensions ?dimesions.
+      }
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), md5(str(?dimesionsRemarks)),  md5(str(?objectNumber)))) as ?onlyDimesionsRemarks).
+    }
+    #Dimension is not empty
+    optional {
+      $this objectLocations:Dimensions ?dimesions.
+      filter (?dimesions != "[N.B.]" && ?dimesions != "[N.I.]")
+      filter not exists {
+        $this objectLocations:DimensionRemarks ?dimesionsRemarks.
+      }
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), md5(str(?dimesions)),  md5(str(?objectNumber)))) as ?onlyDimesions).
+    }    
+    #Signed
+    optional {
+      $this objectLocations:Signed ?signed.
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?signed)))) as ?hashedSigned).
+    }
+    #Inscribed
+    optional {
+      $this objectLocations:Inscribed ?inscribed.
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?inscribed)))) as ?hashedInscribed).
+    }
+    #Markings     
+    optional {
+      $this objectLocations:Markings ?markings.
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?markings)))) as ?hashedMarkings).
+    }
+  }
+}

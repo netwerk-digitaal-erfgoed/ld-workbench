@@ -1,0 +1,69 @@
+prefix aat:  <http://vocab.getty.edu/aat/>
+prefix crm: <http://www.cidoc-crm.org/cidoc-crm/>
+prefix crmdig: <http://www.ics.forth.gr/isl/CRMdig/>
+prefix la: <https://linked.art/ns/terms/>
+prefix objectImageURLs: <https://test.triply.cc/colonialHeritage-test/graph/Object_image_URIs_00.csv/def/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+construct {
+  ?objectNumber a crm:E22_Human-Made_Object.
+   #objectImages
+  ?_objectNumber crm:P65_shows_visual_item _:visvualItem.
+  _:visvualItem a crm:E36_Visual_Item;
+    la:digitally_shown_by _:digitalObject.
+  
+  _:digitalObject a crmdig:D1_Digital_Object;
+    rdfs:label "Digitized Image of Painting";
+    crm:P2_has_type aat:300215302;
+    la:access_point ?uri.
+  
+   _:digitalObject crm:P104_is_subject_to ?_SAlicense.
+  ?_SAlicense a crm:E30_Right;
+    crm:P2_has_type <https://creativecommons.org/licenses/by-sa/4.0/>.
+  
+   _:digitalObject crm:P67i_is_referred_to_by ?_DEEDlicenseLabel.
+  ?_DEEDlicenseLabel a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300435434;
+    rdfs:label <https://creativecommons.org/publicdomain/mark/1.0/deed.en>;
+    crm:P190_has_symbolic_content ?authValue.
+  
+   _:digitalObject crm:P104_is_subject_to ?_NDlicense.
+  ?_license a crm:E30_Right;
+    crm:P2_has_type <https://creativecommons.org/licenses/by-nc-nd/4.0/>.
+  
+  
+     _:digitalObject crm:P67i_is_referred_to_by ?_licenseLabel.
+  ?_licenseLabel a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300435434;
+    rdfs:label ?authValue;
+    crm:P190_has_symbolic_content ?authValue.
+}
+where {
+  	graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/objectImages> {
+  		$this objectImageURLs:ObjectNumber ?object.
+    filter(regex(?object, "^[a-zA-Z]+-\\d+-\\d+$") || regex(?object, "^\\d+-\\d+[a-zA-Z]$") || regex(?object, "^\\d+-\\d+$"))
+  	bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/id/site/>), str(?object))) as ?objectNumber).
+    
+    optional {
+     filter (objectImageURLs:AuthValue != "CC-BY-SA 4.0" || objectImageURLs:AuthValue != "CC-BY-SA 4.0 NMVW/WM")
+      bind(bnode() as ?_SAlicense)
+    }    
+    
+    optional {
+     filter (objectImageURLs:AuthValue != "Public domain" || objectImageURLs:AuthValue != "PD-anon-70-EU")
+      $this objectImageURLs:AuthValue ?authValue.
+      bind(bnode() as ?_DEEDlicenseLabel)
+    }    
+        
+    optional {
+     filter (objectImageURLs:AuthValue != "CC-BY-NC-ND 4.0")
+      bind(bnode() as ?_NDlicense)
+    }   
+    
+    optional {
+     filter (objectImageURLs:AuthValue != "Copyrightstatus onbekend")
+      $this objectImageURLs:AuthValue ?authValue.
+      bind(bnode() as ?_licenseLabel)
+    }   
+  }
+}
