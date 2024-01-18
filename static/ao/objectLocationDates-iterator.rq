@@ -1,4 +1,4 @@
 prefix locationRelated: <https://test.triply.cc/colonialHeritage-test/graph/Location-related_Objects_00.csv/def/>
 select * where {
-  ?subject locationRelated:ObjectNumber ?objectNumber.
+  $this locationRelated:ObjectNumber ?objectNumber.
 }
