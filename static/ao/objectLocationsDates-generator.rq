@@ -50,6 +50,8 @@ where {
             )
           )
         ) as ?newDateEndCombined)
+
+        # The data for this ETL is very inconsistent, this is used in order to normalize all dates so they have the same format "-XXXX-XX-XX"
     }
     # DateBegin is not 0 && DateEnd is 0
     optional {
