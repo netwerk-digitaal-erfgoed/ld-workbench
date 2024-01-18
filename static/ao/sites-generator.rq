@@ -22,14 +22,13 @@ construct {
     # locationNotes could be HTML or string literal
     crm:P190_has_symbolic_content ?locationNotes;
     crm:P72_has_language aat:300388277.
-  #  # "Environment"=NL
+  # "Environment"=NL
   ?siteID crm:P67i_is_referred_to_by _:skolemNodeEnvironment.
   _:skolemNodeEnvironment a crm:E33_Linguistic_Object;
     crm:P2_has_type aat:300435416;
     rdfs:label "Description in Dutch" ;
     crm:P190_has_symbolic_content ?environment;
     crm:P72_has_language aat:300411849.
-  #  
   #  # "Description"=ID
   ?siteID crm:P67i_is_referred_to_by _:skolemNodeDesc.
   _:skolemNodeDesc a crm:E33_Linguistic_Object;
@@ -74,7 +73,7 @@ where {
   # Dimensions (should only be created when Dimensions is not empty)
   $this colonialHeritage:Dimensions ?dimensions.
   optional {
-    filter (?dimensions != "\r\n")
+    filter(?dimensions != "\r\n")
     bind(bnode() as ?skolemNodeDimensions).
   }
   # Remarks (should only be created when Remarks is not empty)

@@ -22,18 +22,13 @@ where {
     #DateBegin && DateEnd - check when they are present |This needs to be done because of the way in which source data is being supplied.
     # DateBegin && DateEnd are not 0
     optional {
-      filter exists {
-        $this archiveRelated:DateBegin ?dateBegin.
-        filter (?dateBegin != "0000-01-01")
-        $this archiveRelated:DateEnd ?dateEnd.
-        filter (?dateEnd != "0000-01-01")
-      }
-      bind (bnode() as ?production).
-      bind (bnode() as ?dates).
+      $this archiveRelated:DateBegin ?dateBegin.
+      filter(?dateBegin != "0000-01-01")
+      $this archiveRelated:DateEnd ?dateEnd.
+      filter(?dateEnd != "0000-01-01")
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
       optional {
-        filter exists {
-          $this archiveRelated:Dated ?dated.
-        }
         $this archiveRelated:Dated ?dated.
       }
       optional {
@@ -49,14 +44,13 @@ where {
     }
     # DateBegin is not 0 && DateEnd is 0
     optional {
-      filter exists {
-        $this archiveRelated:DateBegin ?dateBegin.
-        filter (?dateBegin != "0000-01-01")
-        $this archiveRelated:DateEnd ?dateEnd.
-        filter (?dateEnd = "0000-01-01")
-      }
-      bind (bnode() as ?production).
-      bind (bnode() as ?dates).
+      $this archiveRelated:DateBegin ?dateBegin.
+      filter(?dateBegin != "0000-01-01")
+      $this archiveRelated:DateEnd ?dateEnd.
+      filter(?dateEnd = "0000-01-01")
+      
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
       #Check whether 'Dated' is empty or not
       optional {
         $this archiveRelated:Dated ?dated.
@@ -73,14 +67,12 @@ where {
     }    
     # DateBegin is 0 && DateEnd is not 0
     optional {
-      filter exists {
-        $this archiveRelated:DateBegin ?dateBegin.
-        filter (?dateBegin = "0000-01-01")
-        $this archiveRelated:DateEnd ?dateEnd.
-        filter (?dateEnd != "0000-01-01")
-      }
-      bind (bnode() as ?production).
-      bind (bnode() as ?dates).
+      $this archiveRelated:DateBegin ?dateBegin.
+      filter(?dateBegin = "0000-01-01")
+      $this archiveRelated:DateEnd ?dateEnd.
+      filter(?dateEnd != "0000-01-01")
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
       #Check whether 'Dated' is empty or not
       optional {
         $this archiveRelated:Dated ?dated.

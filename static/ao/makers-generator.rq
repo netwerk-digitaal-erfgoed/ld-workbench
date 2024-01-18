@@ -8,8 +8,8 @@ prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 construct {
   ?_constituentID a crm:E21_Person.
   #constituentID
-  ?_constituentID crm:P1_is_identified_by ?_number.
-  ?_number a crm:E42_Identifier;
+  ?_constituentID crm:P1_is_identified_by _:_number.
+  _:_number a crm:E42_Identifier;
     crm:P2_has_type aat:300404626;
     rdfs:label "Identification number";
     crm:P190_has_symbolic_content ?constituentID.
@@ -24,8 +24,8 @@ construct {
     crm:P190_has_symbolic_content ?alphaSort.
   aat:300404650 a crm:E55_Type;
     rdfs:label "Primary Name".
-  ?_constituentID crm:P1_is_identified_by ?_name.
-  ?_name a crm:E33_E41_Linguistic_Appellation;
+  ?_constituentID crm:P1_is_identified_by _:_name.
+  _:_name a crm:E33_E41_Linguistic_Appellation;
     crm:P2_has_type aat:300404650;
     rdfs:label "details of the name";
     crm:P190_has_symbolic_content ?displayName.
@@ -94,15 +94,10 @@ construct {
 }
 where {
   graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/makers> {
-    #    filter exists {
-    #      $this makerPerson:constituentID ?constituentID.
-    #      filter(?constituentID != "NULL")
-    #    }
-    $this makerPerson:constituentID ?constituentID.
+    $this makerPerson:ConstituentID ?constituentID.
+    filter(?constituentID != "NULL")
     bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/id/site/>), str(?constituentID))) as ?_constituentID).
-    bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), str(?constituentID))) as ?_number).
     $this makerPerson:DisplayName ?displayName.
-    bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), str(?displayName))) as ?_name).
     optional {
       $this makerPerson:AlphaSort ?alphaSort.
     }    
@@ -152,7 +147,6 @@ where {
     }   
     optional {
       $this makerPerson:Position ?position.
-      $this makerPerson:Remarks ?position.
       bind(bnode() as ?_position).
     }    
     optional {

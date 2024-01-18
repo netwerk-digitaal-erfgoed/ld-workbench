@@ -91,7 +91,7 @@ where {
   graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/objects> {
     #objectNumber
     $this archiveRelated:ObjectNumber ?objectNumber.
-    bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), str(?objectNumber))) as ?objects).
+    bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/id/object/>), str(?objectNumber))) as ?objects).
     #title
     optional {
       $this ?titlePredicate ?title.
@@ -106,17 +106,17 @@ where {
     # Description - check if description is empty or not
     optional {
       $this archiveRelated:Description ?description.
-      bind (bnode() as ?skolemDescription).
+      bind(bnode() as ?skolemDescription).
     }
     # Medium - check if medium is empty or not
     optional {
       $this archiveRelated:Medium ?medium.
-      bind (bnode() as ?skolemMeduim).
+      bind(bnode() as ?skolemMeduim).
     }
     #Provenance 
     optional {
       $this archiveRelated:Provenance ?provenance.
-      bind (bnode() as ?skolemProvenance).
+      bind(bnode() as ?skolemProvenance).
     }
     #Notes
     optional {
@@ -125,7 +125,7 @@ where {
     #RelatedWorks
     optional {
       $this archiveRelated:RelatedWorks ?relatedWorks.
-      bind (bnode() as ?skolemRelatedWorks).
+      bind(bnode() as ?skolemRelatedWorks).
     }
     #HistAttributions
     optional {
@@ -134,25 +134,25 @@ where {
     #CuratorialRemarks
     optional {
       $this archiveRelated:CuratorialRemarks ?curatorialRemarks.
-      bind (bnode() as ?skolemCuratorialRemarks).
+      bind(bnode() as ?skolemCuratorialRemarks).
     }
     #Signed
     optional {
       $this archiveRelated:Signed ?signed.
       # specifically used hashedIri in ETL instead of skolemIri
-      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?signed)))) as ?hashedSigned).
+      bind(bnode() as ?_hashedSigned).
     }
     #Inscribed
     optional {
       $this archiveRelated:Inscribed ?inscribed.
       # specifically used hashedIri in ETL instead of skolemIri
-      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?inscribed)))) as ?hashedInscribed).
+      bind(bnode() as ?_hashedInscribed).
     }
     #Markings     
     optional {
       $this archiveRelated:Markings ?markings.
       # specifically used hashedIri in ETL instead of skolemIri
-      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?markings)))) as ?hashedMarkings).
+      bind(bnode() as ?_hashedMarkings).
     }
   }
 }

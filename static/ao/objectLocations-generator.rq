@@ -116,7 +116,7 @@ where {
     # Medium - check if medium is empty or not
     optional {
       $this objectLocations:Medium ?medium.
-      bind (bnode() as ?skolemMeduim).
+      bind(bnode() as ?skolemMeduim).
     }
     # Remarks (should only be created when Remarks is not empty)
     optional {
@@ -127,12 +127,12 @@ where {
     # Description - check if description is empty or not
     optional {
       $this objectLocations:Description ?description.
-      bind (bnode() as ?skolemDescription).
+      bind(bnode() as ?skolemDescription).
     }
     #Provenance 
     optional {
       $this objectLocations:Provenance ?provenance.
-      bind (bnode() as ?skolemProvenance).
+      bind(bnode() as ?skolemProvenance).
     }       
     #Notes
     optional {
@@ -141,7 +141,7 @@ where {
     #RelatedWorks
     optional {
       $this objectLocations:RelatedWorks ?relatedWorks.
-      bind (bnode() as ?skolemRelatedWorks).
+      bind(bnode() as ?skolemRelatedWorks).
     }
     #HistAttributions
     optional {
@@ -150,12 +150,12 @@ where {
     #CuratorialRemarks
     optional {
       $this objectLocations:CuratorialRemarks ?curatorialRemarks.
-      bind (bnode() as ?skolemCuratorialRemarks).
+      bind(bnode() as ?skolemCuratorialRemarks).
     }
     #Dimensions and DimensionRemarks are not empty
     optional {
       $this objectLocations:Dimensions ?dimesions.
-      filter (?dimesions != "[N.B.]" && ?dimesions != "[N.I.]")
+      filter(?dimesions != "[N.B.]" && ?dimesions != "[N.I.]")
       $this objectLocations:DimensionRemarks ?dimesionsRemarks.
       # specifically used hashedIri in ETL instead of skolemIri
       bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), md5(str(?dimesions)), md5(str(?dimesionsRemarks)), md5(str(?objectNumber)))) as ?dimensionsAndRemarks).
@@ -172,30 +172,27 @@ where {
     #Dimension is not empty
     optional {
       $this objectLocations:Dimensions ?dimesions.
-      filter (?dimesions != "[N.B.]" && ?dimesions != "[N.I.]")
+      filter(?dimesions != "[N.B.]" && ?dimesions != "[N.I.]")
       filter not exists {
         $this objectLocations:DimensionRemarks ?dimesionsRemarks.
       }
       # specifically used hashedIri in ETL instead of skolemIri
-      bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/.well-known/genid/>), md5(str(?dimesions)),  md5(str(?objectNumber)))) as ?onlyDimesions).
+      bind(bnode() as ?onlyDimesions).
     }    
     #Signed
     optional {
       $this objectLocations:Signed ?signed.
-      # specifically used hashedIri in ETL instead of skolemIri
-      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?signed)))) as ?hashedSigned).
+      bind(bnode() as ?hashedSigned).
     }
     #Inscribed
     optional {
       $this objectLocations:Inscribed ?inscribed.
-      # specifically used hashedIri in ETL instead of skolemIri
-      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?inscribed)))) as ?hashedInscribed).
+      bind(bnode() as ?hashedInscribed).
     }
     #Markings     
     optional {
       $this objectLocations:Markings ?markings.
-      # specifically used hashedIri in ETL instead of skolemIri
-      bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), md5(str(?markings)))) as ?hashedMarkings).
+      bind(bnode() as ?hashedMarkings).
     }
   }
 }

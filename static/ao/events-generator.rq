@@ -81,7 +81,7 @@ where {
       filter not exists {
         $this histEvents:DateBegin ?dateBegin.
       }
-      bind (bnode() as ?dateBeginEmpty)
+      bind(bnode() as ?dateBeginEmpty)
     }
     # DateBegin is not empty and DateEnd is empty
     optional {
@@ -90,12 +90,12 @@ where {
         $this histEvents:DateEnd ?dateEnd.
       }
       $this histEvents:DateBegin ?dateBegin.
-      bind (bnode() as ?dateEndEmpty)
+      bind(bnode() as ?dateEndEmpty)
     }
     # Description - check if description is empty or not
     optional {
       $this histEvents:Description ?description.
-      bind (bnode() as ?descriptionBlankNode).
+      bind(bnode() as ?descriptionBlankNode).
     }
     # SubTitle - check if SubTitle is empty or not
     optional {
