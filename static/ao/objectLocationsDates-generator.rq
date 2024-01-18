@@ -1,0 +1,101 @@
+prefix aat:  <http://vocab.getty.edu/aat/>
+prefix locationRelated: <https://test.triply.cc/colonialHeritage-test/graph/Location-related_Objects_00.csv/def/>
+prefix dct: <http://purl.org/dc/terms/>
+prefix crm: <http://www.cidoc-crm.org/cidoc-crm/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+construct {
+  #DateBegin && DateEnd - check when they are present |This needs to be done because of the way in which source data is being supplied.
+  ?objects crm:P108i_was_produced_by ?production.
+  ?production a crm:E12_Production;
+    crm:P4_has_time-span ?dates;
+    rdfs:label ?dated.
+  ?dates a crm:E52_Time-Span.
+  ?dates crm:P82a_begin_of_the_begin ?newDateBeginCombined;
+    crm:P82b_end_of_the_end ?newDateEndCombined.
+}
+where {
+  graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/objectLocations> {
+    $this locationRelated:ObjectNumber ?objectNumber.
+    bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), str(?objectNumber))) as ?objects).
+    #DateBegin && DateEnd - check when they are present |This needs to be done because of the way in which source data is being supplied.
+    # DateBegin && DateEnd are not 0
+    optional {
+      $this locationRelated:DateBegin ?dateBegin.
+      $this locationRelated:DateEnd ?dateEnd.
+      filter(?dateBegin != "0" && ?dateEnd != "0")
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
+      optional {
+        $this locationRelated:Dated ?dated.
+      }
+      optional {
+        filter not exists{
+          $this locationRelated:Dated ?dated.
+        }
+        bind("DateBegin and DateEnd" as ?dated)
+      }
+      bind(if(strstarts(?dateBegin, "-"),concat("0", strafter(?dateBegin, "-")),?dateBegin) as ?newBeginDate)
+      bind(if(strlen(?newBeginDate) = 10, concat("-", ?newBeginDate), 
+          if(strlen(?newBeginDate) = 3, concat("-0", ?newBeginDate, "-01-01"), 
+            if(strlen(?newBeginDate) = 4,concat("-", ?newBeginDate, "-01-01"), 
+              if(strlen(?newBeginDate) = 1, concat("-000", ?newBeginDate, "-01-01"), ?newBeginDate)
+            )
+          )
+        ) as ?newDateBeginCombined)
+      bind(if(strstarts(?dateEnd, "-"),concat("0", strafter(?dateEnd, "-")),?dateEnd) as ?newEndDate)
+      bind(if(strlen(?newEndDate) = 10, concat("-", ?newEndDate), 
+          if(strlen(?newEndDate) = 3, concat("-0", ?newEndDate, "-01-01"), 
+            if(strlen(?newEndDate) = 4,concat("-", ?newEndDate, "-01-01"), 
+              if(strlen(?newEndDate) = 1, concat("-000", ?newEndDate, "-01-01"), ?newEndDate)
+            )
+          )
+        ) as ?newDateEndCombined)
+    }
+    # DateBegin is not 0 && DateEnd is 0
+    optional {
+      $this locationRelated:DateBegin ?dateBegin.
+      $this locationRelated:DateEnd ?dateEnd.
+      filter(?dateBegin = "0" && ?dateEnd != "0")
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
+      #Check whether 'Dated' is empty or not
+      optional {
+        $this locationRelated:Dated ?dated.
+      }
+      optional {
+        filter not exists{
+          $this locationRelated:Dated ?dated.
+        }
+        bind("DateBegin and DateEnd" as ?dated)
+      }
+      bind(if(strstarts(?dateEnd, "-"),concat("0", strafter(?dateEnd, "-")),?dateEnd) as ?newEndDate)
+      bind(if(strlen(?newEndDate) = 10, concat("-", ?newEndDate), 
+          if(strlen(?newEndDate) = 3, concat("-0", ?newEndDate, "-01-01"), 
+            if(strlen(?newEndDate) = 4,concat("-", ?newEndDate, "-01-01"), 
+              if(strlen(?newEndDate) = 1, concat("-000", ?newEndDate, "-01-01"), ?newEndDate)))) as ?newDateEndCombined)
+    }
+    # DateBegin is 0 && DateEnd is not0
+    optional {
+      $this locationRelated:DateBegin ?dateBegin.
+      $this locationRelated:DateEnd ?dateEnd.
+      filter(?dateBegin = "0" && ?dateEnd != "0")
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
+      #Check whether 'Dated' is empty or not
+      optional {
+        $this locationRelated:Dated ?dated.
+      }
+      optional {
+        filter not exists{
+          $this locationRelated:Dated ?dated.
+        }
+        bind("DateBegin and DateEnd" as ?dated)
+      }
+      bind(if(strstarts(?dateEnd, "-"),concat("0", strafter(?dateEnd, "-")),?dateEnd) as ?newEndDate)
+      bind(if(strlen(?newEndDate) = 10, concat("-", ?newEndDate), 
+          if(strlen(?newEndDate) = 3, concat("-0", ?newEndDate, "-01-01"), 
+            if(strlen(?newEndDate) = 4,concat("-", ?newEndDate, "-01-01"), 
+              if(strlen(?newEndDate) = 1, concat("-000", ?newEndDate, "-01-01"), ?newEndDate)))) as ?newDateEndCombined)
+    }
+  }
+}
