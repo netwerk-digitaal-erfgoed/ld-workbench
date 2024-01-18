@@ -60,6 +60,16 @@ stages:
     generator:
       - batchSize: 100
         query: file://static/ao/objects-generator.rq
+  - name: "ObjectsLocationDates"
+    iterator:
+      batchSize: 10000
+      delay: 50ms
+      #endpoint: https://api.triplydb.com/datasets/colonialHeritage-test/graph/sparql
+      endpoint: https://api.triplydb.com/datasets/colonialHeritage-test/graph/services/virtuoso/sparql
+      query: file://static/ao/objectLocationsDates-iterator.rq
+    generator:
+      - batchSize: 100
+        query: file://static/ao/objectLocationsDates-generator.rq
 #  - name: "Sites"
 #    iterator:
 #      batchSize: 10000
