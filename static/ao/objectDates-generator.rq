@@ -40,6 +40,9 @@ where {
       $this archiveRelated:DateBegin ?dateBegin.
       $this archiveRelated:DateEnd ?dateEnd.
       bind(if(strstarts(?dateBegin, "-"), concat("0",strafter(?dateBegin,"-")), ?dateBegin) as ?newBeginDate).
+      # Due to differences in the original data, some date manipulations were implemented. The end format of each date should be as follows: “-XXXX-XXXX-XX”. 
+      # Some of the dates included a year that has 3 digits instead of 4, and/or were missing the dash in front. 
+      # With these string manipulations, we ensure that the end results have the same format. 
       bind(if(strstarts(?dateEnd, "-"), concat("0",strafter(?dateEnd,"-")), ?dateEnd) as ?newEndDate).
     }
     # DateBegin is not 0 && DateEnd is 0

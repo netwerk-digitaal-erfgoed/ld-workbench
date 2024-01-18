@@ -35,6 +35,9 @@ where {
   graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/objectImages> {
     $this objectImageURLs:ObjectNumber ?object.
     filter(regex(?object, "^[a-zA-Z]+-\\d+-\\d+$") || regex(?object, "^\\d+-\\d+[a-zA-Z]$") || regex(?object, "^\\d+-\\d+$"))
+    # Originally, in the corresponding ETL, this iteration checks whether the created IRI is valid. 
+    # This action is not directly possible using SPARQL, hence a different approach was used to perform a similar action. 
+    # In this case, we check whether the value from the wanted key is in the desired format using regex.
     bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/id/site/>), str(?object))) as ?objectNumber).
     optional {
       filter(objectImageURLs:AuthValue != "CC-BY-SA 4.0" || objectImageURLs:AuthValue != "CC-BY-SA 4.0 NMVW/WM")
