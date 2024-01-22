@@ -38,6 +38,11 @@ class Pipeline {
     const destinationFile =
       this.configuration.destination ??
       `file://${path.join(this.dataDir, "statements.nt")}`;
+    const actualPath = destinationFile.replace(/^file:\/\//, '')
+    if (fs.existsSync(actualPath)) {
+      // removing destintation if it already exists
+        fs.unlinkSync(actualPath)
+      }
     if (
       !isFilePathString(destinationFile) &&
       !isTriplyDBPathString(destinationFile)
@@ -177,9 +182,9 @@ class Pipeline {
     let iterationsProcessed = 0
     if (!(this.opts?.silent === true)) spinner.start();
     await new Promise<void>((resolve, reject) => {
-      stage.on("iteratorResult", (_$this) => {
+      stage.on("iteratorResult", (_$this, quadsGenerated) => {
         iterationsProcessed++
-        if (!(this.opts?.silent === true)) spinner.text = `Running ${stage.name}:\n\n  Elements processed: ${millify(iterationsProcessed)} \n  Duration: ${formatDuration(startTime, performance.now())} `;
+        if (!(this.opts?.silent === true)) spinner.text = `Running ${stage.name}:\n\n  Processed elements: ${millify(iterationsProcessed)}\n  Generated quads: ${millify(quadsGenerated)}\n  Duration: ${formatDuration(startTime, performance.now())} `;
       });
       stage.on("error", (e) => {
         spinner.fail();

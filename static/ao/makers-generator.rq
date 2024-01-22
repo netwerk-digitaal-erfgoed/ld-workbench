@@ -1,0 +1,157 @@
+prefix aat:  <http://vocab.getty.edu/aat/>
+prefix dct: <http://purl.org/dc/terms/>
+prefix crm: <http://www.cidoc-crm.org/cidoc-crm/>
+prefix crmdig: <http://www.ics.forth.gr/isl/CRMdig/>
+prefix la: <https://linked.art/ns/terms/>
+prefix makerPerson: <https://test.triply.cc/colonialHeritage-test/graph/Maker-related_Constituents.csv/def/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+construct {
+  ?_constituentID a crm:E21_Person.
+  #constituentID
+  ?_constituentID crm:P1_is_identified_by _:_number.
+  _:_number a crm:E42_Identifier;
+    crm:P2_has_type aat:300404626;
+    rdfs:label "Identification number";
+    crm:P190_has_symbolic_content ?constituentID.
+  ?_constituentID rdfs:label ?displayName.
+  ?_constituentID crm:P2_has_type aat:300386174.
+  aat:300386174 a crm:E55_Type;
+    rdfs:label "Maker".
+  ?_constituentID crm:P1_is_identified_by ?_alphaSort.
+  ?_alphaSort a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300404650;
+    rdfs:label "lastname firstname";
+    crm:P190_has_symbolic_content ?alphaSort.
+  aat:300404650 a crm:E55_Type;
+    rdfs:label "Primary Name".
+  ?_constituentID crm:P1_is_identified_by _:_name.
+  _:_name a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300404650;
+    rdfs:label "details of the name";
+    crm:P190_has_symbolic_content ?displayName.
+  ?_name crm:P106_is_composed_of ?_firstName.
+  ?_name crm:P106_is_composed_of ?_middleName.
+  ?_name crm:P106_is_composed_of ?_lastName.
+  ?_name crm:P106_is_composed_of ?_nameTitle.
+  ?_name crm:P106_is_composed_of ?_suffix.
+  ?_name crm:P67i_is_referred_to_by ?_salutation.
+  ?_firstName a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300404651;
+    rdfs:label "first name";
+    crm:P190_has_symbolic_content ?firstName.
+  ?_middleName a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300404654;
+    rdfs:label "middle name";
+    crm:P190_has_symbolic_content ?middleName.
+  ?_lastName a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300404652;
+    rdfs:label "last name";
+    crm:P190_has_symbolic_content ?lastName.
+  ?_nameTitle a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300404845;
+    rdfs:label "name title";
+    crm:P190_has_symbolic_content ?nameTitle.
+  ?_suffix a crm:E33_E41_Linguistic_Appellation;
+    crm:P2_has_type aat:300404662;
+    rdfs:label "suffix";
+    crm:P190_has_symbolic_content ?suffix.
+  ?_salutation a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300055147;
+    rdfs:label "Gender";
+    crm:P190_has_symbolic_content ?salutation.
+  ?_constituentID la:member_of ?_institution.
+  ?_institution a crm:E74_Group;
+    rdfs:label "Institution".
+  ?_constituentID crm:P67i_is_referred_to_by ?_biography.
+  ?_biography a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435422;
+    rdfs:label "Biography";
+    crm:P190_has_symbolic_content ?biography.
+  ?_constituentID crm:P67i_is_referred_to_by ?_nationality.
+  ?_nationality a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300379842;
+    rdfs:label "Nationality";
+    crm:P190_has_symbolic_content ?nationality.
+  ?_constituentID crm:P67i_is_referred_to_by ?_school.
+  ?_school a crm:E33_Linguistic_Object;
+    rdfs:label "School of thought or artistic practice";
+    crm:P190_has_symbolic_content ?school.
+  ?_constituentID crm:P67i_is_referred_to_by ?_remarks.
+  ?_remarks a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435415;
+    rdfs:label "Remarks";
+    crm:P190_has_symbolic_content ?remarks.
+  ?_constituentID crm:P67i_is_referred_to_by ?_position.
+  ?_position a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300393201;
+    rdfs:label "Professional position";
+    crm:P190_has_symbolic_content ?position.
+  ?_constituentID crm:P67i_is_referred_to_by ?_cultureGroup.
+  ?_cultureGroup a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300387171;
+    rdfs:label "Culture Group";
+    crm:P190_has_symbolic_content ?cultureGroup.
+}
+where {
+  graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/makers> {
+    $this makerPerson:ConstituentID ?constituentID.
+    filter(?constituentID != "NULL")
+    bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/id/site/>), str(?constituentID))) as ?_constituentID).
+    $this makerPerson:DisplayName ?displayName.
+    optional {
+      $this makerPerson:AlphaSort ?alphaSort.
+    }    
+    optional {
+      $this makerPerson:FirstName ?firstName.
+      bind(bnode() as ?_firstName).
+    }
+    optional {
+      $this makerPerson:MiddleName ?middleName.
+      bind(bnode() as ?_middleName).
+    }    
+    optional {
+      $this makerPerson:LastName ?lastName.
+      bind(bnode() as ?_lastName).
+    }
+    optional {
+      $this makerPerson:NameTitle ?nameTitle.
+      bind(bnode() as ?_nameTitle).
+    }    
+    optional {
+      $this makerPerson:Suffix ?suffix.
+      bind(bnode() as ?_suffix).
+    }
+    optional {
+      $this makerPerson:salutation ?salutation.
+      bind(bnode() as ?_salutation).
+    }
+    optional {
+      $this makerPerson:Institution ?institution.
+      bind(bnode() as ?_institution).
+    }
+    optional {
+      $this makerPerson:Biography ?biography.
+      bind(bnode() as ?_biography).
+    }
+    optional {
+      $this makerPerson:Nationality ?nationality.
+      bind(bnode() as ?_nationality).
+    }
+    optional {
+      $this makerPerson:School ?school.
+      bind(bnode() as ?_school).
+    }
+    optional {
+      $this makerPerson:Remarks ?remarks.
+      bind(bnode() as ?_remarks).
+    }   
+    optional {
+      $this makerPerson:Position ?position.
+      bind(bnode() as ?_position).
+    }    
+    optional {
+      $this makerPerson:CultureGroup ?cultureGroup.
+      bind(bnode() as ?_cultureGroup).
+    }
+  }
+}

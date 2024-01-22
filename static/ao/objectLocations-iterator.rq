@@ -1,0 +1,4 @@
+prefix objectLocations: <https://test.triply.cc/colonialHeritage-test/graph/Location-related_Object_Term_IRIs_00.csv/def/>
+select * where {
+  $this objectLocations:ObjectNumber ?objectNumber.
+}

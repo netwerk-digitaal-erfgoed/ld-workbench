@@ -1,0 +1,158 @@
+prefix skos: <http://www.w3.org/2004/02/skos/core#>
+prefix aat:  <http://vocab.getty.edu/aat/>
+prefix dct: <http://purl.org/dc/terms/>
+prefix crm: <http://www.cidoc-crm.org/cidoc-crm/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix archiveRelated: <https://test.triply.cc/colonialHeritage-test/graph/Archive-related_Objects.csv/def/>
+prefix la: <https://linked.art/ns/terms/>
+construct {
+  ?objects a crm:E22_Human-Made_Object.
+  #ObjectNumber
+  ?objects crm:P1_is_identified_by _:objectNumber.
+  _:objectNumber a crm:E42_Identifier;
+    crm:P2_has_type aat:300404626;
+    rdfs:label "Identification number";
+    crm:P190_has_symbolic_content ?objectNumber.
+  #ObjectID
+  #Title - check if it is present
+  ?objects dct:title ?title.
+  #Medium - check if it is present
+  ?objects crm:P45_consists_of ?skolemMeduim.
+  ?skolemMeduim a crm:E57_Material;
+    rdfs:label "Material";
+    crm:P190_has_symbolic_content ?medium.
+  # Remarks (should only be created when Remarks is not empty)
+  ?objects crm:P67i_is_referred_to_by ?skolemNodeRemarks.
+  ?skolemNodeRemarks a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435415;
+    rdfs:label "Remarks" ;
+    crm:P190_has_symbolic_content ?remarks.
+  #Description - check if it is empty
+  ?objects crm:P67i_is_referred_to_by ?skolemDescription.
+  ?skolemDescription a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435416;
+    rdfs:label "Description";
+    crm:P190_has_symbolic_content ?description.
+  #Provenance - check if it is empty
+  ?objects crm:P67i_is_referred_to_by ?skolemProvenance.
+  ?skolemProvenance a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300444173;
+    rdfs:label "Provenance";
+    crm:P190_has_symbolic_content ?provenance.
+  #Notes - check if it is empty
+  ?objects crm:P3_has_note ?notes.
+  #RelatedWorks - check if it is empty
+  ?objects crm:P67i_is_referred_to_by ?skolemRelatedWorks.
+  ?skolemRelatedWorks a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300444120;
+    rdfs:label "Related works";
+    crm:P190_has_symbolic_content ?relatedWorks.
+  # HistAttributions - check if it is empty
+  ?objects skos:historyNote ?histAttributions.
+  #CuratorialRemarks - check if it is empty
+  ?objects crm:P67i_is_referred_to_by ?skolemCuratorialRemarks.
+  ?skolemCuratorialRemarks a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435415;
+    rdfs:label "Curatorial remarks";
+    crm:P190_has_symbolic_content ?curatorialRemarks.
+  #Dimensions & DimensionRemarks  
+  #Signed
+  ?objects crm:P128_carries ?hashedSigned.
+  ?hashedSigned a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300189326;
+    rdfs:label "Signed";
+    crm:P190_has_symbolic_content ?signed.
+  #Inscribed
+  ?objects crm:P128_carries ?hashedInscribed.
+  ?hashedInscribed a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300028702;
+    rdfs:label "Inscribed";
+    crm:P190_has_symbolic_content ?inscribed.
+  #Markings
+  ?objects crm:P128_carries ?hashedMarkings.
+  ?hashedMarkings a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300028744;
+    rdfs:label "Markings";
+    crm:P190_has_symbolic_content ?markings.
+  #If the object is a member of a Site set ---> this key is not part of Archive-related csv
+  ?objects la:member_of ?siteID.
+  #HistEventID & Subevent1 ---> not part of archives, part of Event-related_Objects.csv
+  ?objects crm:P141i_was_assigned_by ?histEvents.
+  ?histEvents a crm:E13_Attribute_Assignment;
+    crm:P177_assigned_property_of_type crm:P12i_was_present_at;
+    rdfs:label "Relation with the event";
+    crm:P141_assigned ?histEventsNode.
+  ?histEvents crm:P67i_is_referred_to_by ?subEvents.
+  ?subEvents a crm:E33_Linguistic_Object;
+    crm:P2_has_type aat:300435415;
+    crm:P190_has_symbolic_content ?Subevent1.
+}
+where {
+  graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/objects> {
+    #objectNumber
+    $this archiveRelated:ObjectNumber ?objectNumber.
+    bind(iri(concat(str(<https://data.colonialcollections.nl/nmvw/id/object/>), str(?objectNumber))) as ?objects).
+    #title
+    optional {
+      $this ?titlePredicate ?title.
+      filter(replace(str(?titlePredicate),".*[/]","") = "Title") 
+    }
+    # Remarks (should only be created when Remarks is not empty)
+    optional {
+      filter(?remarks != "\r\n")
+      bind(bnode() as ?skolemNodeRemarks).
+      $this archiveRelated:Remarks ?remarks.
+    }
+    # Description - check if description is empty or not
+    optional {
+      $this archiveRelated:Description ?description.
+      bind(bnode() as ?skolemDescription).
+    }
+    # Medium - check if medium is empty or not
+    optional {
+      $this archiveRelated:Medium ?medium.
+      bind(bnode() as ?skolemMeduim).
+    }
+    #Provenance 
+    optional {
+      $this archiveRelated:Provenance ?provenance.
+      bind(bnode() as ?skolemProvenance).
+    }
+    #Notes
+    optional {
+      $this archiveRelated:Notes ?notes.
+    }
+    #RelatedWorks
+    optional {
+      $this archiveRelated:RelatedWorks ?relatedWorks.
+      bind(bnode() as ?skolemRelatedWorks).
+    }
+    #HistAttributions
+    optional {
+      $this archiveRelated:HistAttributions ?histAttributions.
+    }
+    #CuratorialRemarks
+    optional {
+      $this archiveRelated:CuratorialRemarks ?curatorialRemarks.
+      bind(bnode() as ?skolemCuratorialRemarks).
+    }
+    #Signed
+    optional {
+      $this archiveRelated:Signed ?signed.
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(bnode() as ?_hashedSigned).
+    }
+    #Inscribed
+    optional {
+      $this archiveRelated:Inscribed ?inscribed.
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(bnode() as ?_hashedInscribed).
+    }
+    #Markings     
+    optional {
+      $this archiveRelated:Markings ?markings.
+      # specifically used hashedIri in ETL instead of skolemIri
+      bind(bnode() as ?_hashedMarkings).
+    }
+  }
+}

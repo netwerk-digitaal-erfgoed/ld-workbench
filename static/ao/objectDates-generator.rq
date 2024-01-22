@@ -1,0 +1,93 @@
+prefix aat:  <http://vocab.getty.edu/aat/>
+prefix archiveRelated: <https://test.triply.cc/colonialHeritage-test/graph/Archive-related_Objects.csv/def/>
+prefix dct: <http://purl.org/dc/terms/>
+prefix crm: <http://www.cidoc-crm.org/cidoc-crm/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+construct {
+  #DateBegin && DateEnd - check when they are present |This needs to be done because of the way in which source data is being supplied.
+  ?objects crm:P108i_was_produced_by ?production.
+  ?production a crm:E12_Production;
+    crm:P4_has_time-span ?dates;
+    rdfs:label ?dated.
+  ?dates a crm:E52_Time-Span.
+  ?dates crm:P82a_begin_of_the_begin ?newBeginDate;
+    crm:P82b_end_of_the_end ?newEndDate.
+}
+where {
+  graph <https://test.triply.cc/colonialHeritage-test/graph/graphs/objects> {
+    ?subject archiveRelated:ObjectNumber ?objectNumber.
+    #	?subject ?objectNumberPredicate ?objectNumber.
+    #    filter(replace(str(?objectNumberPredicate),".*[/]","") = "ObjectNumber")  
+    bind(iri(concat(str(<https://colonial-heritage.triply.cc/nmvw/.well-known/genid/>), str(?objectNumber))) as ?objects).
+    #DateBegin && DateEnd - check when they are present |This needs to be done because of the way in which source data is being supplied.
+    # DateBegin && DateEnd are not 0
+    optional {
+      $this archiveRelated:DateBegin ?dateBegin.
+      filter(?dateBegin != "0000-01-01")
+      $this archiveRelated:DateEnd ?dateEnd.
+      filter(?dateEnd != "0000-01-01")
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
+      optional {
+        $this archiveRelated:Dated ?dated.
+      }
+      optional {
+        filter not exists{
+          $this archiveRelated:Dated ?dated.
+        }
+        bind("DateBegin and DateEnd" as ?dated)
+      }
+      $this archiveRelated:DateBegin ?dateBegin.
+      $this archiveRelated:DateEnd ?dateEnd.
+      bind(if(strstarts(?dateBegin, "-"), concat("0",strafter(?dateBegin,"-")), ?dateBegin) as ?newBeginDate).
+      # Due to differences in the original data, some date manipulations were implemented. The end format of each date should be as follows: “-XXXX-XXXX-XX”. 
+      # Some of the dates included a year that has 3 digits instead of 4, and/or were missing the dash in front. 
+      # With these string manipulations, we ensure that the end results have the same format. 
+      bind(if(strstarts(?dateEnd, "-"), concat("0",strafter(?dateEnd,"-")), ?dateEnd) as ?newEndDate).
+    }
+    # DateBegin is not 0 && DateEnd is 0
+    optional {
+      $this archiveRelated:DateBegin ?dateBegin.
+      filter(?dateBegin != "0000-01-01")
+      $this archiveRelated:DateEnd ?dateEnd.
+      filter(?dateEnd = "0000-01-01")
+      
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
+      #Check whether 'Dated' is empty or not
+      optional {
+        $this archiveRelated:Dated ?dated.
+      }
+      optional {
+        filter not exists{
+          $this archiveRelated:Dated ?dated.
+        }
+        bind("DateBegin and DateEnd" as ?dated)
+      }
+      # DateBegin
+      $this archiveRelated:DateBegin ?dateBegin.
+      bind(if(strstarts(?dateBegin, "-"), concat("0",strafter(?dateBegin,"-")), ?dateBegin) as ?newBeginDate).
+    }    
+    # DateBegin is 0 && DateEnd is not 0
+    optional {
+      $this archiveRelated:DateBegin ?dateBegin.
+      filter(?dateBegin = "0000-01-01")
+      $this archiveRelated:DateEnd ?dateEnd.
+      filter(?dateEnd != "0000-01-01")
+      bind(bnode() as ?production).
+      bind(bnode() as ?dates).
+      #Check whether 'Dated' is empty or not
+      optional {
+        $this archiveRelated:Dated ?dated.
+      }
+      optional {
+        filter not exists{
+          $this archiveRelated:Dated ?dated.
+        }
+        bind("DateBegin and DateEnd" as ?dated)
+      }
+      $this archiveRelated:DateBegin ?dateEnd.
+      bind(if(strstarts(?dateEnd, "-"), concat("0",strafter(?dateEnd,"-")), ?dateEnd) as ?newEndDate).
+    }
+  }
+}
