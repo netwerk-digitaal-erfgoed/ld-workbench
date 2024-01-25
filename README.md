@@ -175,6 +175,12 @@ The File class allows a file to be created from the Stage's `destinationPath` re
 
 The TriplyDB class serves as an example on how to LD Workbench could be used to upload generated data to a Triple Store. The class uses the `@triply/triplydb` package to upload the generated triples to a remote Triple Store like TriplyDB.
 
+## CI/CD
+
+This repository uses GitHub Actions for the CI, the configuration that concerns automated tests can be found in the [github-ci.yml file](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/.github/workflows/github-ci.yml).
+
+To run the tests locally run the `npm test` command, for examples see files ending with `'*.test.ts'`.
+
 ## Publishing to NPM
 
 To trigger a published release event in GitHub Actions, you need to create a release on your GitHub repository. Here are the general steps:
