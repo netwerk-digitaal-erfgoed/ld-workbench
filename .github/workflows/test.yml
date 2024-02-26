@@ -1,5 +1,5 @@
 # For more information on running Github CI with Node: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-name: GitHub CI Tests
+name: Test
 run-name: Testing commit by ${{ github.actor }}
 
 # when pipeline is triggered
@@ -17,7 +17,7 @@ on:
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
-    
+
 jobs:
   install-build-test:
     runs-on: ubuntu-latest

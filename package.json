@@ -4,7 +4,7 @@
   "bin": {
     "ld-workbench": "dist/main.js"
   },
-  "version": "0.0.1-rc4",
+  "version": "0.0.0-development",
   "description": "LDWorkbench is a Linked Data Transformation tool designed to use only SPARQL as transformation language.",
   "main": "dist/main.js",
   "scripts": {
@@ -15,11 +15,12 @@
     "ld-workbench": "node dist/main",
     "ld-workbench:example": "node dist/main --configDir static",
     "util:lint": "ESLINT_STRICT=true ESLINT_EXPENSIVE=true eslint --ext .tsx --ext .ts  ./src",
-    "util:json-schema-to-typescript": "npx json2ts -i ./static/ld-workbench.schema.json -o src/lib/LDWorkbenchConfiguration.d.ts"
+    "util:json-schema-to-typescript": "npx json2ts -i ./static/ld-workbench.schema.json -o src/lib/LDWorkbenchConfiguration.d.ts",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git"
+    "url": "https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git"
   },
   "keywords": [
     "linked open data",
@@ -79,7 +80,8 @@
     "json-schema-to-typescript": "^13.1.1",
     "lint-staged": "^15.1.0",
     "mocha": "^10.2.0",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.2",
+    "semantic-release": "^23.0.2"
   },
   "dependencies": {
     "@comunica/query-sparql": "^2.10.0",
