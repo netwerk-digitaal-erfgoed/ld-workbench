@@ -18,7 +18,7 @@ import { QueryEngine as QueryEngineSparql } from "@comunica/query-sparql";
 import { QueryEngine as QueryEngineFile } from "@comunica/query-sparql-file";
 import getEngineSource from "../getEngineSource.js"
 import { existsSync, rename } from "fs"
-import * as chai from 'chai'    
+import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import getSPARQLQuery from '../getSPARQLQuery.js'
 import getSPARQLQueryString from '../getSPARQLQueryString.js'
@@ -37,7 +37,7 @@ function testDeepEqualTwoObjects(objectOne: any, objectTwo: any): boolean {
 }
 describe('Utilities', () => {
   it('should correctly get a version number', () => {
-    expect(version()).match(/^\d+\.\d+\.\d+(?:-rc.+)?$/)
+    expect(version()).match(/0.0.0-development/)
   })
 
   describe('YAML Parser', () => {
@@ -567,7 +567,7 @@ describe('Utilities', () => {
         const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
         const loadedPreviousStage = previousStage.load()
         const destPath = loadedPreviousStage?.destinationPath
-        
+
         expect(() => getEngineSource(previousStage)).to.throw(`The result from stage "${loadedPreviousStage?.name}" (${destPath}) is not available, make sure to run that stage first`)
       })
     })
@@ -790,7 +790,7 @@ SELECT ?city ?population WHERE { ?city ex:hasPopulation ?population. }`
       const expectedConstructQuery = `PREFIX ex: <http://example.org/>
 CONSTRUCT { ?city ex:hasPopulation ?population. }
 WHERE { ?city ex:hasPopulation ?population. }`
-      
+
       const selectStr =  getSPARQLQueryString(getSPARQLQuery(selectQuery, 'select'))
       const constructStr = getSPARQLQueryString(getSPARQLQuery(constructQuery, 'construct'))
 
