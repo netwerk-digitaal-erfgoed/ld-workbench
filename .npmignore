@@ -1,0 +1,9 @@
+**/tests
+.github
+.husky
+.vscode
+.idea
+src/
+static/
+tsconfig.json
+.eslintrc.json
