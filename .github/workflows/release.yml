@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: lts/*
       - run: npm ci
-      - run: npm build
+      - run: npm run build
       - run: npm run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
