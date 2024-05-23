@@ -24,11 +24,11 @@ export const cliArgs: {
 
 if (cliArgs.init !== undefined) {
   if(Object.values(cliArgs).length !== 1) {
-    error('The --init flag can not be used in conjuction with other CLI arguments.')    
+    error('The --init flag can not be used in conjunction with other CLI arguments.')
   }
   try {
     init()
-    console.log(chalk.green('A boilerplate LDWorkbech has been created. You can now run a project using `npx ld-workbench`.'))
+    console.log(chalk.green('A boilerplate LDWorkbench has been created. You can now run a project using `npx @netwerk-digitaal-erfgoed/ld-workbench`.'))
   } catch(e) {
     error(e as Error)
   }
