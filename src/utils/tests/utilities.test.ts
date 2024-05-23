@@ -357,6 +357,31 @@ describe('Utilities', () => {
       // getEndpoint is use in Stage's Iterator, and it will throw there.
       expect(() => new Stage(pipeline, stageConfig)).to.throw('Error in the iterator of stage `Stage 1`: "invalidExample" is not a valid URL')
     })
+    it('should work with URL\'s prepended with \'sparql@\'', () => {
+      const url = 'sparql@https://www.goudatijdmachine.nl/sparql/repositories/nafotocollectie' // will be accepted
+      const config: LDWorkbenchConfiguration = {
+        name: 'Example Pipeline',
+        description: 'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+        destination: 'file://pipelines/data/example-pipeline.nt',
+        stages: [
+          {
+            name: 'Stage 1',
+            iterator: {
+              query: 'file://static/example/iterator-stage-1.rq',
+              endpoint: url
+            },
+            generator: [
+{
+              query: 'file://static/example/generator-stage-1-1.rq'
+            }
+]          }
+        ]
+      }
+      const pipeline = new Pipeline(config, {silent: true})
+      const stageConfig = config.stages[0]
+      // getEndpoint is use in Stage's Iterator, and it will throw there.
+      expect(() => new Stage(pipeline, stageConfig)).to.not.throw()
+    })
     it('should throw if stage has undefined endpoint and is first stage', () => {
       const endpoint = undefined
       const config: LDWorkbenchConfiguration = {
