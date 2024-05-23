@@ -4,6 +4,8 @@
 .vscode
 .idea
 src/
-static/
+static/ao
+static/figures
+static/tests
 tsconfig.json
 .eslintrc.json

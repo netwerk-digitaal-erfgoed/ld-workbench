@@ -5,13 +5,11 @@ import glob from 'glob'
 
 export default function init(): void {
   const $dirname = path.dirname(fileURLToPath(import.meta.url));
-  if(fs.existsSync('pipelines')) {
-    throw new Error('The --init script found an existing directory "pipelines". Make sure this directory does not exists before running this script.')
+  if(fs.existsSync(path.join('pipelines', 'configurations', 'example'))) {
+    throw new Error('The --init script found an existing directory "' + path.join('pipelines', 'configurations', 'example') + '". Make sure this directory does not exists before running this script.')
   }
-  fs.mkdirSync('pipelines')
-  fs.mkdirSync(path.join('pipelines', 'data'))
-  fs.mkdirSync(path.join('pipelines', 'configurations'))
-  fs.mkdirSync(path.join('pipelines', 'configurations', 'example'))
+  fs.mkdirSync(path.join('pipelines', 'data'), {recursive: true})
+  fs.mkdirSync(path.join('pipelines', 'configurations', 'example'), {recursive: true})
   const filepaths = glob.sync(path.join($dirname, '..', '..', 'static', 'example', '*'))
   for(const filepath of filepaths) {
     fs.copyFileSync(filepath, path.join('pipelines', 'configurations', 'example', path.basename(filepath)))

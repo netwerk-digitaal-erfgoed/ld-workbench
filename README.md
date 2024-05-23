@@ -84,7 +84,7 @@ stages:
 2. Install LD Workbench:
 
    ```sh
-   npx @netwerk-digitaal-erfgoed/ld-workbench -- --init
+   npx @netwerk-digitaal-erfgoed/ld-workbench --init
    ```
 
    Your workbench is now ready for use.
