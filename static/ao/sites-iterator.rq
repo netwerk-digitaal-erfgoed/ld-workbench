@@ -1,4 +1,0 @@
-prefix colonialHeritage: <https://test.triply.cc/colonialHeritage-test/graph/Sites(1).csv/def/>
-select * where {
-  $this colonialHeritage:SiteID ?oldobject.
-}

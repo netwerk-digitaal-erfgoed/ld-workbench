@@ -1,5 +1,0 @@
-prefix makerPerson: <https://test.triply.cc/colonialHeritage-test/graph/Maker-related_Constituents.csv/def/>
-SELECT * WHERE {
-  $this makerPerson:ConstituentID ?ConstituentID.
-  filter(?ConstituentID != "NULL")
-}
