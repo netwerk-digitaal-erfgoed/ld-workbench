@@ -1,20 +1,24 @@
 # LD Workbench
 
-LD Workbench is a transformation tool for linked data that is designed to use SPARQL as its main configuration language.
+LD Workbench is a command-line tool for transforming large RDF datasets using pure SPARQL.
 
-LD Workbench is a Command Line Interface (CLI) application. LD Workbench is tested in Linux Bash, macOS Z shell, and Windows PowerShell.
-
-This project is currently in a Proof-of-Concept phase. Feel free to watch our progress, but please do not use this project in a production setting.
+This project is currently in a Proof-of-Concept phase.
 
 ## Approach
 
-A *pipeline* is the sequence of *stages*.
+The main design principes are scalability and extensibility.
 
-Each *stage* consists of two components: an *iterator* and a *generator*.
+### Scalability 
 
-The *iterator* component is configured by a SPARQL Select query. This query binds a sequence of RDF terms to a variable called `$this`. This sequence forms an iterator over a potentially large data collection. In the absence of a good approach for streaming through large data collections, the SPARQL standard allows us to apply 'pagination' through a large collection by using the Offset and Limit keywords.
+LD Workbench is **scalable** due to its iterator/generator approach:
 
-Every binding for variable `$this` is used to parameterize a SPARQL Construct query; this is the *generator* component. Parameterization follows [SPARQL pre-binding](https://www.w3.org/TR/shacl/#pre-binding) according to the SHACL standard. Each SPARQL Construct query returns RDF triples that are part of the transformed result.
+* the **iterator** component fetches URIs using a SPARQL SELECT query, paginating results using SPARQL `OFFSET` and `LIMIT` (binding each URI to a `$this` variable)
+* the **generator** component then runs a SPARQL CONSTRUCT query for each URI ([pre-binding](https://www.w3.org/TR/shacl/#pre-binding) `$this` to the URI), which returns the transformed result.  
+
+### Extensible 
+
+LD Workbench is **extensible** because it uses pure SPARQL queries (instead of code) for configuring transformation pipelines.
+Each pipeline is a sequence of stages; each stage consists of an iterator and generator.
 
 ## Configuration
 
