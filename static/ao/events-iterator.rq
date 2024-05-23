@@ -1,4 +1,0 @@
-prefix histEvents: <https://colonial-heritage.triply.cc/Iva/test-colonialHeritage/HistEvents_w_EventTypes.csv/def/>
-select * where {
-  $this histEvents:HistEventID ?oldobject.
-}
