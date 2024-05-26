@@ -184,21 +184,3 @@ The TriplyDB class serves as an example on how to LD Workbench could be used to 
 This repository uses GitHub Actions for the CI, the configuration that concerns automated tests can be found in the [github-ci.yml file](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/.github/workflows/github-ci.yml).
 
 To run the tests locally run the `npm test` command, for examples see files ending with `'*.test.ts'`.
-
-## Publishing to NPM
-
-To trigger a published release event in GitHub Actions, you need to create a release on your GitHub repository. Here are the general steps:
-
-1. Navigate to the [LDWorkbench GitHub repository](https://github.com/netwerk-digitaal-erfgoed/ld-workbench).
-
-2. Click on the "Releases" tab or visit <https://github.com/netwerk-digitaal-erfgoed/ld-workbench/releases>.
-
-3. Click the "Draft a new release" button if you haven't created a release yet.
-
-4. Fill in the necessary information for your release, such as the tag version, release title, and release description.
-
-5. Optionally, attach any assets (e.g. release notes).
-
-6. Click the "Publish release" button.
-
-By publishing the release, you will trigger the "release" event in GitHub Actions, which can then execute the workflow specified [here](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/.github/workflows/npmjs.yml).
