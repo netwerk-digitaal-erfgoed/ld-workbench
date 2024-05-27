@@ -2,7 +2,7 @@
   "yaml.schemas": {
     "static/ld-workbench.schema.json": [
       "pipelines/configurations/**/*.yml",
-      "static/example/*.yml",
-    ],
+      "static/example/*.yml"
+    ]
   }
 }

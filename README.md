@@ -124,7 +124,7 @@ For local development, the following command should get you going:
 git clone https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git
 cd ld-workbench
 npm i
-npm run build
+npm run compile
 ```
 
 To start the CLI tool you can use this command:
@@ -133,7 +133,7 @@ To start the CLI tool you can use this command:
 npm run ld-workbench -- --configDir static/example
 ```
 
-Since this project is written in Typescript, your code needs to be transpiled to Javascript before you can run it (using `npm run build`). With `npm run dev` the transpiler will watch changes in the Typescript code an transpiles on each change.
+Since this project is written in Typescript, your code needs to be transpiled to Javascript before you can run it (using `npm run compile`). With `npm run dev` the transpiler will watch changes in the Typescript code an transpiles on each change.
 
 The configuration of this project is validated and defined by [JSON Schema](https://json-schema.org). The schema is located in `./static/ld-workbench-schema.json`. To create the types from this schema, run `npm run util:json-schema-to-typescript`. This will regenerate `./src/types/LDWorkbenchConfiguration.d.ts`, do not modify this file by hand.
 

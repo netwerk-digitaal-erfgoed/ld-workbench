@@ -1,6 +1,6 @@
-import Ajv, { type ValidateFunction, type ErrorObject } from 'ajv';
+import Ajv, {type ValidateFunction, type ErrorObject} from 'ajv';
 import parseYamlFile from './parseYamlFile.js';
-import { fileURLToPath } from 'url';
+import {fileURLToPath} from 'url';
 import * as path from 'path';
 
 /**
@@ -9,14 +9,19 @@ import * as path from 'path';
  * @param schemaFilePath - The path to the YAML file containing the JSON Schema.
  * @returns An array of validation errors if any, otherwise returns the configuration.
  */
-export default function validate(filePathOrObject: object | string): ErrorObject[] | null {
+export default function validate(
+  filePathOrObject: object | string
+): ErrorObject[] | null {
   // Parse the YAML schema file
   const dirname = path.dirname(fileURLToPath(import.meta.url));
-  const filename = path.resolve(path.join(dirname, '..', '..', 'static', 'ld-workbench.schema.json'))
+  const filename = path.resolve(
+    path.join(dirname, '..', '..', 'static', 'ld-workbench.schema.json')
+  );
   const schema = parseYamlFile(filename);
-  const configuration = typeof filePathOrObject === 'string' 
-    ? parseYamlFile(filePathOrObject)
-    : filePathOrObject
+  const configuration =
+    typeof filePathOrObject === 'string'
+      ? parseYamlFile(filePathOrObject)
+      : filePathOrObject;
 
   // Create an Ajv instance
   // @ts-expect-error This expression is constructable, probably an error in the types..

@@ -1,17 +1,9 @@
-# For more information on running Github CI with Node: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 name: Test
-run-name: Testing commit by ${{ github.actor }}
 
-# when pipeline is triggered
 on:
-  # manual trigger workflow in UI
-  workflow_dispatch:
-  # commit on any branch
-  push:
-    # only trigger on branches, not on tags
-    branches: ['**']
-  # during pull request
   pull_request:
+    branches:
+      - main
 
 # cancel any ongoing job in the branch if there is one more recent
 concurrency:
@@ -19,27 +11,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  install-build-test:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-      # Using Node LTS https://nodejs.org/en
-        node-version: [20.10.0]
+        node-version: [lts/*]
 
     steps:
       - run: echo "Job was automatically triggered by a ${{ github.event_name }} event on ${{ github.ref }} - ${{ github.repository }}."
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Check versions
         run: echo "Node version:" && node -v && echo "NPM version:" && npm -v
       - name: Install dependencies
         run: npm install
+      - run: npm run lint
       - name: Build
-        run: npm run build
+        run: npm run compile
       - name: LDWorkbench init & test run
         run: rm -rf ./pipelines && npx ld-workbench --init && npx ld-workbench -c "src/utils/tests/static/single/conf.yml"
       - name: Test
