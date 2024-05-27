@@ -10,6 +10,8 @@ import path from 'node:path';
 import * as fs from 'node:fs';
 import {isFilePathString, isTriplyDBPathString} from '../utils/guards.js';
 import TriplyDB from './TriplyDB.class.js';
+import prettyMilliseconds from 'pretty-ms';
+import {memoryConsumption} from '../utils/memory.js';
 interface PipelineOptions {
   startFromStageName?: string;
   silent?: boolean;
@@ -191,7 +193,10 @@ class Pipeline {
             iterationsProcessed
           )}\n  Generated quads: ${millify(
             quadsGenerated
-          )}\n  Duration: ${formatDuration(startTime, performance.now())} `;
+          )}\n  Duration: ${formatDuration(
+            startTime,
+            performance.now()
+          )}\n  Memory: ${memoryConsumption()} MB`;
       });
       stage.on('error', e => {
         spinner.fail();
@@ -229,10 +234,9 @@ class Pipeline {
         chalk.green(
           `✔ your pipeline "${chalk.bold(
             this.name
-          )}" was completed in ${formatDuration(
-            this.startTime,
-            performance.now()
-          )}`
+          )}" was completed in ${prettyMilliseconds(
+            performance.now() - this.startTime
+          )} using ${memoryConsumption()} MB of memory.`
         )
       );
   }
