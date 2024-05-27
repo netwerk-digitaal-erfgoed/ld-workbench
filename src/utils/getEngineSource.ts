@@ -1,7 +1,7 @@
-import { isPreviousStage } from './guards.js';
-import { existsSync } from 'fs';
+import {isPreviousStage} from './guards.js';
+import {existsSync} from 'fs';
 import path from 'path';
-import type { Endpoint } from '../lib/types.js';
+import type {Endpoint} from '../lib/types.js';
 
 export default function getEngineSource(endpoint: Endpoint): string {
   let source: string;
@@ -16,5 +16,5 @@ export default function getEngineSource(endpoint: Endpoint): string {
   } else {
     source = endpoint.toString();
   }
-  return source
+  return source;
 }

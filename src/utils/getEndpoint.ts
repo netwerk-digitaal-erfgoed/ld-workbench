@@ -1,14 +1,11 @@
-import File from "../lib/File.class.js";
-import type { LDWorkbenchConfiguration } from '../lib/LDWorkbenchConfiguration.js';
-import PreviousStage from "../lib/PreviousStage.class.js";
+import File from '../lib/File.class.js';
+import type {LDWorkbenchConfiguration} from '../lib/LDWorkbenchConfiguration.js';
+import PreviousStage from '../lib/PreviousStage.class.js';
 import type Stage from '../lib/Stage.class.js';
-import type { Endpoint } from '../lib/types.js';
-import { isFilePathString } from './guards.js';
+import type {Endpoint} from '../lib/types.js';
+import {isFilePathString} from './guards.js';
 
-export default function getEndpoint(
-  stage: Stage,
-  type?: 'iterator'
-): Endpoint;
+export default function getEndpoint(stage: Stage, type?: 'iterator'): Endpoint;
 export default function getEndpoint(
   stage: Stage,
   type: 'generator',
@@ -19,8 +16,11 @@ export default function getEndpoint(
   type: 'iterator' | 'generator' = 'iterator',
   index?: number
 ): Endpoint {
-  const t: keyof LDWorkbenchConfiguration['stages'][number] = type
-  const endpoint = t === "generator" ? stage.configuration[t]?.[index!]?.endpoint : stage.configuration[t]?.endpoint;
+  const t: keyof LDWorkbenchConfiguration['stages'][number] = type;
+  const endpoint =
+    t === 'generator'
+      ? stage.configuration[t]?.[index!]?.endpoint
+      : stage.configuration[t]?.endpoint;
   if (isFilePathString(endpoint)) {
     return new File(endpoint);
   } else if (endpoint !== undefined) {
