@@ -26,6 +26,7 @@ class Stage extends EventEmitter {
   public destination: () => WriteStream
   public iterator: Iterator
   public generators: Generator[] = []
+  private iteratorEnded: boolean = false;
 
   public constructor(
     public readonly pipeline: Pipeline,
@@ -57,18 +58,17 @@ class Stage extends EventEmitter {
   public get name(): string {
     return this.configuration.name
   }
-  
+
   public run(): void {
     const writer = new Writer(this.destination(), { end: false, format: 'N-Triples' });
     let quadCount = 0;
 
     const generatorProcessedCounts = new Map<number, number>();
-    let generatorsFinished = 0;
     let quadsGenerated = 0;
 
     const checkEnd = (iterationsIncoming: number, statements: number): void => {
-      // Check if all generators have processed all iterations
-      if (generatorsFinished === this.configuration.generator.length) {
+      if (![...generatorProcessedCounts].some(([_, processed]) => processed < iterationsIncoming)
+        && this.iteratorEnded) {
         this.emit('end', iterationsIncoming, statements);
       }
     };
@@ -84,10 +84,7 @@ class Stage extends EventEmitter {
       });
 
       generator.on('end', (iterationsIncoming, statements, processed) => {
-        generatorProcessedCounts.set(index, generatorProcessedCounts.get(index)! + processed);
-        if (generatorProcessedCounts.get(index)! >= iterationsIncoming) {
-          generatorsFinished++;
-        }
+        generatorProcessedCounts.set(index, processed);
         checkEnd(iterationsIncoming, statements);
       });
 
@@ -101,7 +98,12 @@ class Stage extends EventEmitter {
         generator.run($this);
       });
       this.emit('iteratorResult', $this, quadsGenerated);
-  });
+    });
+
+    this.iterator.on('end', (_count) => {
+      this.iteratorEnded = true;
+    });
+
 
   this.iterator.on('error', e => {
     this.emit('error', e)
