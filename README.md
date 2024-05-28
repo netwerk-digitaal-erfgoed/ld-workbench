@@ -37,7 +37,6 @@ stages:
     iterator:
       query: "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 100"
       endpoint: "http://example.com/sparql-endpoint"
-      delay: "150 ms"
     generator:
       - query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"
         batchSize: 50
