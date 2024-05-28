@@ -87,19 +87,18 @@ class Stage extends EventEmitter {
       end: false,
       format: 'N-Triples',
     });
-    let quadCount = 0;
 
     const generatorProcessedCounts = new Map<number, number>();
     let quadsGenerated = 0;
 
-    const checkEnd = (iterationsIncoming: number, statements: number): void => {
+    const checkEnd = (iterationsIncoming: number): void => {
       if (
         ![...generatorProcessedCounts].some(
           ([, processed]) => processed < iterationsIncoming
         ) &&
         this.iteratorEnded
       ) {
-        this.emit('end', iterationsIncoming, statements);
+        this.emit('end', iterationsIncoming, quadsGenerated);
       }
     };
 
@@ -109,13 +108,12 @@ class Stage extends EventEmitter {
       generator.on('data', quad => {
         quadsGenerated++;
         writer.addQuad(quad);
-        quadCount++;
-        this.emit('generatorResult', quadCount);
+        this.emit('generatorResult', quadsGenerated);
       });
 
       generator.on('end', (iterationsIncoming, statements, processed) => {
         generatorProcessedCounts.set(index, processed);
-        checkEnd(iterationsIncoming, statements);
+        checkEnd(iterationsIncoming);
       });
 
       generator.on('error', e => {
