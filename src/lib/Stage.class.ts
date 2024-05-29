@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/method-signature-style */
 import EventEmitter from 'node:events';
 import File from './File.class.js';
 import {type LDWorkbenchConfiguration} from './LDWorkbenchConfiguration.js';
@@ -10,29 +9,15 @@ import path from 'node:path';
 import {Writer} from 'n3';
 import type {NamedNode} from '@rdfjs/types';
 import type {WriteStream} from 'node:fs';
-declare interface Stage {
-  on(event: 'generatorResult', listener: (count: number) => void): this;
-  on(
-    event: 'end',
-    listener: (iteratorCount: number, statements: number) => void
-  ): this;
-  on(
-    event: 'iteratorResult',
-    listener: ($this: NamedNode, quadsGenerated: number) => void
-  ): this;
-  on(event: 'error', listener: (e: Error) => void): this;
 
-  emit(event: 'generatorResult', count: number): boolean;
-  emit(event: 'end', iteratorCount: number, statements: number): boolean;
-  emit(
-    event: 'iteratorResult',
-    $this: NamedNode,
-    quadsGenerated: number
-  ): boolean;
-  emit(event: 'error', e: Error): boolean;
+interface Events {
+  generatorResult: [count: number];
+  end: [iteratorCount: number, statements: number];
+  iteratorResult: [$this: NamedNode, quadsGenerated: number];
+  error: [Error];
 }
 
-class Stage extends EventEmitter {
+export default class Stage extends EventEmitter<Events> {
   public destination: () => WriteStream;
   public iterator: Iterator;
   public generators: Generator[] = [];
@@ -140,5 +125,3 @@ class Stage extends EventEmitter {
     this.iterator.run();
   }
 }
-
-export default Stage;

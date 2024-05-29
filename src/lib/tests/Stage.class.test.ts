@@ -6,10 +6,10 @@ import Generator from '../Generator.class.js';
 import * as chai from 'chai';
 import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised';
-import type {NamedNode} from 'n3';
 import type {LDWorkbenchConfiguration} from '../LDWorkbenchConfiguration.js';
 import {fileURLToPath} from 'url';
 import removeDirectory from '../../utils/removeDir.js';
+import {NamedNode} from '@rdfjs/types';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
