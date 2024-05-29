@@ -24,6 +24,10 @@ program
     'Name of the stage of the pipeline you want to run'
   )
   .option('--init', 'Initializes a new LDWorkbench project')
+  .option(
+    '--silent',
+    'Disable console output, including the progress indicator.'
+  )
   .version(version());
 program.parse();
 export const cliArgs: {
@@ -31,6 +35,7 @@ export const cliArgs: {
   configDir?: string;
   pipeline?: string;
   stage?: string;
+  silent?: boolean;
   init?: boolean;
 } = program.opts();
 
