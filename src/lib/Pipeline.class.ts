@@ -1,4 +1,4 @@
-import ora from 'ora';
+import ora, {Ora} from 'ora';
 import kebabcase from 'lodash.kebabcase';
 import type {LDWorkbenchConfiguration} from './LDWorkbenchConfiguration.js';
 import chalk from 'chalk';
@@ -16,6 +16,9 @@ interface PipelineOptions {
   startFromStageName?: string;
   silent?: boolean;
 }
+
+let spinner: Ora;
+
 class Pipeline {
   public readonly stages = new Map<string, Stage>();
   public dataDir: string;
@@ -121,7 +124,7 @@ class Pipeline {
       console.info(
         chalk.cyan(`🏁 starting pipeline "${chalk.bold(this.name)}"`)
       );
-    const spinner = ora('validating pipeline');
+    spinner = ora('validating pipeline');
     if (!(this.opts?.silent === true)) spinner.start();
     let startFromStage = 0;
     try {
@@ -179,24 +182,22 @@ class Pipeline {
 
   private async runRecursive(): Promise<void> {
     const stage = this.stages.get(this.stageNames.shift()!)!;
-    const spinner = ora('Loading results from Iterator');
+    spinner = ora('Loading results from Iterator');
     const startTime = performance.now();
     let iterationsProcessed = 0;
     if (!(this.opts?.silent === true)) spinner.start();
     await new Promise<void>((resolve, reject) => {
       stage.on('iteratorResult', (_$this, quadsGenerated) => {
         iterationsProcessed++;
-        if (!(this.opts?.silent === true))
-          spinner.text = `Running ${
-            stage.name
-          }:\n\n  Processed elements: ${millify(
-            iterationsProcessed
-          )}\n  Generated quads: ${millify(
-            quadsGenerated
-          )}\n  Duration: ${formatDuration(
-            startTime,
-            performance.now()
-          )}\n  Memory: ${memoryConsumption()} MB`;
+        this.updateSpinner(
+          stage,
+          startTime,
+          iterationsProcessed,
+          quadsGenerated
+        );
+      });
+      stage.on('generatorResult', count => {
+        this.updateSpinner(stage, startTime, iterationsProcessed, count);
       });
       stage.on('error', e => {
         spinner.fail();
@@ -242,7 +243,7 @@ class Pipeline {
   }
 
   private async writeResult(): Promise<void> {
-    const spinner = ora('Writing results to destination');
+    spinner = ora('Writing results to destination');
     if (!(this.opts?.silent === true)) spinner.start();
     await this.destination.write(this, spinner);
     if (!(this.opts?.silent === true))
@@ -256,6 +257,26 @@ class Pipeline {
 
   get description(): string | undefined {
     return this.$configuration.description;
+  }
+
+  private updateSpinner(
+    stage: Stage,
+    startTime: number,
+    iterationsProcessed: number,
+    quadsGenerated: number
+  ) {
+    if (this.opts?.silent === true) {
+      return;
+    }
+
+    spinner.text = `Running ${stage.name}:\n\n  Processed elements: ${millify(
+      iterationsProcessed
+    )}\n  Generated quads: ${millify(
+      quadsGenerated
+    )}\n  Duration: ${formatDuration(
+      startTime,
+      performance.now()
+    )}\n  Memory: ${memoryConsumption()} MB`;
   }
 }
 
