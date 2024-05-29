@@ -8,7 +8,7 @@ import chaiAsPromised from 'chai-as-promised';
 import type {LDWorkbenchConfiguration} from '../LDWorkbenchConfiguration.js';
 import {fileURLToPath} from 'url';
 import removeDirectory from '../../utils/removeDir.js';
-import {NamedNode} from 'n3';
+import {NamedNode} from '@rdfjs/types';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 

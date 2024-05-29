@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/method-signature-style */
 import EventEmitter from 'node:events';
 import type {SelectQuery} from 'sparqljs';
 import type Stage from './Stage.class.js';
@@ -13,17 +12,14 @@ import getEngineSource from '../utils/getEngineSource.js';
 import parse from 'parse-duration';
 
 const DEFAULT_LIMIT = 10;
-declare interface Iterator {
-  on(event: 'data', listener: ($this: NamedNode) => void): this;
-  on(event: 'end', listener: (numResults: number) => void): this;
-  on(event: 'error', listener: (e: Error) => void): this;
 
-  emit(event: 'data', $this: NamedNode): boolean;
-  emit(event: 'end', numResults: number): boolean;
-  emit(event: 'error', e: Error): boolean;
+interface Events {
+  data: [$this: NamedNode];
+  end: [numResults: number];
+  error: [Error];
 }
 
-class Iterator extends EventEmitter {
+export default class Iterator extends EventEmitter<Events> {
   private readonly query: SelectQuery;
   public readonly endpoint: Endpoint;
   private readonly engine: QueryEngine;
@@ -103,5 +99,3 @@ class Iterator extends EventEmitter {
     }, this.delay);
   }
 }
-
-export default Iterator;

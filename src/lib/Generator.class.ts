@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/method-signature-style */
 import type {ConstructQuery, ValuePatternRow} from 'sparqljs';
 import type Stage from './Stage.class.js';
 import getSPARQLQuery from '../utils/getSPARQLQuery.js';
@@ -12,28 +11,13 @@ import EventEmitter from 'node:events';
 
 const DEFAULT_BATCH_SIZE = 10;
 
-declare interface Generator {
-  on(event: 'data', listener: (statement: Quad) => void): this;
-  on(
-    event: 'end',
-    listener: (
-      iterations: number,
-      statements: number,
-      processed: number
-    ) => void
-  ): this;
-  on(event: 'error', listener: (e: Error) => void): this;
-
-  emit(event: 'data', statement: Quad): boolean;
-  emit(
-    event: 'end',
-    iterations: number,
-    statements: number,
-    processed: number
-  ): boolean;
-  emit(event: 'error', e: Error): boolean;
+interface Events {
+  end: [iterations: number, statements: number, processed: number];
+  error: [e: Error];
+  data: [statement: Quad];
 }
-class Generator extends EventEmitter {
+
+export default class Generator extends EventEmitter<Events> {
   private readonly query: ConstructQuery;
   private readonly engine: QueryEngine;
   private iterationsProcessed = 0;
@@ -137,5 +121,3 @@ class Generator extends EventEmitter {
     this.runBatch(this.$thisList);
   }
 }
-
-export default Generator;
