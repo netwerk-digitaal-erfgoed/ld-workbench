@@ -27,7 +27,7 @@ class Iterator extends EventEmitter {
   private readonly query: SelectQuery;
   public readonly endpoint: Endpoint;
   private readonly engine: QueryEngine;
-  private readonly delay: number | undefined;
+  private readonly delay: number = 0;
   private source = '';
   private $offset = 0;
   public totalResults = 0;
@@ -100,7 +100,7 @@ class Iterator extends EventEmitter {
         .catch(e => {
           this.emit('error', error(e));
         });
-    }, this.delay ?? 0);
+    }, this.delay);
   }
 }
 
