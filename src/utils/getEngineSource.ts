@@ -1,10 +1,9 @@
 import {isPreviousStage} from './guards.js';
 import {existsSync} from 'fs';
 import path from 'path';
-import type {Endpoint} from '../lib/types.js';
+import type {Endpoint, QuerySource} from '../lib/types.js';
 
-export default function getEngineSource(endpoint: Endpoint): string {
-  let source: string;
+export default function getEngineSource(endpoint: Endpoint): QuerySource {
   if (isPreviousStage(endpoint)) {
     const previousStage = endpoint.load();
     if (!existsSync(previousStage.destinationPath)) {
@@ -12,9 +11,18 @@ export default function getEngineSource(endpoint: Endpoint): string {
         `The result from stage "${previousStage.name}" (${previousStage.destinationPath}) is not available, make sure to run that stage first`
       );
     }
-    source = path.resolve(previousStage.destinationPath);
-  } else {
-    source = endpoint.toString();
+    return {
+      type: 'file',
+      value: path.resolve(previousStage.destinationPath),
+    };
+  } else if (endpoint instanceof URL) {
+    return {
+      type: 'sparql',
+      value: endpoint.toString(),
+    };
   }
-  return source;
+
+  return {
+    value: endpoint.toString(),
+  };
 }

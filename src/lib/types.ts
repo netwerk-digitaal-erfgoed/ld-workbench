@@ -5,3 +5,4 @@ import {type QueryEngine as QueryEngineFile} from '@comunica/query-sparql-file';
 
 export type Endpoint = File | URL | PreviousStage;
 export type QueryEngine = QueryEngineSparql | QueryEngineFile;
+export type QuerySource = {type?: string; value: string};

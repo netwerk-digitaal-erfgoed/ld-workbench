@@ -6,7 +6,7 @@ import getSPARQLQuery from '../utils/getSPARQLQuery.js';
 import {type Bindings} from '@comunica/types';
 import getSPARQLQueryString from '../utils/getSPARQLQueryString.js';
 import getEndpoint from '../utils/getEndpoint.js';
-import type {Endpoint, QueryEngine} from './types.js';
+import type {Endpoint, QueryEngine, QuerySource} from './types.js';
 import getEngine from '../utils/getEngine.js';
 import getEngineSource from '../utils/getEngineSource.js';
 import parse from 'parse-duration';
@@ -24,7 +24,7 @@ export default class Iterator extends EventEmitter<Events> {
   public readonly endpoint: Endpoint;
   private readonly engine: QueryEngine;
   private readonly delay: number = 0;
-  private source = '';
+  private source?: QuerySource;
   private $offset = 0;
   public totalResults = 0;
 
@@ -50,7 +50,6 @@ export default class Iterator extends EventEmitter<Events> {
   public run(): void {
     setTimeout(() => {
       let resultsPerPage = 0;
-      if (this.source === '') this.source = getEngineSource(this.endpoint);
       this.query.offset = this.$offset;
       const queryString = getSPARQLQueryString(this.query);
       const error = (e: unknown): Error =>
@@ -63,7 +62,7 @@ export default class Iterator extends EventEmitter<Events> {
         );
       this.engine
         .queryBindings(queryString, {
-          sources: [this.source],
+          sources: [(this.source ??= getEngineSource(this.endpoint))],
         })
         .then(stream => {
           stream.on('data', (binding: Bindings) => {

@@ -65,7 +65,6 @@ describe('Iterator Class', () => {
       expect(iterator).to.have.property('query');
       expect(iterator).to.have.property('endpoint');
       expect(iterator).to.have.property('engine');
-      expect(iterator).to.have.property('source');
       expect(iterator).to.have.property('$offset', 0);
       expect(iterator).to.have.property('totalResults', 0);
     });

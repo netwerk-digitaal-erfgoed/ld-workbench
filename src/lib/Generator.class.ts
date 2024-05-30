@@ -4,7 +4,7 @@ import getSPARQLQuery from '../utils/getSPARQLQuery.js';
 import type {Quad, NamedNode} from '@rdfjs/types';
 import getSPARQLQueryString from '../utils/getSPARQLQueryString.js';
 import getEndpoint from '../utils/getEndpoint.js';
-import type {Endpoint, QueryEngine} from './types.js';
+import type {Endpoint, QueryEngine, QuerySource} from './types.js';
 import getEngine from '../utils/getEngine.js';
 import getEngineSource from '../utils/getEngineSource.js';
 import EventEmitter from 'node:events';
@@ -23,10 +23,9 @@ export default class Generator extends EventEmitter<Events> {
   private iterationsProcessed = 0;
   private iterationsIncoming = 0;
   private statements = 0;
-  private source = '';
   private $thisList: NamedNode[] = [];
   private readonly endpoint: Endpoint;
-  // private iteratorEnded: boolean = false;
+  private source?: QuerySource;
   public constructor(
     private readonly stage: Stage,
     private readonly index: number
@@ -77,7 +76,6 @@ export default class Generator extends EventEmitter<Events> {
           this.source
         }: ${(e as Error).message}`
       );
-    if (this.source === '') this.source = getEngineSource(this.endpoint);
     const unionQuery = getSPARQLQuery(
       getSPARQLQueryString(this.query),
       'construct'
@@ -92,7 +90,7 @@ export default class Generator extends EventEmitter<Events> {
 
     this.engine
       .queryQuads(getSPARQLQueryString(unionQuery), {
-        sources: [this.source],
+        sources: [(this.source ??= getEngineSource(this.endpoint))],
       })
       .then(stream => {
         stream.on('data', (quad: Quad) => {

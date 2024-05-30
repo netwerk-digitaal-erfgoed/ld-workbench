@@ -72,12 +72,11 @@ async function main(): Promise<void> {
     );
   }
 
-  const pipeline = new Pipeline(configuration, {
-    startFromStageName: cliArgs.stage,
-    silent: cliArgs.silent,
-  });
-
   try {
+    const pipeline = new Pipeline(configuration, {
+      startFromStageName: cliArgs.stage,
+      silent: cliArgs.silent,
+    });
     await pipeline.run();
   } catch (e) {
     error(
