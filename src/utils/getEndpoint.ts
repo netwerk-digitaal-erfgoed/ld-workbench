@@ -25,8 +25,7 @@ export default function getEndpoint(
     return new File(endpoint);
   } else if (endpoint !== undefined) {
     try {
-      // fix for GraphDB, see https://github.com/comunica/comunica/issues/962
-      return new URL((endpoint as string).replace(/^sparql@/, ''));
+      return new URL(endpoint);
     } catch (e) {
       throw new Error(`"${endpoint as string}" is not a valid URL`);
     }

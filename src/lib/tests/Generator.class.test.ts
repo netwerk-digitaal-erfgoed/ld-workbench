@@ -68,7 +68,6 @@ describe('Generator Class', () => {
       expect(generator).to.have.property('query');
       expect(generator).to.have.property('engine');
       expect(generator).to.have.property('endpoint');
-      expect(generator).to.have.property('source');
     });
   });
   describe('run', () => {
@@ -108,8 +107,6 @@ describe('Generator Class', () => {
       };
       // read file after pipeline has finished
       const pipelineParallelGenerators = new Pipeline(config, {silent: true});
-      pipelineParallelGenerators.validate();
-
       await pipelineParallelGenerators.run();
       const file = fs.readFileSync(filePath, {encoding: 'utf-8'});
       const fileLines = file.split('\n').sort();
@@ -148,7 +145,6 @@ describe('Generator Class', () => {
         ],
       };
       const pipelineBatch = new Pipeline(batchConfiguration, {silent: true});
-      pipelineBatch.validate();
       pipelineBatch
         .run()
         .then(() => {

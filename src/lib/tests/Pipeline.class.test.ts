@@ -55,7 +55,6 @@ describe('Pipeline Class', () => {
       expect(pipeline).to.be.an.instanceOf(Pipeline);
       expect(pipeline).to.have.property('stages').that.is.a('Map');
       expect(pipeline).to.have.property('dataDir').that.is.a('string');
-      expect(pipeline).to.have.property('$isValidated', false);
       expect(pipeline).to.have.property('stageNames').that.is.an('array');
       expect(pipeline).to.have.property('startTime').that.is.an('number');
       expect(pipeline)
@@ -99,7 +98,6 @@ describe('Pipeline Class', () => {
         ],
       };
       const pipeline = new Pipeline(configuration, {silent: true});
-      pipeline.validate();
 
       const stage1 = pipeline.stages.get('Stage 1')!;
       const stage2 = pipeline.stages.get('Stage 2')!;
@@ -155,10 +153,9 @@ describe('Pipeline Class', () => {
         destination: 'file://pipelines/data/example-pipeline.nt',
         stages: [],
       } as unknown as LDWorkbenchConfiguration;
-      const pipeline = new Pipeline(invalidConfiguration, {silent: true});
       let failed = false;
       try {
-        pipeline.validate();
+        new Pipeline(invalidConfiguration, {silent: true});
       } catch (error) {
         if (error instanceof Error) {
           if (error.message === 'Your pipeline contains no stages.') {
@@ -204,10 +201,9 @@ describe('Pipeline Class', () => {
           },
         ],
       } as unknown as LDWorkbenchConfiguration;
-      const pipeline = new Pipeline(invalidConfiguration, {silent: true});
       let failed = false;
       try {
-        pipeline.validate();
+        new Pipeline(invalidConfiguration, {silent: true});
       } catch (error) {
         if (error instanceof Error) {
           if (
@@ -259,10 +255,9 @@ describe('Pipeline Class', () => {
           },
         ],
       };
-      const pipeline = new Pipeline(configDuplicateStageName, {silent: true});
       let failed = false;
       try {
-        pipeline.validate();
+        new Pipeline(configDuplicateStageName, {silent: true});
       } catch (error) {
         if (error instanceof Error) {
           if (
@@ -315,10 +310,9 @@ describe('Pipeline Class', () => {
           },
         ],
       };
-      const pipeline = new Pipeline(configDuplicateStageName, {silent: true});
       let failed = false;
       try {
-        pipeline.validate();
+        new Pipeline(configDuplicateStageName, {silent: true});
       } catch (error) {
         failed = true;
         if (error instanceof Error) {

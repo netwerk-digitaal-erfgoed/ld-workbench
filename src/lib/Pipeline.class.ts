@@ -22,7 +22,6 @@ let spinner: Ora;
 class Pipeline {
   public readonly stages = new Map<string, Stage>();
   public dataDir: string;
-  private $isValidated = false;
   private stageNames: string[] = [];
   private startTime = performance.now();
   private readonly destination: File | TriplyDB;
@@ -64,6 +63,7 @@ class Pipeline {
     this.destination = isTriplyDBPathString(destinationFile)
       ? new TriplyDB(destinationFile).validate()
       : new File(destinationFile, true).validate();
+    this.validate();
   }
 
   private error(e: Error, stage?: string): void {
@@ -76,7 +76,6 @@ class Pipeline {
   }
 
   public getPreviousStage(stage: Stage): Stage | undefined {
-    this.validate();
     if (!this.stages.has(stage.name)) {
       throw new Error(
         `This is unexpected: missing stage "${stage.name}" in stages.`
@@ -88,18 +87,18 @@ class Pipeline {
     else return this.stages.get(names[ix - 1]);
   }
 
-  public validate(): void {
-    if (this.$isValidated) return;
-    let i = 0;
+  private validate(): void {
     if (this.$configuration.stages.length === 0) {
       throw new Error('Your pipeline contains no stages.');
     }
+
+    if (this.$configuration.stages[0].iterator.endpoint === undefined) {
+      throw new Error(
+        'The first stage of your pipeline must have an endpoint defined for the Iterator.'
+      );
+    }
+
     for (const stageConfiguration of this.$configuration.stages) {
-      if (i === 0 && stageConfiguration.iterator.endpoint === undefined) {
-        throw new Error(
-          'The first stage of your pipeline must have an endpoint defined for the Iterator.'
-        );
-      }
       if (this.stages.has(stageConfiguration.name)) {
         throw new Error(
           `Detected a duplicate name for stage \`${stageConfiguration.name}\` in your pipeline: each stage must have a unique name.`
@@ -109,9 +108,7 @@ class Pipeline {
         stageConfiguration.name,
         new Stage(this, stageConfiguration)
       );
-      i++;
     }
-    this.$isValidated = true;
   }
 
   public get configuration(): LDWorkbenchConfiguration {
@@ -128,7 +125,6 @@ class Pipeline {
     if (!(this.opts?.silent === true)) spinner.start();
     let startFromStage = 0;
     try {
-      this.validate();
       if (this.opts?.startFromStageName !== undefined) {
         if (/^\d+$/.test(this.opts.startFromStageName)) {
           const ix = parseInt(this.opts.startFromStageName);

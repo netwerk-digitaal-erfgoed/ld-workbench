@@ -402,40 +402,9 @@ describe('Utilities', () => {
           },
         ],
       };
-      const pipeline = new Pipeline(config, {silent: true});
-      const stageConfig = config.stages[0];
-      // getEndpoint is use in Stage's Iterator, and it will throw there.
-      expect(() => new Stage(pipeline, stageConfig)).to.throw(
+      expect(() => new Pipeline(config, {silent: true})).to.throw(
         'Error in the iterator of stage `Stage 1`: "invalidExample" is not a valid URL'
       );
-    });
-    it("should work with URL's prepended with 'sparql@'", () => {
-      const url =
-        'sparql@https://www.goudatijdmachine.nl/sparql/repositories/nafotocollectie'; // will be accepted
-      const config: LDWorkbenchConfiguration = {
-        name: 'Example Pipeline',
-        description:
-          'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-        destination: 'file://pipelines/data/example-pipeline.nt',
-        stages: [
-          {
-            name: 'Stage 1',
-            iterator: {
-              query: 'file://static/example/iterator-stage-1.rq',
-              endpoint: url,
-            },
-            generator: [
-              {
-                query: 'file://static/example/generator-stage-1-1.rq',
-              },
-            ],
-          },
-        ],
-      };
-      const pipeline = new Pipeline(config, {silent: true});
-      const stageConfig = config.stages[0];
-      // getEndpoint is use in Stage's Iterator, and it will throw there.
-      expect(() => new Stage(pipeline, stageConfig)).to.not.throw();
     });
     it('should throw if stage has undefined endpoint and is first stage', () => {
       const endpoint = undefined;
@@ -459,10 +428,8 @@ describe('Utilities', () => {
           },
         ],
       };
-      const pipeline = new Pipeline(config, {silent: true});
-      const stageConfig = config.stages[0];
-      expect(() => new Stage(pipeline, stageConfig)).to.throw(
-        'Error in the iterator of stage `Stage 1`: no destination defined for the iterator and no previous stage to use that result'
+      expect(() => new Pipeline(config, {silent: true})).to.throw(
+        'The first stage of your pipeline must have an endpoint defined for the Iterator.'
       );
     });
     it('should return PreviousStage if stage has undefined endpoint', () => {
@@ -500,7 +467,6 @@ describe('Utilities', () => {
         ],
       };
       const pipeline = new Pipeline(config, {silent: true});
-      pipeline.validate();
       const stage = new Stage(pipeline, config.stages[1]);
       const retrievedEndpoint = getEndpoint(stage);
       expect(isPreviousStage(retrievedEndpoint)).to.equal(true);
@@ -551,7 +517,6 @@ describe('Utilities', () => {
         ],
       };
       const pipeline = new Pipeline(config, {silent: true});
-      pipeline.validate();
       const stage: Stage = new Stage(pipeline, config.stages[1]);
       const stagesSoFar = Array.from(stage.pipeline.stages.keys());
       const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
@@ -560,13 +525,16 @@ describe('Utilities', () => {
     });
   });
   describe('getEngineSource', () => {
-    it('should return string when input is File', () => {
+    it('should return generic source when input is File', () => {
       const f = new File(`file://${path.join('./static/example/config.yml')}`);
-      expect(typeof getEngineSource(f) === 'string').to.equal(true);
+      expect(getEngineSource(f)).to.deep.equal({value: f.toString()});
     });
-    it('should return string when input is URL', () => {
+    it('should return URL source when input is URL', () => {
       const url = new URL('https://www.example.com');
-      expect(typeof getEngineSource(url) === 'string').to.equal(true);
+      expect(getEngineSource(url)).to.deep.equal({
+        type: 'sparql',
+        value: url.toString(),
+      });
     });
     it('should return engine source string when input is PreviousStage with destinationPath', async () => {
       const config: LDWorkbenchConfiguration = {
@@ -602,13 +570,12 @@ describe('Utilities', () => {
         ],
       };
       const pipeline = new Pipeline(config, {silent: true});
-      pipeline.validate();
       const stage2: Stage = new Stage(pipeline, config.stages[1]);
       const stagesSoFar = Array.from(stage2.pipeline.stages.keys());
       const previousStage = new PreviousStage(stage2, stagesSoFar.pop()!);
       const engineSource = getEngineSource(previousStage);
       expect(
-        engineSource ===
+        engineSource.value ===
           path.join(
             process.cwd(),
             '/pipelines/data/example-pipeline/stage-1.nt'
@@ -619,7 +586,6 @@ describe('Utilities', () => {
       beforeEach(() => {
         const configuration = loadConfiguration('./static/example/config.yml');
         const pipeline = new Pipeline(configuration, {silent: true});
-        pipeline.validate();
         const stage: Stage = new Stage(pipeline, configuration.stages[1]);
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());
         const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
@@ -641,7 +607,6 @@ describe('Utilities', () => {
       afterEach(() => {
         const configuration = loadConfiguration('./static/example/config.yml');
         const pipeline = new Pipeline(configuration, {silent: true});
-        pipeline.validate();
         const stage: Stage = new Stage(pipeline, configuration.stages[1]);
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());
         const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
@@ -659,7 +624,6 @@ describe('Utilities', () => {
       it('should throw when input is PreviousStage and destinationPath does not exist', () => {
         const configuration = loadConfiguration('./static/example/config.yml');
         const pipeline = new Pipeline(configuration, {silent: true});
-        pipeline.validate();
         const stage: Stage = new Stage(pipeline, configuration.stages[1]);
         const stagesSoFar = Array.from(stage.pipeline.stages.keys());
         const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
