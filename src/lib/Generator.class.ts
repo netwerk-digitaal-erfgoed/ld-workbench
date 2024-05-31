@@ -26,6 +26,7 @@ export default class Generator extends EventEmitter<Events> {
   private $thisList: NamedNode[] = [];
   private readonly endpoint: Endpoint;
   private source?: QuerySource;
+
   public constructor(
     private readonly stage: Stage,
     private readonly index: number
@@ -48,17 +49,19 @@ export default class Generator extends EventEmitter<Events> {
 
     this.engine = getEngine(this.endpoint);
 
-    stage.iterator.on('end', () => {
-      this.flush();
+    stage.iterator.on('end', async () => {
+      await this.flush();
     });
   }
 
-  public run($this: NamedNode, batchSize?: number): void {
+  public async run($this: NamedNode): Promise<void> {
+    // Prevent duplicates from added to $thisList, but immediately run any query that is batched.
     this.$thisList.push($this);
     this.iterationsIncoming++;
-    if (this.$thisList.length >= (batchSize ?? this.batchSize)) {
-      this.runBatch(this.$thisList);
+    if (this.$thisList.length >= this.batchSize) {
+      const batch = this.$thisList;
       this.$thisList = [];
+      await this.runBatch(batch);
     }
   }
 
@@ -69,12 +72,11 @@ export default class Generator extends EventEmitter<Events> {
     );
   }
 
-  private runBatch(batch: NamedNode[]): void {
+  private async runBatch(batch: NamedNode[]): Promise<void> {
     const error = (e: unknown): Error =>
       new Error(
-        `The Generator did not run successfully, it could not get the results from the endpoint ${
-          this.source
-        }: ${(e as Error).message}`
+        `The Generator did not run successfully, it could not get the results from the endpoint ${this
+          .source?.value}: ${(e as Error).message}`
       );
     const unionQuery = getSPARQLQuery(
       getSPARQLQueryString(this.query),
@@ -88,34 +90,38 @@ export default class Generator extends EventEmitter<Events> {
     patterns.push({type: 'values', values: valuePatterns});
     unionQuery.where = [{type: 'group', patterns}];
 
-    this.engine
-      .queryQuads(getSPARQLQueryString(unionQuery), {
-        sources: [(this.source ??= getEngineSource(this.endpoint))],
-      })
-      .then(stream => {
-        stream.on('data', (quad: Quad) => {
-          this.statements++;
-          this.emit('data', quad);
-        });
-        stream.on('error', e => {
-          this.emit('error', error(e));
-        });
-        stream.on('end', () => {
-          this.iterationsProcessed += batch.length;
-          this.emit(
-            'end',
-            this.iterationsIncoming,
-            this.statements,
-            this.iterationsProcessed
-          );
-        });
-      })
-      .catch(e => {
-        this.emit('error', error(e));
+    try {
+      const stream = await this.engine.queryQuads(
+        getSPARQLQueryString(unionQuery),
+        {
+          sources: [(this.source ??= getEngineSource(this.endpoint))],
+        }
+      );
+
+      stream.on('data', (quad: Quad) => {
+        this.statements++;
+        this.emit('data', quad);
       });
+      stream.on('error', e => {
+        this.emit('error', error(e));
+        // reject(e);
+      });
+      stream.on('end', () => {
+        // resolve();
+        this.iterationsProcessed += batch.length;
+        this.emit(
+          'end',
+          this.iterationsIncoming,
+          this.statements,
+          this.iterationsProcessed
+        );
+      });
+    } catch (e) {
+      this.emit('error', error(e));
+    }
   }
 
-  private flush(): void {
-    this.runBatch(this.$thisList);
+  private async flush(): Promise<void> {
+    await this.runBatch(this.$thisList);
   }
 }

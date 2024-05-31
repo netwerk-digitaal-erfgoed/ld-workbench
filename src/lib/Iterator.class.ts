@@ -47,8 +47,8 @@ export default class Iterator extends EventEmitter<Events> {
     }
   }
 
-  public run(): void {
-    setTimeout(() => {
+  public async run(): Promise<void> {
+    setTimeout(async () => {
       let resultsPerPage = 0;
       this.query.offset = this.$offset;
       const queryString = getSPARQLQueryString(this.query);
@@ -60,41 +60,40 @@ export default class Iterator extends EventEmitter<Events> {
             (e as Error).message
           }`
         );
-      this.engine
-        .queryBindings(queryString, {
+      try {
+        const stream = await this.engine.queryBindings(queryString, {
           sources: [(this.source ??= getEngineSource(this.endpoint))],
-        })
-        .then(stream => {
-          stream.on('data', (binding: Bindings) => {
-            resultsPerPage++;
-            if (!binding.has('this'))
-              throw new Error('Missing binding $this in the Iterator result.');
-            const $this = binding.get('this')!;
-            if ($this.termType !== 'NamedNode') {
-              throw new Error(
-                `Binding $this in the Iterator result must be an Iri/NamedNode, but it is of type ${$this.termType}.`
-              );
-            } else {
-              this.emit('data', $this);
-            }
-          });
-          stream.on('end', () => {
-            this.totalResults += resultsPerPage;
-            this.$offset += this.query.limit!;
-            if (resultsPerPage < this.query.limit!) {
-              this.emit('end', this.totalResults);
-            } else {
-              this.run();
-            }
-          });
+        });
 
-          stream.on('error', e => {
-            this.emit('error', error(e));
-          });
-        })
-        .catch(e => {
+        stream.on('data', (binding: Bindings) => {
+          resultsPerPage++;
+          if (!binding.has('this'))
+            throw new Error('Missing binding $this in the Iterator result.');
+          const $this = binding.get('this')!;
+          if ($this.termType !== 'NamedNode') {
+            throw new Error(
+              `Binding $this in the Iterator result must be an Iri/NamedNode, but it is of type ${$this.termType}.`
+            );
+          } else {
+            this.emit('data', $this);
+          }
+        });
+        stream.on('end', () => {
+          this.totalResults += resultsPerPage;
+          this.$offset += this.query.limit!;
+          if (resultsPerPage < this.query.limit!) {
+            this.emit('end', this.totalResults);
+          } else {
+            this.run();
+          }
+        });
+
+        stream.on('error', e => {
           this.emit('error', error(e));
         });
+      } catch (e) {
+        this.emit('error', error(e));
+      }
     }, this.delay);
   }
 }

@@ -67,7 +67,7 @@ export default class Stage extends EventEmitter<Events> {
     return this.configuration.name;
   }
 
-  public run(): void {
+  public async run(): Promise<void> {
     const writer = new Writer(this.destination(), {
       end: false,
       format: 'N-Triples',
@@ -106,10 +106,8 @@ export default class Stage extends EventEmitter<Events> {
       });
     });
 
-    this.iterator.on('data', $this => {
-      this.generators.forEach(generator => {
-        generator.run($this);
-      });
+    this.iterator.on('data', async $this => {
+      await Promise.all(this.generators.map(generator => generator.run($this)));
       this.emit('iteratorResult', $this, quadsGenerated);
     });
 
