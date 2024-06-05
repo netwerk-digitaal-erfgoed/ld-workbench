@@ -6,22 +6,22 @@ description: >
 
 
 # This is optional, by default it will be stored in the data directory of the pipeline using filename 'statements.nt'
-destination: file://pipelines/data/example-pipeline.nt
+destination: file://../../pipelines/data/example-pipeline.nt
 
 # The individual stages for your pipeline
 stages:
   - name: "Stage 1"
     iterator:
-      query: file://static/example/iterator-stage-1.rq
+      query: file://iterator-stage-1.rq
       endpoint: https://api.triplydb.com/datasets/Triply/iris/services/demo-service/sparql
     generator:
       # First generator
-      -  query: file://static/example/generator-stage-1-1.rq
+      - query: file://generator-stage-1-1.rq
       # Second generator
-      -  query: file://static/example/generator-stage-1-2.rq
+      - query: file://generator-stage-1-2.rq
   - name: "Stage 2"
     iterator:
-      query: file://static/example/iterator-stage-2.rq
+      query: file://iterator-stage-2.rq
     generator:
-      - query: file://static/example/generator-stage-2.rq
+      - query: file://generator-stage-2.rq
         endpoint: https://query.wikidata.org/sparql

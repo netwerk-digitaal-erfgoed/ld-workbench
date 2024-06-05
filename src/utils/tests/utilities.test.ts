@@ -217,16 +217,16 @@ describe('Utilities', () => {
             name: 'Example Pipeline A',
             description:
               'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-            destination: 'file://pipelines/data/example-pipeline.nt',
+            destination: 'file:///pipelines/data/example-pipeline.nt',
             stages: [
               {
                 name: 'Stage 1A',
                 iterator: {
-                  query: 'file://static/example/iterator-stage-1.rq',
-                  endpoint: 'file://static/tests/iris.nt',
+                  query: 'file:///static/example/iterator-stage-1.rq',
+                  endpoint: 'file:///static/tests/iris.nt',
                 },
                 generator: [
-                  {query: 'file://static/example/generator-stage-1-1.rq'},
+                  {query: 'file:///static/example/generator-stage-1-1.rq'},
                 ],
               },
             ],
@@ -238,16 +238,16 @@ describe('Utilities', () => {
             name: 'Example Pipeline B',
             description:
               'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-            destination: 'file://pipelines/data/example-pipeline.nt',
+            destination: 'file:///pipelines/data/example-pipeline.nt',
             stages: [
               {
                 name: 'Stage 1B',
                 iterator: {
-                  query: 'file://static/example/iterator-stage-1.rq',
-                  endpoint: 'file://static/tests/iris.nt',
+                  query: 'file:///static/example/iterator-stage-1.rq',
+                  endpoint: 'file:///static/tests/iris.nt',
                 },
                 generator: [
-                  {query: 'file://static/example/generator-stage-1-1.rq'},
+                  {query: 'file:///static/example/generator-stage-1-1.rq'},
                 ],
               },
             ],
@@ -259,37 +259,27 @@ describe('Utilities', () => {
       );
     });
     it('should load single configuration file in directory', () => {
-      const pipeline = loadPipelines('./src/utils/tests/static/single');
+      const pipeline = loadPipelines(
+        './src/utils/tests/static/correct/conf1.yml'
+      );
       const loadedElement = [...pipeline];
       const testElement = [
         [
-          'Example Pipeline',
+          'Example Pipeline A',
           {
-            name: 'Example Pipeline',
+            name: 'Example Pipeline A',
             description:
               'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-            destination: 'file://pipelines/data/example-pipeline.nt',
+            destination: 'file:///pipelines/data/example-pipeline.nt',
             stages: [
               {
-                name: 'Stage 1',
+                name: 'Stage 1A',
                 iterator: {
-                  query: 'file://static/example/iterator-stage-1.rq',
-                  endpoint: 'file://static/tests/iris.nt',
+                  query: 'file:///static/example/iterator-stage-1.rq',
+                  endpoint: 'file:///static/tests/iris.nt',
                 },
                 generator: [
-                  {query: 'file://static/example/generator-stage-1-1.rq'},
-                ],
-              },
-              {
-                name: 'Stage 2',
-                iterator: {
-                  query: 'file://static/example/iterator-stage-2.rq',
-                },
-                generator: [
-                  {
-                    query: 'file://static/example/generator-stage-2.rq',
-                    endpoint: 'file://static/tests/wikidata.nt',
-                  },
+                  {query: 'file:///static/example/generator-stage-1-1.rq'},
                 ],
               },
             ],

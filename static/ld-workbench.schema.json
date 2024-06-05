@@ -14,6 +14,10 @@
       "type": "string",
       "description": "An optional description for your pipeline."
     },
+    "baseDir": {
+      "type": "string",
+      "description": "The base directory for files referenced by file://... paths. Defaults to the parent directory of the YAML config file."
+    },
     "destination": {
       "type": "string",
       "description": "The file where the final result of your pipeline is saved."

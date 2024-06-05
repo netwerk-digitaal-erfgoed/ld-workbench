@@ -19,6 +19,10 @@ export interface LDWorkbenchConfiguration {
    */
   description?: string;
   /**
+   * The base directory for files referenced by file://... paths. Defaults to the parent directory of the YAML config file.
+   */
+  baseDir?: string;
+  /**
    * The file where the final result of your pipeline is saved.
    */
   destination?: string;
