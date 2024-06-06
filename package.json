@@ -1,9 +1,7 @@
 {
   "name": "@netwerk-digitaal-erfgoed/ld-workbench",
   "type": "module",
-  "bin": {
-    "ld-workbench": "build/main.js"
-  },
+  "bin": "build/main.js",
   "version": "0.0.0-development",
   "description": "LDWorkbench is a Linked Data Transformation tool designed to use only SPARQL as transformation language.",
   "main": "build/main.js",
