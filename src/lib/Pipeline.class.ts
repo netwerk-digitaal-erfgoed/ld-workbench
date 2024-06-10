@@ -119,9 +119,9 @@ class Pipeline {
     this.startTime = performance.now();
     if (!(this.opts?.silent === true))
       console.info(
-        chalk.cyan(`🏁 starting pipeline "${chalk.bold(this.name)}"`)
+        chalk.cyan(`▶ Starting pipeline “${chalk.bold(this.name)}”`)
       );
-    spinner = ora('validating pipeline');
+    spinner = ora('Validating pipeline');
     if (!(this.opts?.silent === true)) spinner.start();
     let startFromStage = 0;
     try {
@@ -203,11 +203,13 @@ class Pipeline {
       stage.on('end', (iris, statements) => {
         if (!(this.opts?.silent === true))
           spinner.succeed(
-            `stage "${chalk.bold(
+            `Stage “${chalk.bold(
               stage.name
-            )}" resulted in ${statements.toLocaleString()} statement${
+            )}” resulted in ${statements.toLocaleString()} statement${
               statements === 1 ? '' : 's'
-            } in ${iris.toLocaleString()} iteration${iris === 1 ? '' : 's'}.`
+            } in ${iris.toLocaleString()} iteration${
+              iris === 1 ? '' : 's'
+            } (took ${prettyMilliseconds(performance.now() - startTime)})`
           );
         resolve();
       });
@@ -229,11 +231,11 @@ class Pipeline {
     if (!(this.opts?.silent === true))
       console.info(
         chalk.green(
-          `✔ your pipeline "${chalk.bold(
+          `✔ Your pipeline “${chalk.bold(
             this.name
-          )}" was completed in ${prettyMilliseconds(
+          )}” was completed in ${prettyMilliseconds(
             performance.now() - this.startTime
-          )} using ${memoryConsumption()} MB of memory.`
+          )} using ${memoryConsumption()} MB of memory`
         )
       );
   }
@@ -243,7 +245,9 @@ class Pipeline {
     if (!(this.opts?.silent === true)) spinner.start();
     await this.destination.write(this, spinner);
     if (!(this.opts?.silent === true))
-      spinner.suffixText = this.destination.path;
+      spinner.suffixText = `${chalk.bold(
+        path.relative(process.cwd(), this.destination.path)
+      )}`;
     if (!(this.opts?.silent === true)) spinner.succeed();
   }
 
@@ -265,7 +269,9 @@ class Pipeline {
       return;
     }
 
-    spinner.text = `Running ${stage.name}:\n\n  Processed elements: ${millify(
+    spinner.text = `Running stage “${chalk.bold(
+      stage.name
+    )}”:\n\n  Processed elements: ${millify(
       iterationsProcessed
     )}\n  Generated quads: ${millify(
       quadsGenerated
