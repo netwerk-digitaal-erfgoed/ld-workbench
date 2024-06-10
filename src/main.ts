@@ -14,13 +14,9 @@ console.info(
 
 async function main(): Promise<void> {
   let pipelines = new Map<string, LDWorkbenchConfiguration>();
-  try {
-    pipelines = loadPipelines(
-      cliArgs.config ?? cliArgs.configDir ?? './pipelines/'
-    );
-  } catch (e) {
-    error(e as Error);
-  }
+  pipelines = loadPipelines(
+    cliArgs.config ?? cliArgs.configDir ?? './pipelines/'
+  );
 
   const names = Array.from(pipelines.keys());
 
