@@ -6,7 +6,7 @@ description: >
 
 
 # This is optional, by default it will be stored in the data directory of the pipeline using filename 'statements.nt'
-destination: file://../../pipelines/data/example-pipeline.nt
+destination: file://../../data/example-pipeline.nt
 
 # The individual stages for your pipeline
 stages:
