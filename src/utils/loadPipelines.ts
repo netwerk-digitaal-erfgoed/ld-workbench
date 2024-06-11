@@ -13,7 +13,7 @@ export default function loadPipelines(
     throw new Error(
       `Configuration directory/file ${chalk.italic(
         configDirOrFile
-      )} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx ld-workbench --init\` to setup an example workbench project.`
+      )} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx @netwerk-digitaal-erfgoed/ld-workbench@latest --init\` to set up an example workbench project.`
     );
 
   const files: string[] = [];

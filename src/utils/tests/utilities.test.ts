@@ -191,12 +191,12 @@ describe('Utilities', () => {
       expect(() => loadPipelines(nonExistentConfFile)).to.throw(
         `Configuration directory/file ${chalk.italic(
           nonExistentConfFile
-        )} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx ld-workbench --init\` to setup an example workbench project.`
+        )} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx @netwerk-digitaal-erfgoed/ld-workbench@latest --init\` to set up an example workbench project.`
       );
       expect(() => loadPipelines(nonExistentDirWithFile)).to.throw(
         `Configuration directory/file ${chalk.italic(
           nonExistentDirWithFile
-        )} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx ld-workbench --init\` to setup an example workbench project.`
+        )} could not be found.\nIf this is your first run of LDWorkbench, you might want to use \`npx @netwerk-digitaal-erfgoed/ld-workbench@latest --init\` to set up an example workbench project.`
       );
     });
     it('should throw if directory has no .yml configuration file', () => {

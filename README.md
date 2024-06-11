@@ -20,13 +20,32 @@ LD Workbench is **scalable** due to its iterator/generator approach:
 LD Workbench is **extensible** because it uses pure SPARQL queries (instead of code) for configuring transformation pipelines.
 Each pipeline is a sequence of stages; each stage consists of an iterator and generator.
 
-## Configuration
+## Usage
 
-An LD Workbench pipeline is defined with a YAML configuration file. The configuration is validated by a JSON Schema. The schema is part of this repository ([link](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/static/ld-workbench.schema.json)). The YAML and JSON Schema combination is tested to work in the VSCode editor.
+To get started with LD Workbench, first install [NodeJS](https://nodejs.org), then run:
 
-A pipeline must have a name, one or more stages, and optionally a description. Multiple pipelines can be configured as long as they have unique names. See the [example configuration file](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/static/example/config.yml) for a boilerplate configuration file. A visualization of the schema gives more insights on required and optional properties can be [found here](https://json-schema.app/view/%23?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnetwerk-digitaal-erfgoed%2Fld-workbench%2Fmain%2Fstatic%2Fld-workbench.schema.json).
+```sh
+npx @netwerk-digitaal-erfgoed/ld-workbench@latest --init
+````
 
-### Example YAML File For Configuration Options
+This creates an example LD Workbench pipeline in the `pipelines/configurations/example` directory
+and runs that pipeline right away. The output is written to `pipelines/data`.
+
+To run the pipeline again:
+
+```sh
+npx @netwerk-digitaal-erfgoed/ld-workbench@latest
+```
+
+Your workbench is now ready for use. You can continue by creating your own pipeline configurations. 
+
+### Configuration
+
+An LD Workbench pipeline is defined with a YAML configuration file, validated by a [JSON Schema](https://json-schema.app/view/%23?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnetwerk-digitaal-erfgoed%2Fld-workbench%2Fmain%2Fstatic%2Fld-workbench.schema.json).
+
+A pipeline must have a name, one or more stages, and optionally a description. Multiple pipelines can be configured as long as they have unique names. See the [example configuration file](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/static/example/config.yml) for a boilerplate configuration file.
+
+#### Example YAML File For Configuration Options
 
 ```yaml
 name: MyPipeline
@@ -56,92 +75,10 @@ stages:
     destination: output/stage2-result.ttl
 ```
 
-### Configuration Options Table
+#### Configuration options
 
-| Section                          | Variable           | Description                                                                                                         | Required |
-|----------------------------------|--------------------|---------------------------------------------------------------------------------------------------------------------|----------|
-| General Configuration File       | name               | The name of your pipeline, it must be unique over all your configurations.                                          | Yes      |
-|                                  | description        | An optional description for your pipeline.                                                                          | No       |
-|                                  | destination        | The file where the final result of your pipeline is saved.                                                          | No       |
-| Stage                            | name               | The name of your pipeline step, it must be unique within one configuration.                                         | Yes      |
-|                                  | destination        | The file where the results are saved. This is not a required property; if omitted, a temporary file will be created automatically. | No       |
-| Iterator                         | query              | Path (prefixed with "file://") of SPARQL Query `.rq` file or SPARQL Query string that makes the iterator using SPARQL select.                        | Yes      |
-|                                  | endpoint           | The SPARQL endpoint for the iterator. If it starts with "file://", a local RDF file is queried. If omitted, the result of the previous stage is used. | No       |
-|                                  | batchSize          | Overrule the iterator's behavior of fetching 10 results per request, regardless of any limits in your query.       | No       |
-|                                  | delay              | Human-readable time delay for the iterator's SPARQL endpoint requests (e.g., '5ms', '100 milliseconds', '1s').   | No       |
-| Generator                        | query              | Path (prefixed with "file://") of SPARQL Query `.rq` file or SPARQL Query string that makes the generator using SPARQL construct.                    | Yes      |
-|                                  | endpoint           | The SPARQL endpoint for the generator. If it starts with "file://", a local RDF file is queried. If omitted, the endpoint of the Iterator is used. | No       |
-|                                  | batchSize          | Overrule the generator's behavior of fetching results for 10 bindings of $this per request.                          | No       |
-
-## Installation
-
-1. Install Node.js 20.10.0 or larger, by going to <https://nodejs.org> and following the instructions for your OS.
-
-   Run the following command to test whether the installation succeeded:
-
-   ```sh
-   npm --version
-   node --version
-   ```
-
-2. Install LD Workbench:
-
-   ```sh
-   npx @netwerk-digitaal-erfgoed/ld-workbench --init
-   ```
-
-   Your workbench is now ready for use.
-
-## Usage
-
-Once installed, an example workbench is present that can be run with the following command:
-
-```sh
-npx @netwerkdigitaalergoed/ld-workbench
-```
-
-### Configuring a workbench pipeline
-
-To keep your workbench workspace clean, create a folder for each pipeline that contains the configuration and the SPARQL Select and Construct queries. Use the `static` directory for this.
-
-Here is an example of how your file structure may look:
-
-```sh
-ld-workbench
-|-- static
-|   |-- my-pipeline
-|   |   |-- configuration.yaml
-|   |   |-- select.rq
-|   |   |-- construct.rq
-```
+For a full overview of configuration options, please see the [schema](https://json-schema.app/view/%23?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnetwerk-digitaal-erfgoed%2Fld-workbench%2Fmain%2Fstatic%2Fld-workbench.schema.json).
 
 ## Development
 
-For local development, the following command should get you going:
-
-```sh
-git clone https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git
-cd ld-workbench
-npm i
-npm run compile
-```
-
-To start the CLI tool you can use this command:
-
-```sh
-npm run ld-workbench -- --configDir static/example
-```
-
-Since this project is written in Typescript, your code needs to be transpiled to Javascript before you can run it (using `npm run compile`). With `npm run dev` the transpiler will watch changes in the Typescript code an transpiles on each change.
-
-The configuration of this project is validated and defined by [JSON Schema](https://json-schema.org). The schema is located in `./static/ld-workbench-schema.json`. To create the types from this schema, run `npm run util:json-schema-to-typescript`. This will regenerate `./src/types/LDWorkbenchConfiguration.d.ts`, do not modify this file by hand.
-
-## Workflow & Class Descriptions
-
-### Workflow
-
-This figure represents the workflow of the LD Workbench application:
-
-![Workflow of the LD-Workbench application](static/figures/diagram.svg)
-
-A Pipeline can have multiple Stages, specified in the configuration file. A Stage has one Iterator and can have multiple Generators in it's configuration. An Iterator has to be connected to a SPARQL endpoint, when none is specified for the Generator(s), the Generator reuses the same SPARQL endpoint to generate linked data, when a different endpoint is specified in the Generator's configuration, this endpoint is used instead.
+If you want to help develop LD Workbench, please see the [CONTRIBUTING.md](CONTRIBUTING.md) file.
