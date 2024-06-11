@@ -1,4 +1,4 @@
-import type {ConstructQuery, ValuePatternRow} from 'sparqljs';
+import type {ConstructQuery} from 'sparqljs';
 import type Stage from './Stage.class.js';
 import getSPARQLQuery from '../utils/getSPARQLQuery.js';
 import type {Quad, NamedNode} from '@rdfjs/types';
@@ -83,11 +83,10 @@ export default class Generator extends EventEmitter<Events> {
       'construct'
     );
     const patterns = unionQuery.where ?? [];
-    const valuePatterns: ValuePatternRow[] = [];
-    for (const $this of batch) {
-      valuePatterns.push({'?this': $this});
-    }
-    patterns.push({type: 'values', values: valuePatterns});
+    patterns.push({
+      type: 'values',
+      values: batch.map($this => ({'?this': $this})),
+    });
     unionQuery.where = [{type: 'group', patterns}];
 
     try {
