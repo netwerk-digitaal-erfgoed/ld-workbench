@@ -8,7 +8,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "The name of your pipeline, it must be unique over all your configurations."
+      "description": "The name of your pipeline. It must be unique over all your configurations."
     },
     "description": {
       "type": "string",
@@ -16,7 +16,8 @@
     },
     "baseDir": {
       "type": "string",
-      "description": "The base directory for files referenced by file://... paths. Defaults to the parent directory of the YAML config file."
+      "description": "An optional base directory for files referenced by `file://...` paths.",
+      "default": "The directory that contains the YAML config file."
     },
     "destination": {
       "type": "string",
@@ -24,7 +25,7 @@
     },
     "stages": {
       "type": "array",
-      "description": "This is where you define the individual iterator/generator for each step.",
+      "description": "A pipeline stage consists of an iterator and one or more generators.",
       "minItems": 1,
       "items": {
         "type": "object",
@@ -32,7 +33,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "The name of your pipeline step, it must be unique within one configuration."
+            "description": "The name of the stage. It must be unique within the pipeline."
           },
           "iterator": {
             "type": "object",
@@ -41,20 +42,21 @@
             "properties": {
               "query": {
                 "type": "string",
-                "description": "Path (prefixed with \"file://\") or SPARQL Query \nthat makes the iterator using SPARQL select."
+                "description": "SPARQL SELECT query that returns a `$this` binding for each URI that will be passed to the generator(s). Either an inline string (`SELECT $this WHERE {...}`) or a reference to a file (`file://...`) that contains the query."
               },
               "endpoint": {
                 "type": "string",
-                "description": "The SPARQL endpoint for the iterator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the result of the previous file is used."
+                "description": "SPARQL endpoint for the iterator. If it starts with `file://`, a local RDF file is queried. If omitted the result of the previous stage is used."
               },
               "batchSize": {
                 "type": "number",
                 "minimum": 1,
-                "description": "Overrule the iterator's behaviour of fetching 10 results per request, regardless of any limit's in your query."
+                "description": "Number of `$this` bindings retrieved per query.",
+                "default": "The LIMIT value of your iterator query or 10 if no LIMIT is present."
               },
               "delay": {
                 "type": "string",
-                "description": "Human readable time delay for the iterator's SPARQL endpoint requests (e.g. '5ms', '100 milliseconds', '1s'). "
+                "description": "Human-readable time delay for requests to the the iterator’s SPARQL endpoint (e.g. `5ms`, `100 milliseconds`, `1s`)."
               }
             }
           },
@@ -68,7 +70,7 @@
               "properties": {
                 "query": {
                   "type": "string",
-                  "description": "Path (prefixed with \"file://\") or SPARQL Query \nthat makes the generator using SPARQL construct."
+                  "description": "SPARQL CONSTRUCT query that takes a `$this` binding from the iterator and generates triples for it. Either an inline string (`CONSTRUCT $this schema:name ?name WHERE {$this ...}`) or a reference to a file (`file://...`) that contains the query."
                 },
                 "endpoint": {
                   "type": "string",
@@ -84,7 +86,7 @@
         },
           "destination": {
             "type": "string",
-            "description": "The file where the results are saved. \nThis is not a required property, \nif ommitted a temporary file will be created automatically."
+            "description": "The optional path where the results are saved. If omitted, a temporary file will be created."
           }
         },
         "required": ["name", "iterator", "generator"]
