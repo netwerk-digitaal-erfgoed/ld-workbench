@@ -13,26 +13,19 @@ console.info(
 );
 
 async function main(): Promise<void> {
-  let pipelines = new Map<string, LDWorkbenchConfiguration>();
-  pipelines = loadPipelines(
-    cliArgs.config ?? cliArgs.configDir ?? './pipelines/'
-  );
-
-  const names = Array.from(pipelines.keys());
-
-  // this will be the configuration we use:
+  const pipelines = loadPipelines(cliArgs.config ?? './pipelines/');
+  const names = [...pipelines.keys()];
   let configuration: LDWorkbenchConfiguration | undefined;
 
   if (cliArgs.pipeline !== undefined) {
-    const config = pipelines.get(cliArgs.pipeline);
-    if (config === undefined) {
+    configuration = pipelines.get(cliArgs.pipeline);
+    if (configuration === undefined) {
       error(
-        `No pipeline named "${cliArgs.pipeline}" was found.`,
+        `No pipeline named “${cliArgs.pipeline}” was found.`,
         2,
         `Valid pipeline names are: ${names.map(name => `"${name}"`).join(', ')}`
       );
     }
-    configuration = pipelines.get(cliArgs.pipeline);
   } else if (names.length === 1) {
     configuration = pipelines.get(names[0]);
   }
@@ -54,12 +47,6 @@ async function main(): Promise<void> {
       );
     }
     configuration = pipelines.get(answers.pipeline);
-  } else if (names.length !== 1) {
-    error(
-      'This should not happen: no pipeline was picked, but we have multiple.'
-    );
-  } else {
-    configuration = pipelines.get(names[0]);
   }
 
   if (configuration === undefined) {
