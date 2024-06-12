@@ -9,7 +9,7 @@ export default function init(): void {
     throw new Error(
       'The --init script found an existing directory "' +
         path.join('pipelines', 'configurations', 'example') +
-        '". Make sure this directory does not exists before running this script.'
+        '". Make sure this directory does not exist before running this script.'
     );
   }
   fs.mkdirSync(path.join('pipelines', 'data'), {recursive: true});

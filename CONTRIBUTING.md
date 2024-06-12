@@ -11,7 +11,7 @@ git clone https://github.com/netwerk-digitaal-erfgoed/ld-workbench.git
 cd ld-workbench
 npm i
 npm run compile
-npm run ld-workbench -- --configDir static/example
+npm run ld-workbench -- --config static/example
 ```
 
 The configuration of this project is validated and defined by [JSON Schema](https://json-schema.org). The schema is located in `./static/ld-workbench-schema.json`. To create the types from this schema, run `npm run util:json-schema-to-typescript`. This will regenerate `./src/types/LDWorkbenchConfiguration.d.ts`, do not modify this file by hand.
