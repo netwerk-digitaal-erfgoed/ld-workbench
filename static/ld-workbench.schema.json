@@ -16,8 +16,7 @@
     },
     "baseDir": {
       "type": "string",
-      "description": "An optional base directory for files referenced by `file://...` paths.",
-      "default": "The directory that contains the YAML config file."
+      "description": "An optional base directory for files referenced by `file://...` paths. This defaults to the directory that contains the YAML configuration file."
     },
     "destination": {
       "type": "string",
@@ -51,8 +50,7 @@
               "batchSize": {
                 "type": "number",
                 "minimum": 1,
-                "description": "Number of `$this` bindings retrieved per query.",
-                "default": "The LIMIT value of your iterator query or 10 if no LIMIT is present."
+                "description": "Number of `$this` bindings retrieved per query. Defaults to the LIMIT value of your iterator query or 10 if no LIMIT is present."
               },
               "delay": {
                 "type": "string",
@@ -74,12 +72,13 @@
                 },
                 "endpoint": {
                   "type": "string",
-                  "description": "The SPARQL endpoint for the generator. \nIf it starts with \"file://\", a local RDF file is queried.\nIf ommmitted the endpoint of the Iterator is used."
+                  "description": "The SPARQL endpoint for the generator. If it starts with `file://`, a local RDF file is queried. If omitted, the endpoint of the iterator is used."
                 },
                 "batchSize": {
                   "type": "number",
                   "minimum": 1,
-                  "description": "Overrule the generator's behaviour of fetching results for 10 bindings of $this per request."
+                  "description": "Overrule the generator's behaviour of fetching results for 10 bindings of `$this` per request.",
+                  "default": 10
                 }
               }
           }
