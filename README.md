@@ -1,24 +1,36 @@
 # LD Workbench
 
-LD Workbench is a command-line tool for transforming large RDF datasets using pure SPARQL.
+LD Workbench is a command-line tool for transforming large RDF datasets using pure [SPARQL](https://www.w3.org/TR/sparql11-query/).
 
-This project is currently in a Proof-of-Concept phase.
+> [!NOTE]
+> Although LD Workbench is stable, we consider it a proof of concept.
+> Please use the software and report any [issues](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/issues) you encounter.
 
 ## Approach
 
+### Components
+
+Users define LD Workbench **pipelines**. An LD Workbench pipeline reads data from SPARQL endpoints,
+transforms it using SPARQL queries, and writes the result to a file or triple store.
+
+A pipeline consists of one or more **stages**. Each stage has:
+
+- an **iterator**, which selects URIs from a dataset using a paginated SPARQL SELECT query,
+  binding each URI to a `$this` variable 
+- one or more **generators**, which generate triples about each URI using SPARQL CONSTRUCT queries.
+
+Stages can be chained together, with the output of one stage becoming the input of the next.
+
+### Design principles
+
 The main design principes are scalability and extensibility.
 
-### Scalability 
+LD Workbench is **scalable** due to its iterator/generator approach,
+which separates the selection of URIs from the generation of triples.
 
-LD Workbench is **scalable** due to its iterator/generator approach:
-
-* the **iterator** component fetches URIs using a SPARQL SELECT query, paginating results using SPARQL `OFFSET` and `LIMIT` (binding each URI to a `$this` variable)
-* the **generator** component then runs a SPARQL CONSTRUCT query for each URI ([pre-binding](https://www.w3.org/TR/shacl/#pre-binding) `$this` to the URI), which returns the transformed result.  
-
-### Extensible 
-
-LD Workbench is **extensible** because it uses pure SPARQL queries (instead of code) for configuring transformation pipelines.
-Each pipeline is a sequence of stages; each stage consists of an iterator and generator.
+LD Workbench is **extensible** because it uses pure SPARQL queries (instead of code or a DSL) for configuring transformation pipelines.
+The [SPARQL query language](https://www.w3.org/TR/sparql11-query/) is a widely supported W3C standard,
+so users will not be locked into a proprietary tool or technology.
 
 ## Usage
 
@@ -43,18 +55,75 @@ Your workbench is now ready for use. You can continue by creating your own pipel
 
 An LD Workbench pipeline is defined with a YAML configuration file, validated by a [JSON Schema](https://json-schema.app/view/%23?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnetwerk-digitaal-erfgoed%2Fld-workbench%2Fmain%2Fstatic%2Fld-workbench.schema.json).
 
-A pipeline must have a name, one or more stages, and optionally a description. Multiple pipelines can be configured as long as they have unique names. See the [example configuration file](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/static/example/config.yml) for a boilerplate configuration file.
+A pipeline must have a name, one or more stages, and optionally a description. Multiple pipelines can be configured as long as they have unique names. 
+See the [example configuration file](https://github.com/netwerk-digitaal-erfgoed/ld-workbench/blob/main/static/example/config.yml) for a boilerplate configuration file.
+You can find more examples in the [ld-workbench-configuration](https://github.com/netwerk-digitaal-erfgoed/ld-workbench-configuration) repository.
 
-#### Example YAML File For Configuration Options
+#### Iterator
+
+Each stage has a single iterator. The iterator SPARQL SELECT query must return a `$this` binding for each URI that will be passed to the generator(s).
+
+The query can be specified either inline:
 
 ```yaml
+# config.yml
+stages:
+  - name: Stage1
+    iterator:
+      query: "SELECT $this WHERE { $this a <https://schema.org/Thing> }"
+```
+
+or by referencing a file:
+
+```yaml
+# config.yml
+stages:
+  - name: Stage1
+    iterator:
+      query: file://iterator.rq
+```
+
+```sparql
+# iterator.rq
+prefix schema: <https://schema.org/>
+
+select $this where {
+  $this a schema:Thing .
+}
+```
+
+> [!TIP]
+> LD Workbench paginates iterator queries (using SPARQL `LIMIT/OFFSET`) to support large datasets. 
+> However, a large `OFFSET` can be slow on SPARQL endpoints.
+> Therefore, prefer creating multiple stages to process subsets (for example each RDF type separately) over processing the entire dataset in a single stage.
+
+
+#### Generator
+
+A stage has one or more generators, which are run for each individual URI from the iterator. 
+A SPARQL CONSTRUCT query takes a `$this` binding from the iterator and generates triples about it.
+
+Just as with the iterator query, the query can be specified either inline or by referencing a file:
+
+```yaml
+# config.yml
+stages:
+  - name: Stage1
+    generator:
+      - query: "CONSTRUCT { $this a <https://schema.org/CreativeWork> } WHERE { $this a <https://schema.org/Book> }"
+```
+
+#### Example configuration
+
+```yaml
+# config.yml
 name: MyPipeline
 description: Example pipeline configuration
 destination: output/result.ttl
 stages:
   - name: Stage1
     iterator:
-      query: "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 100"
+      query: "SELECT $this WHERE { $this a <https://schema.org/Thing> }"
       endpoint: "http://example.com/sparql-endpoint"
     generator:
       - query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"
