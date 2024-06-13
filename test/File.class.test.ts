@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import File from '../File.class.js';
+import File from '../src/lib/File.class.js';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import {WriteStream} from 'node:fs';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
@@ -52,13 +53,17 @@ describe('File Class', () => {
   });
 
   describe('getStream', () => {
+    let writeStream: WriteStream;
     beforeEach(() => {
       const filePath = 'file.txt';
       if (!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, 'Initial content');
       }
     });
-    afterEach(() => {
+    afterEach(async () => {
+      writeStream.close();
+      await new Promise(resolve => writeStream.on('close', resolve));
+
       const filePath = 'file.txt';
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -70,20 +75,22 @@ describe('File Class', () => {
     it('should create a write stream for a new file', () => {
       const filePath = 'new/file.txt';
       const file = new File(filePath);
-      const writeStream = file.getStream();
+      writeStream = file.getStream();
       expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
+      writeStream.end();
     });
 
     it('should append to an existing file when append is true', () => {
       const filePath = 'file.txt';
       const file = new File(filePath);
-      const writeStream = file.getStream(true);
+      writeStream = file.getStream(true);
       expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
     });
-    it('should create parent directories if they do not exist', () => {
+
+    it('should create parent directories if they do not exist', async () => {
       const filePath = 'file://new/directory/nested/file.txt';
       const file = new File(filePath, true).validate();
-      const writeStream = file.getStream();
+      writeStream = file.getStream();
       expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
       expect(
         fs.existsSync(path.dirname(filePath).replace('file://', ''))

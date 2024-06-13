@@ -1,8 +1,7 @@
 {
   "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": "src/",
-    "outDir": "build",
+    "outDir": "build/",
     "target": "es2020",
     "lib": ["esnext"],
     "skipLibCheck": true,

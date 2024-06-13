@@ -1,9 +1,9 @@
-import PreviousStage from '../PreviousStage.class.js';
+import PreviousStage from '../src/lib/PreviousStage.class.js';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import type {LDWorkbenchConfiguration} from '../LDWorkbenchConfiguration.js';
-import Pipeline from '../Pipeline.class.js';
-import Stage from '../Stage.class.js';
+import type {LDWorkbenchConfiguration} from '../src/lib/LDWorkbenchConfiguration.js';
+import Pipeline from '../src/lib/Pipeline.class.js';
+import Stage from '../src/lib/Stage.class.js';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 

@@ -1,31 +1,31 @@
-import version from '../version.js';
-import loadConfiguration from '../loadConfiguration.js';
-import validate from '../validate.js';
+import version from '../../src/utils/version.js';
+import loadConfiguration from '../../src/utils/loadConfiguration.js';
+import validate from '../../src/utils/validate.js';
 import {
   isConfiguration,
   isFile,
   isFilePathString,
   isPreviousStage,
-} from '../guards.js';
-import Pipeline from '../../lib/Pipeline.class.js';
-import Stage from '../../lib/Stage.class.js';
-import PreviousStage from '../../lib/PreviousStage.class.js';
-import File from '../../lib/File.class.js';
+} from '../../src/utils/guards.js';
+import Pipeline from '../../src/lib/Pipeline.class.js';
+import Stage from '../../src/lib/Stage.class.js';
+import PreviousStage from '../../src/lib/PreviousStage.class.js';
+import File from '../../src/lib/File.class.js';
 import path from 'path';
-import loadPipelines from '../loadPipelines.js';
+import loadPipelines from '../../src/utils/loadPipelines.js';
 import chalk from 'chalk';
 import assert from 'assert';
-import getEndpoint from '../getEndpoint.js';
-import type {LDWorkbenchConfiguration} from '../../lib/LDWorkbenchConfiguration.js';
-import getEngine from '../getEngine.js';
+import getEndpoint from '../../src/utils/getEndpoint.js';
+import type {LDWorkbenchConfiguration} from '../../src/lib/LDWorkbenchConfiguration.js';
+import getEngine from '../../src/utils/getEngine.js';
 import {QueryEngine as QueryEngineSparql} from '@comunica/query-sparql';
 import {QueryEngine as QueryEngineFile} from '@comunica/query-sparql-file';
-import getEngineSource from '../getEngineSource.js';
+import getEngineSource from '../../src/utils/getEngineSource.js';
 import {existsSync, rename} from 'fs';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import getSPARQLQuery from '../getSPARQLQuery.js';
-import getSPARQLQueryString from '../getSPARQLQueryString.js';
+import getSPARQLQuery from '../../src/utils/getSPARQLQuery.js';
+import getSPARQLQueryString from '../../src/utils/getSPARQLQueryString.js';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
@@ -200,7 +200,7 @@ describe('Utilities', () => {
       );
     });
     it('should throw if directory has no .yml configuration file', () => {
-      const dirWithoutConfFile = './src/utils/tests/static/dirWithoutYmlFile';
+      const dirWithoutConfFile = './test/utils/static/dirWithoutYmlFile';
       expect(() => loadPipelines(dirWithoutConfFile)).to.throw(
         `No configuration files found matching pattern ${chalk.italic(
           `${dirWithoutConfFile}/**/*.yml`
@@ -208,7 +208,7 @@ describe('Utilities', () => {
       );
     });
     it('should load multiple configuration files in directory', () => {
-      const pipelines = loadPipelines('./src/utils/tests/static/correct');
+      const pipelines = loadPipelines('./test/utils/static/correct');
       const loadedElements = [...pipelines];
       const testElements = [
         [
@@ -259,9 +259,7 @@ describe('Utilities', () => {
       );
     });
     it('should load single configuration file in directory', () => {
-      const pipeline = loadPipelines(
-        './src/utils/tests/static/correct/conf1.yml'
-      );
+      const pipeline = loadPipelines('./test/utils/static/correct/conf1.yml');
       const loadedElement = [...pipeline];
       const testElement = [
         [
@@ -296,12 +294,12 @@ describe('Utilities', () => {
       console.warn = (message: string) => {
         capturedConsoleError += message + '\n';
       };
-      loadPipelines('./src/utils/tests/static/duplicate');
+      loadPipelines('./test/utils/static/duplicate');
       console.warn = originalConsoleError;
       expect(capturedConsoleError).to.contain(
         chalk.yellow(
           `Warning: skipping a duplicate configuration from file ${chalk.italic(
-            './src/utils/tests/static/duplicate/conf2.yml'
+            './test/utils/static/duplicate/conf2.yml'
           )} with name ${chalk.italic('Duplicate Example Pipeline')}`
         )
       );

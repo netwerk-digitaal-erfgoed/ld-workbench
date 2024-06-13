@@ -1,4 +1,3 @@
-**/tests
 .github
 .husky
 .vscode
@@ -8,4 +7,5 @@ static/ao
 static/figures
 static/tests
 tsconfig.json
+test/
 .eslintrc.json
