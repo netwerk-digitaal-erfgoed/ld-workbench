@@ -1,14 +1,14 @@
-import Stage from '../Stage.class.js';
-import Pipeline from '../Pipeline.class.js';
+import Stage from '../src/lib/Stage.class.js';
+import Pipeline from '../src/lib/Pipeline.class.js';
 import kebabcase from 'lodash.kebabcase';
-import Iterator from '../Iterator.class.js';
-import Generator from '../Generator.class.js';
+import Iterator from '../src/lib/Iterator.class.js';
+import Generator from '../src/lib/Generator.class.js';
 import * as chai from 'chai';
 import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised';
-import type {LDWorkbenchConfiguration} from '../LDWorkbenchConfiguration.js';
+import type {LDWorkbenchConfiguration} from '../src/lib/LDWorkbenchConfiguration.js';
 import {fileURLToPath} from 'url';
-import removeDirectory from '../../utils/removeDir.js';
+import removeDirectory from '../src/utils/removeDir.js';
 import {NamedNode} from '@rdfjs/types';
 
 chai.use(chaiAsPromised);
@@ -19,8 +19,7 @@ describe('Stage Class', () => {
   const _dirname = path.dirname(_filename);
   const dataDirectoryPath = path.join(_dirname, 'pipelines', 'data');
 
-  before(async () => {
-    // Remove the data directory before running tests
+  beforeEach(async () => {
     await removeDirectory(dataDirectoryPath);
   });
 

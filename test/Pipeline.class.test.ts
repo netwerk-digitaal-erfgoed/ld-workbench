@@ -1,19 +1,19 @@
-import File from '../File.class.js';
-import type {LDWorkbenchConfiguration} from '../LDWorkbenchConfiguration.js';
-import Pipeline from '../Pipeline.class.js';
+import type {LDWorkbenchConfiguration} from '../src/lib/LDWorkbenchConfiguration.js';
+import Pipeline from '../src/lib/Pipeline.class.js';
 import * as chai from 'chai';
 import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised';
-import Stage from '../Stage.class.js';
-import removeDirectory from '../../utils/removeDir.js';
+import Stage from '../src/lib/Stage.class.js';
+import removeDirectory from '../src/utils/removeDir.js';
+import File from '../src/lib/File.class.js';
+
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 describe('Pipeline Class', () => {
   const dataDirectoryPath = path.join('pipelines', 'data');
 
-  before(async () => {
-    // Remove the data directory before running tests
+  beforeAll(async () => {
     await removeDirectory(dataDirectoryPath);
   });
 
