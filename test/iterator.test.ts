@@ -1,11 +1,11 @@
-import Iterator from '../src/lib/Iterator.class.js';
+import Iterator from '../src/iterator.js';
 import {EventEmitter} from 'events';
-import Stage from '../src/lib/Stage.class.js';
-import Pipeline from '../src/lib/Pipeline.class.js';
+import Stage from '../src/stage.js';
+import Pipeline from '../src/pipeline.js';
 import * as chai from 'chai';
 import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised';
-import type {LDWorkbenchConfiguration} from '../src/lib/LDWorkbenchConfiguration.js';
+import {Configuration} from '../src/configuration.js';
 import {fileURLToPath} from 'url';
 import removeDirectory from '../src/utils/removeDir.js';
 import {NamedNode} from '@rdfjs/types';
@@ -23,7 +23,7 @@ describe('Iterator Class', () => {
 
   describe('constructor', () => {
     it('should set query, endpoint, engine, $offset, and totalResults properties correctly', () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -70,7 +70,7 @@ describe('Iterator Class', () => {
   });
   describe.skip('run', () => {
     it('should emit "data" and "end" events with the correct $this and numResults', async () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',

@@ -1,4 +1,4 @@
-import type {LDWorkbenchConfiguration} from '../lib/LDWorkbenchConfiguration.js';
+import {Configuration} from '../configuration.js';
 import parseYamlFile from './parseYamlFile.js';
 import validate from './validate.js';
 import path from 'node:path';
@@ -8,10 +8,8 @@ import {dirname} from 'path';
  * This is a wrapper for the YAML Parser and Schema Validator
  * to provide a 1 step loader.
  */
-export default function loadConfiguration(
-  filePath: string
-): LDWorkbenchConfiguration {
-  const configuration = parseYamlFile(filePath) as LDWorkbenchConfiguration;
+export default function loadConfiguration(filePath: string): Configuration {
+  const configuration = parseYamlFile(filePath) as Configuration;
   const errors = validate(configuration);
   if (errors !== null) {
     throw new Error(
@@ -22,7 +20,7 @@ export default function loadConfiguration(
   return mapObject(
     configuration,
     inlineQueryFromFile(configuration.baseDir ?? dirname(filePath))
-  ) as LDWorkbenchConfiguration;
+  ) as Configuration;
 }
 
 const mapObject = (obj: object, replacer: (from: string) => string): object => {

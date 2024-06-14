@@ -7,16 +7,15 @@ import {
   isFilePathString,
   isPreviousStage,
 } from '../../src/utils/guards.js';
-import Pipeline from '../../src/lib/Pipeline.class.js';
-import Stage from '../../src/lib/Stage.class.js';
-import PreviousStage from '../../src/lib/PreviousStage.class.js';
-import File from '../../src/lib/File.class.js';
+import Pipeline from '../../src/pipeline.js';
+import Stage, {PreviousStage} from '../../src/stage.js';
+import File from '../../src/file.js';
 import path from 'path';
 import loadPipelines from '../../src/utils/loadPipelines.js';
 import chalk from 'chalk';
 import assert from 'assert';
 import getEndpoint from '../../src/utils/getEndpoint.js';
-import type {LDWorkbenchConfiguration} from '../../src/lib/LDWorkbenchConfiguration.js';
+import {Configuration} from '../../src/configuration.js';
 import getEngine from '../../src/utils/getEngine.js';
 import {QueryEngine as QueryEngineSparql} from '@comunica/query-sparql';
 import {QueryEngine as QueryEngineFile} from '@comunica/query-sparql-file';
@@ -86,7 +85,7 @@ describe('Utilities', () => {
   });
   describe('Type guards', () => {
     it('should assert a configuration', () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -308,7 +307,7 @@ describe('Utilities', () => {
   describe('getEndpoint', () => {
     it('should return File when filePath is provided in Stage', () => {
       const filePath = 'file://path/to/file.txt';
-      const config: LDWorkbenchConfiguration = {
+      const config: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -339,7 +338,7 @@ describe('Utilities', () => {
     });
     it('should return URL when URL is provided in Stage', () => {
       const url = new URL('https://example.com').toString();
-      const config: LDWorkbenchConfiguration = {
+      const config: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -370,7 +369,7 @@ describe('Utilities', () => {
     });
     it('should throw error if invalid URL is provided', () => {
       const url = 'invalidExample'; // will be accepted
-      const config: LDWorkbenchConfiguration = {
+      const config: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -396,7 +395,7 @@ describe('Utilities', () => {
     });
     it('should throw if stage has undefined endpoint and is first stage', () => {
       const endpoint = undefined;
-      const config: LDWorkbenchConfiguration = {
+      const config: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -422,7 +421,7 @@ describe('Utilities', () => {
     });
     it('should return PreviousStage if stage has undefined endpoint', () => {
       const url = new URL('https://example.com').toString();
-      const config: LDWorkbenchConfiguration = {
+      const config: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -472,7 +471,7 @@ describe('Utilities', () => {
       expect(result instanceof QueryEngineFile).to.equal(true);
     });
     it('should return QueryEngineFile when input is PreviousStage', () => {
-      const config: LDWorkbenchConfiguration = {
+      const config: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -525,7 +524,7 @@ describe('Utilities', () => {
       });
     });
     it('should return engine source string when input is PreviousStage with destinationPath', async () => {
-      const config: LDWorkbenchConfiguration = {
+      const config: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',

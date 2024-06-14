@@ -27,7 +27,7 @@ program
   )
   .version(version());
 program.parse();
-export const cliArgs: {
+export const cli: {
   config: string;
   pipeline?: string;
   stage?: string;
@@ -35,8 +35,8 @@ export const cliArgs: {
   init?: boolean;
 } = program.opts();
 
-if (cliArgs.init !== undefined) {
-  if (Object.values(cliArgs).length !== 2) {
+if (cli.init !== undefined) {
+  if (Object.values(cli).length !== 2) {
     error(
       'The --init flag can not be used in conjunction with other CLI arguments.'
     );

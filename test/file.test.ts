@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import File from '../src/lib/File.class.js';
+import File from '../src/file.js';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {WriteStream} from 'node:fs';

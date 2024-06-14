@@ -1,11 +1,11 @@
-import type {LDWorkbenchConfiguration} from '../src/lib/LDWorkbenchConfiguration.js';
-import Pipeline from '../src/lib/Pipeline.class.js';
+import type {Configuration} from '../src/configuration.js';
+import Pipeline from '../src/pipeline.js';
 import * as chai from 'chai';
 import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised';
-import Stage from '../src/lib/Stage.class.js';
+import Stage from '../src/stage.js';
 import removeDirectory from '../src/utils/removeDir.js';
-import File from '../src/lib/File.class.js';
+import File from '../src/file.js';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -19,7 +19,7 @@ describe('Pipeline Class', () => {
 
   describe('constructor', () => {
     it('should set properties correctly', () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -65,7 +65,7 @@ describe('Pipeline Class', () => {
 
   describe('getPreviousStage', () => {
     it('should return the previous stage correctly', () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -138,7 +138,7 @@ describe('Pipeline Class', () => {
             ],
           },
         ],
-      } as unknown as LDWorkbenchConfiguration;
+      } as unknown as Configuration;
       const pipeline = new Pipeline(configuration, {silent: true});
       const stage2: Stage = new Stage(pipeline, configuration.stages[1]);
       pipeline.getPreviousStage(stage2);
@@ -152,7 +152,7 @@ describe('Pipeline Class', () => {
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
         destination: 'file://pipelines/data/example-pipeline.nt',
         stages: [],
-      } as unknown as LDWorkbenchConfiguration;
+      } as unknown as Configuration;
       let failed = false;
       try {
         new Pipeline(invalidConfiguration, {silent: true});
@@ -200,7 +200,7 @@ describe('Pipeline Class', () => {
             ],
           },
         ],
-      } as unknown as LDWorkbenchConfiguration;
+      } as unknown as Configuration;
       let failed = false;
       try {
         new Pipeline(invalidConfiguration, {silent: true});
@@ -223,7 +223,7 @@ describe('Pipeline Class', () => {
       expect(failed).to.equal(true);
     });
     it("should throw an error if the pipeline's configuration has duplicate stage name", () => {
-      const configDuplicateStageName: LDWorkbenchConfiguration = {
+      const configDuplicateStageName: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -278,7 +278,7 @@ describe('Pipeline Class', () => {
     });
 
     it('should succeed if pipeline is valid', () => {
-      const configDuplicateStageName: LDWorkbenchConfiguration = {
+      const configDuplicateStageName: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -330,7 +330,7 @@ describe('Pipeline Class', () => {
   describe('run', () => {
     it('should run the pipeline correctly', async () => {
       try {
-        const configuration: LDWorkbenchConfiguration = {
+        const configuration: Configuration = {
           name: 'Example Pipeline',
           description:
             'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',

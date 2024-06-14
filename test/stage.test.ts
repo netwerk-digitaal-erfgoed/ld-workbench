@@ -1,12 +1,12 @@
-import Stage from '../src/lib/Stage.class.js';
-import Pipeline from '../src/lib/Pipeline.class.js';
+import Stage, {PreviousStage} from '../src/stage.js';
+import Pipeline from '../src/pipeline.js';
 import kebabcase from 'lodash.kebabcase';
-import Iterator from '../src/lib/Iterator.class.js';
-import Generator from '../src/lib/Generator.class.js';
+import Iterator from '../src/iterator.js';
+import Generator from '../src/generator.js';
 import * as chai from 'chai';
 import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised';
-import type {LDWorkbenchConfiguration} from '../src/lib/LDWorkbenchConfiguration.js';
+import type {Configuration} from '../src/configuration.js';
 import {fileURLToPath} from 'url';
 import removeDirectory from '../src/utils/removeDir.js';
 import {NamedNode} from '@rdfjs/types';
@@ -25,7 +25,7 @@ describe('Stage Class', () => {
 
   describe('constructor', () => {
     it('should set properties correctly', () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -74,7 +74,7 @@ describe('Stage Class', () => {
 
   describe('destinationPath', () => {
     it('should return the correct destination path', () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -121,7 +121,7 @@ describe('Stage Class', () => {
 
   describe('name', () => {
     it('should return the correct stage name', () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -162,7 +162,7 @@ describe('Stage Class', () => {
 
   describe.skip('run', () => {
     it('should run the stage correctly', async () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -209,6 +209,7 @@ describe('Stage Class', () => {
         iteratorCount: number;
         statements: number;
       }> = [];
+
       async function runStageWithPromise(): Promise<boolean> {
         return new Promise((resolve, reject) => {
           stage.addListener('generatorResult', count => {
@@ -227,6 +228,7 @@ describe('Stage Class', () => {
           stage.run();
         });
       }
+
       await runStageWithPromise();
       expect(iteratorEvents[0].event).to.equal('iteratorResult');
       expect(iteratorEvents[0].namedNode.termType).to.equal('NamedNode');
@@ -241,6 +243,190 @@ describe('Stage Class', () => {
       expect(endEvents[0].iteratorCount).to.equal(153);
       expect(endEvents[0].statements).to.equal(459);
       expect(endEvents.length).to.equal(1);
+    });
+  });
+});
+
+describe('PreviousStage Class', () => {
+  describe('constructor', () => {
+    it('should set properties correctly', () => {
+      const config: Configuration = {
+        name: 'Example Pipeline',
+        description:
+          'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+        destination: 'file://pipelines/data/example-pipeline.nt',
+        stages: [
+          {
+            name: 'Stage 1',
+            iterator: {
+              query: 'file://static/example/iterator-stage-1.rq',
+              endpoint: 'file://static/tests/iris.nt',
+            },
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-1-1.rq',
+              },
+            ],
+          },
+          {
+            name: 'Stage 2',
+            iterator: {
+              query: 'file://static/example/iterator-stage-2.rq',
+            },
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-2.rq',
+                endpoint: 'file://static/tests/wikidata.nt',
+              },
+            ],
+          },
+        ],
+      };
+      const pipeline = new Pipeline(config, {silent: true});
+      const stage: Stage = new Stage(pipeline, config.stages[1]);
+      const stagesSoFar = Array.from(stage.pipeline.stages.keys());
+      const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
+      expect(previousStage).to.be.an.instanceOf(PreviousStage);
+      expect(previousStage).to.have.property('nextStage');
+      expect(previousStage).to.have.property('name');
+      expect(previousStage.$id).to.equal('PreviousStage');
+    });
+  });
+  describe('load', () => {
+    it('should throw an error if the previous stage is not found', () => {
+      const config: Configuration = {
+        name: 'Example Pipeline',
+        description:
+          'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+        destination: 'file://pipelines/data/example-pipeline.nt',
+        stages: [
+          {
+            name: 'Stage 1',
+            iterator: {
+              query: 'file://static/example/iterator-stage-1.rq',
+              endpoint: 'file://static/tests/iris.nt',
+            },
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-1-1.rq',
+              },
+            ],
+          },
+          {
+            name: 'Stage 2',
+            iterator: {
+              query: 'file://static/example/iterator-stage-2.rq',
+            },
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-2.rq',
+                endpoint: 'file://static/tests/wikidata.nt',
+              },
+            ],
+          },
+        ],
+      };
+      const pipeline = new Pipeline(config, {silent: true});
+      const stage: Stage = new Stage(pipeline, config.stages[0]);
+      const stagesSoFar = Array.from(stage.pipeline.stages.keys());
+      const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
+      expect(() => previousStage.load()).to.throw(
+        'no endpoint was defined, but there is also no previous stage to use'
+      );
+    });
+
+    it('should return the previous stage correctly', () => {
+      const config: Configuration = {
+        name: 'Example Pipeline',
+        description:
+          'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+        destination: 'file://pipelines/data/example-pipeline.nt',
+        stages: [
+          {
+            name: 'Stage 1',
+            iterator: {
+              query: 'file://static/example/iterator-stage-1.rq',
+              endpoint: 'file://static/tests/iris.nt',
+            },
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-1-1.rq',
+              },
+            ],
+          },
+          {
+            name: 'Stage 2',
+            iterator: {
+              query: 'file://static/example/iterator-stage-2.rq',
+              endpoint: 'file://static/tests/iris.nt',
+            },
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-2.rq',
+                endpoint: 'file://static/tests/wikidata.nt',
+              },
+            ],
+          },
+        ],
+      };
+      const pipeline = new Pipeline(config, {silent: true});
+      const stageTwo: Stage = new Stage(pipeline, config.stages[1]);
+      const stagesSoFar = Array.from(stageTwo.pipeline.stages.keys());
+      const previousStage = new PreviousStage(stageTwo, stagesSoFar.pop()!); // should be stage one
+      const stage2 = pipeline.stages.get('Stage 2')!;
+      const testPreviousStage = pipeline.getPreviousStage(stage2);
+      expect(previousStage.load()).to.equal(testPreviousStage);
+    });
+  });
+
+  describe('is', () => {
+    it('should return true for a valid PreviousStage instance', () => {
+      const config: Configuration = {
+        name: 'Example Pipeline',
+        description:
+          'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+        destination: 'file://pipelines/data/example-pipeline.nt',
+        stages: [
+          {
+            name: 'Stage 1',
+            iterator: {
+              query: 'file://static/example/iterator-stage-1.rq',
+              endpoint: 'file://static/tests/iris.nt',
+            },
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-1-1.rq',
+              },
+            ],
+          },
+          {
+            name: 'Stage 2',
+            iterator: {
+              query: 'file://static/example/iterator-stage-2.rq',
+              endpoint: 'file://static/tests/iris.nt',
+            },
+            generator: [
+              {
+                query: 'file://static/example/generator-stage-2.rq',
+                endpoint: 'file://static/tests/wikidata.nt',
+              },
+            ],
+          },
+        ],
+      };
+      const pipeline = new Pipeline(config, {silent: true});
+      const stage: Stage = new Stage(pipeline, config.stages[1]);
+      const stagesSoFar = Array.from(stage.pipeline.stages.keys());
+      const previousStage = new PreviousStage(stage, stagesSoFar.pop()!);
+      previousStage.load();
+      const result = PreviousStage.is(previousStage);
+      expect(result).to.equal(true);
+    });
+
+    it('should return false for an invalid instance', () => {
+      const invalidInstance = {$id: 'invalid'};
+      const result = PreviousStage.is(invalidInstance);
+      expect(result).to.equal(false);
     });
   });
 });

@@ -1,13 +1,13 @@
 import fs from 'fs';
-import type {LDWorkbenchConfiguration} from '../lib/LDWorkbenchConfiguration.js';
+import {Configuration} from '../configuration.js';
 import chalk from 'chalk';
 import glob from 'glob';
 import loadConfiguration from './loadConfiguration.js';
 
 export default function loadPipelines(
   configDirOrFile: string
-): Map<string, LDWorkbenchConfiguration> {
-  const pipelines = new Map<string, LDWorkbenchConfiguration>();
+): Map<string, Configuration> {
+  const pipelines = new Map<string, Configuration>();
 
   if (!fs.existsSync(configDirOrFile))
     throw new Error(

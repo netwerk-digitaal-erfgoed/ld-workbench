@@ -1,14 +1,15 @@
 import EventEmitter from 'node:events';
-import File from './File.class.js';
-import {type LDWorkbenchConfiguration} from './LDWorkbenchConfiguration.js';
-import Iterator from './Iterator.class.js';
-import Generator from './Generator.class.js';
+import File from './file.js';
+import {Configuration} from './configuration.js';
+import Iterator from './iterator.js';
+import Generator from './generator.js';
 import kebabcase from 'lodash.kebabcase';
-import type Pipeline from './Pipeline.class.js';
+import type Pipeline from './pipeline.js';
 import path from 'node:path';
 import {Writer} from 'n3';
 import type {NamedNode} from '@rdfjs/types';
 import type {WriteStream} from 'node:fs';
+import {isPreviousStage} from './utils/guards.js';
 
 interface Events {
   generatorResult: [count: number];
@@ -25,7 +26,7 @@ export default class Stage extends EventEmitter<Events> {
 
   public constructor(
     public readonly pipeline: Pipeline,
-    public readonly configuration: LDWorkbenchConfiguration['stages'][0]
+    public readonly configuration: Configuration['stages'][0]
   ) {
     super();
     try {
@@ -121,5 +122,34 @@ export default class Stage extends EventEmitter<Events> {
 
     // Start the iterator
     this.iterator.run();
+  }
+}
+
+export class PreviousStage {
+  public readonly $id = 'PreviousStage';
+  public constructor(
+    public readonly nextStage: Stage,
+    public readonly name: string
+  ) {}
+
+  public load(): Stage {
+    if (!this.nextStage.pipeline.stages.has(this.name)) {
+      throw new Error(
+        `This is unexpected: missing stage "${this.name}" in stages.`
+      );
+    }
+    const previousStage = this.nextStage.pipeline.getPreviousStage(
+      this.nextStage
+    );
+    if (previousStage === undefined) {
+      throw new Error(
+        'no endpoint was defined, but there is also no previous stage to use'
+      );
+    }
+    return previousStage;
+  }
+
+  public static is(value: unknown): value is PreviousStage {
+    return isPreviousStage(value);
   }
 }
