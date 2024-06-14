@@ -1,7 +1,7 @@
-import type File from './File.class.js';
-import type PreviousStage from './PreviousStage.class.js';
+import type File from './file.js';
 import {type QueryEngine as QueryEngineSparql} from '@comunica/query-sparql';
 import {type QueryEngine as QueryEngineFile} from '@comunica/query-sparql-file';
+import {PreviousStage} from './stage.js';
 
 export type Endpoint = File | URL | PreviousStage;
 export type QueryEngine = QueryEngineSparql | QueryEngineFile;

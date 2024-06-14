@@ -1,12 +1,12 @@
 import type {ConstructQuery} from 'sparqljs';
-import type Stage from './Stage.class.js';
-import getSPARQLQuery from '../utils/getSPARQLQuery.js';
+import type Stage from './stage.js';
+import getSPARQLQuery from './utils/getSPARQLQuery.js';
 import type {Quad, NamedNode} from '@rdfjs/types';
-import getSPARQLQueryString from '../utils/getSPARQLQueryString.js';
-import getEndpoint from '../utils/getEndpoint.js';
+import getSPARQLQueryString from './utils/getSPARQLQueryString.js';
+import getEndpoint from './utils/getEndpoint.js';
 import type {Endpoint, QueryEngine, QuerySource} from './types.js';
-import getEngine from '../utils/getEngine.js';
-import getEngineSource from '../utils/getEngineSource.js';
+import getEngine from './utils/getEngine.js';
+import getEngineSource from './utils/getEngineSource.js';
 import EventEmitter from 'node:events';
 
 const DEFAULT_BATCH_SIZE = 10;

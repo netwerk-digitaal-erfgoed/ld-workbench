@@ -6,11 +6,11 @@ import {
   mkdirSync,
   createReadStream,
 } from 'fs';
-import {isFile, isFilePathString} from '../utils/guards.js';
+import {isFile, isFilePathString} from './utils/guards.js';
 import {dirname} from 'path';
 import chalk from 'chalk';
 import {type Ora} from 'ora';
-import type Pipeline from './Pipeline.class.js';
+import type Pipeline from './pipeline.js';
 import {pipeline as streamPipeline} from 'stream/promises';
 
 export default class File {

@@ -1,7 +1,7 @@
 import {isPreviousStage} from './guards.js';
 import {existsSync} from 'fs';
 import path from 'path';
-import type {Endpoint, QuerySource} from '../lib/types.js';
+import type {Endpoint, QuerySource} from '../types.js';
 
 export default function getEngineSource(endpoint: Endpoint): QuerySource {
   if (isPreviousStage(endpoint)) {

@@ -1,14 +1,14 @@
 import EventEmitter from 'node:events';
 import type {SelectQuery} from 'sparqljs';
-import type Stage from './Stage.class.js';
+import type Stage from './stage.js';
 import type {NamedNode} from '@rdfjs/types';
-import getSPARQLQuery from '../utils/getSPARQLQuery.js';
+import getSPARQLQuery from './utils/getSPARQLQuery.js';
 import {type Bindings} from '@comunica/types';
-import getSPARQLQueryString from '../utils/getSPARQLQueryString.js';
-import getEndpoint from '../utils/getEndpoint.js';
+import getSPARQLQueryString from './utils/getSPARQLQueryString.js';
+import getEndpoint from './utils/getEndpoint.js';
 import type {Endpoint, QueryEngine, QuerySource} from './types.js';
-import getEngine from '../utils/getEngine.js';
-import getEngineSource from '../utils/getEngineSource.js';
+import getEngine from './utils/getEngine.js';
+import getEngineSource from './utils/getEngineSource.js';
 import parse from 'parse-duration';
 
 const DEFAULT_LIMIT = 10;

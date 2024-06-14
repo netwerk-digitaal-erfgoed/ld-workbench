@@ -1,8 +1,7 @@
-import File from '../lib/File.class.js';
-import type {LDWorkbenchConfiguration} from '../lib/LDWorkbenchConfiguration.js';
-import PreviousStage from '../lib/PreviousStage.class.js';
-import type Stage from '../lib/Stage.class.js';
-import type {Endpoint} from '../lib/types.js';
+import File from '../file.js';
+import {Configuration} from '../configuration.js';
+import Stage, {PreviousStage} from '../stage.js';
+import type {Endpoint} from '../types.js';
 import {isFilePathString} from './guards.js';
 
 export default function getEndpoint(stage: Stage, type?: 'iterator'): Endpoint;
@@ -16,7 +15,7 @@ export default function getEndpoint(
   type: 'iterator' | 'generator' = 'iterator',
   index?: number
 ): Endpoint {
-  const t: keyof LDWorkbenchConfiguration['stages'][number] = type;
+  const t: keyof Configuration['stages'][number] = type;
   const endpoint =
     t === 'generator'
       ? stage.configuration[t]?.[index!]?.endpoint

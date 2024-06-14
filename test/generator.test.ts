@@ -1,13 +1,13 @@
-import Generator from '../src/lib/Generator.class.js';
+import Generator from '../src/generator.js';
 import {EventEmitter} from 'events';
-import Stage from '../src/lib/Stage.class.js';
-import Pipeline from '../src/lib/Pipeline.class.js';
+import Stage from '../src/stage.js';
+import Pipeline from '../src/pipeline.js';
 import * as chai from 'chai';
 import * as path from 'path';
 import chaiAsPromised from 'chai-as-promised';
 import {NamedNode} from 'n3';
 import * as fs from 'fs';
-import type {LDWorkbenchConfiguration} from '../src/lib/LDWorkbenchConfiguration.js';
+import type {Configuration} from '../src/configuration.js';
 import {fileURLToPath} from 'url';
 import removeDirectory from '../src/utils/removeDir.js';
 import {Quad} from '@rdfjs/types';
@@ -26,7 +26,7 @@ describe('Generator Class', () => {
 
   describe('constructor', () => {
     it('should set query, engine, endpoint, and source properties correctly', () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -73,7 +73,7 @@ describe('Generator Class', () => {
     it('Should work with multiple generators in parallel for one pipeline', async () => {
       const filePath = 'pipelines/data/example-pipelineParallel.nt';
 
-      const config: LDWorkbenchConfiguration = {
+      const config: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -121,7 +121,7 @@ describe('Generator Class', () => {
     it("Should work in batchSize for pipeline's generator", async () => {
       const filePath = 'pipelines/data/example-pipelineBatch.nt';
 
-      const batchConfiguration: LDWorkbenchConfiguration = {
+      const batchConfiguration: Configuration = {
         name: 'Example Pipeline Batch',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
@@ -164,7 +164,7 @@ describe('Generator Class', () => {
         });
     });
     it.skip('should emit "data" and "end" events with the correct number of statements', async () => {
-      const configuration: LDWorkbenchConfiguration = {
+      const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
           'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',

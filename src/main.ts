@@ -3,25 +3,25 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import {error} from './utils/error.js';
 import version from './utils/version.js';
-import type {LDWorkbenchConfiguration} from './lib/LDWorkbenchConfiguration.js';
+import type {Configuration} from './configuration.js';
 import loadPipelines from './utils/loadPipelines.js';
-import Pipeline from './lib/Pipeline.class.js';
-import {cliArgs} from './cliArgs.js';
+import Pipeline from './pipeline.js';
+import {cli} from './cli.js';
 
 console.info(
   chalk.bold(`Welcome to LD Workbench version ${chalk.cyan(version())}`)
 );
 
 async function main(): Promise<void> {
-  const pipelines = loadPipelines(cliArgs.config ?? './pipelines/');
+  const pipelines = loadPipelines(cli.config ?? './pipelines/');
   const names = [...pipelines.keys()];
-  let configuration: LDWorkbenchConfiguration | undefined;
+  let configuration: Configuration | undefined;
 
-  if (cliArgs.pipeline !== undefined) {
-    configuration = pipelines.get(cliArgs.pipeline);
+  if (cli.pipeline !== undefined) {
+    configuration = pipelines.get(cli.pipeline);
     if (configuration === undefined) {
       error(
-        `No pipeline named “${cliArgs.pipeline}” was found.`,
+        `No pipeline named “${cli.pipeline}” was found.`,
         2,
         `Valid pipeline names are: ${names.map(name => `"${name}"`).join(', ')}`
       );
@@ -57,8 +57,8 @@ async function main(): Promise<void> {
 
   try {
     const pipeline = new Pipeline(configuration, {
-      startFromStageName: cliArgs.stage,
-      silent: cliArgs.silent,
+      startFromStageName: cli.stage,
+      silent: cli.silent,
     });
     await pipeline.run();
   } catch (e) {

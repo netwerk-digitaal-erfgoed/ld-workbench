@@ -1,12 +1,10 @@
-import type {LDWorkbenchConfiguration} from '../lib/LDWorkbenchConfiguration.js';
-import PreviousStage from '../lib/PreviousStage.class.js';
+import {Configuration} from '../configuration.js';
 import validate from './validate.js';
-import TriplyDB from '../lib/TriplyDB.class.js';
-import File from '../lib/File.class.js';
+import TriplyDB from '../triply-db.js';
+import File from '../file.js';
+import {PreviousStage} from '../stage.js';
 
-export const isConfiguration = (
-  value: unknown
-): value is LDWorkbenchConfiguration =>
+export const isConfiguration = (value: unknown): value is Configuration =>
   value !== null && typeof value === 'object' && validate(value) === null;
 
 type FilePathString = string;

@@ -1,17 +1,17 @@
 import ora, {Ora} from 'ora';
 import kebabcase from 'lodash.kebabcase';
-import type {LDWorkbenchConfiguration} from './LDWorkbenchConfiguration.js';
+import type {Configuration} from './configuration.js';
 import chalk from 'chalk';
-import Stage from './Stage.class.js';
-import formatDuration from '../utils/formatDuration.js';
+import Stage from './stage.js';
+import formatDuration from './utils/formatDuration.js';
 import {millify} from 'millify';
-import File from './File.class.js';
+import File from './file.js';
 import path from 'node:path';
 import * as fs from 'node:fs';
-import {isFilePathString, isTriplyDBPathString} from '../utils/guards.js';
-import TriplyDB from './TriplyDB.class.js';
+import {isFilePathString, isTriplyDBPathString} from './utils/guards.js';
+import TriplyDB from './triply-db.js';
 import prettyMilliseconds from 'pretty-ms';
-import {memoryConsumption} from '../utils/memory.js';
+import {memoryConsumption} from './utils/memory.js';
 interface PipelineOptions {
   startFromStageName?: string;
   silent?: boolean;
@@ -28,7 +28,7 @@ class Pipeline {
   private readonly opts?: PipelineOptions;
 
   public constructor(
-    private readonly $configuration: LDWorkbenchConfiguration,
+    private readonly $configuration: Configuration,
     pipelineOptions?: PipelineOptions
   ) {
     //  create data folder:
@@ -111,7 +111,7 @@ class Pipeline {
     }
   }
 
-  public get configuration(): LDWorkbenchConfiguration {
+  public get configuration(): Configuration {
     return this.$configuration;
   }
 

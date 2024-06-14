@@ -1,5 +1,5 @@
 import {type Ora} from 'ora';
-import type Pipeline from './Pipeline.class.js';
+import type Pipeline from './pipeline.js';
 import App from '@triply/triplydb';
 
 const pattern = /^triplydb:\/\/([a-z0-9-]+)\/([a-z0-9-]+)$/;
