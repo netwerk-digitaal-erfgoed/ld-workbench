@@ -1,5 +1,5 @@
 import EventEmitter from 'node:events';
-import type {SelectQuery} from 'sparqljs';
+import sparqljs, {type SelectQuery, type VariableTerm} from 'sparqljs';
 import type Stage from './stage.js';
 import type {NamedNode} from '@rdfjs/types';
 import getSPARQLQuery from './utils/getSPARQLQuery.js';
@@ -35,6 +35,7 @@ export default class Iterator extends EventEmitter<Events> {
       stage.configuration.iterator.batchSize ??
       this.query.limit ??
       DEFAULT_LIMIT;
+    this.validateQuery();
     this.endpoint = getEndpoint(stage);
     this.engine = getEngine(this.endpoint);
     if (stage.configuration.iterator.delay !== undefined) {
@@ -54,7 +55,7 @@ export default class Iterator extends EventEmitter<Events> {
       const queryString = getSPARQLQueryString(this.query);
       const error = (e: unknown): Error =>
         new Error(
-          `The Iterator did not run succesfully, it could not get the results from the endpoint ${
+          `The Iterator did not run successfully, it could not get the results from the endpoint ${
             this.source
           } (offset: ${this.$offset}, limit ${this.query.limit}): ${
             (e as Error).message
@@ -95,5 +96,18 @@ export default class Iterator extends EventEmitter<Events> {
         this.emit('error', error(e));
       }
     }, this.delay);
+  }
+
+  private validateQuery() {
+    if (
+      !this.query.variables.find(
+        v =>
+          v instanceof sparqljs.Wildcard || (v as VariableTerm).value === 'this'
+      )
+    ) {
+      throw new Error(
+        'The SPARQL query must select either a variable $this or a wildcard *'
+      );
+    }
   }
 }
