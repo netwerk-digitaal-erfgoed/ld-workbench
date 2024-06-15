@@ -9,9 +9,9 @@ import {
 import {isFile, isFilePathString} from './utils/guards.js';
 import {dirname} from 'path';
 import chalk from 'chalk';
-import {type Ora} from 'ora';
 import type Pipeline from './pipeline.js';
 import {pipeline as streamPipeline} from 'stream/promises';
+import {Progress} from './progress.js';
 
 export default class File {
   public readonly $id = 'File';
@@ -64,10 +64,10 @@ export default class File {
     return isFile(value);
   }
 
-  public async write(pipeline: Pipeline, spinner: Ora): Promise<void> {
+  public async write(pipeline: Pipeline, progress: Progress): Promise<void> {
     const stageNames = Array.from(pipeline.stages.keys());
     for (const stageName of stageNames) {
-      if (spinner !== undefined) spinner.suffixText = chalk.bold(stageName);
+      progress.suffixText(chalk.bold(stageName));
       await streamPipeline(
         createReadStream(pipeline.stages.get(stageName)!.destinationPath),
         this.getStream(true)
