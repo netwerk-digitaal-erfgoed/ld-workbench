@@ -1,10 +1,7 @@
-import ora, {Ora} from 'ora';
 import kebabcase from 'lodash.kebabcase';
 import type {Configuration} from './configuration.js';
 import chalk from 'chalk';
 import Stage from './stage.js';
-import formatDuration from './utils/formatDuration.js';
-import {millify} from 'millify';
 import File from './file.js';
 import path from 'node:path';
 import * as fs from 'node:fs';
@@ -12,12 +9,13 @@ import {isFilePathString, isTriplyDBPathString} from './utils/guards.js';
 import TriplyDB from './triply-db.js';
 import prettyMilliseconds from 'pretty-ms';
 import {memoryConsumption} from './utils/memory.js';
+import {Progress} from './progress.js';
+import {millify} from 'millify';
+import formatDuration from './utils/formatDuration.js';
 interface PipelineOptions {
   startFromStageName?: string;
   silent?: boolean;
 }
-
-let spinner: Ora;
 
 class Pipeline {
   public readonly stages = new Map<string, Stage>();
@@ -116,13 +114,9 @@ class Pipeline {
   }
 
   public async run(): Promise<void> {
-    this.startTime = performance.now();
-    if (!(this.opts?.silent === true))
-      console.info(
-        chalk.cyan(`▶ Starting pipeline “${chalk.bold(this.name)}”`)
-      );
-    spinner = ora('Validating pipeline');
-    if (!(this.opts?.silent === true)) spinner.start();
+    const progress = new Progress({silent: this.opts?.silent === true})
+      .line(chalk.cyan(`▶ Starting pipeline “${chalk.bold(this.name)}”`))
+      .start('Validating pipeline');
     let startFromStage = 0;
     try {
       if (this.opts?.startFromStageName !== undefined) {
@@ -136,7 +130,6 @@ class Pipeline {
                 this.opts.startFromStageName
               )}.`
             );
-            if (!(this.opts?.silent === true)) spinner.fail(e.message);
             this.error(e);
           } else {
             startFromStage = ix - 1;
@@ -149,7 +142,6 @@ class Pipeline {
               this.opts.startFromStageName
             )}.`
           );
-          if (!(this.opts?.silent === true)) spinner.fail(e.message);
           this.error(e);
         } else {
           startFromStage = Array.from(this.stages.keys()).findIndex(
@@ -157,9 +149,8 @@ class Pipeline {
           );
         }
       }
-      if (!(this.opts?.silent === true)) spinner.succeed();
+      progress.succeed();
     } catch (e) {
-      spinner.fail((e as Error).message);
       this.error(e as Error);
     }
 
@@ -168,87 +159,84 @@ class Pipeline {
     Array.from(this.stages.keys())
       .slice(0, startFromStage)
       .forEach(stagename => {
-        ora()
-          .start()
-          .info(`stage "${chalk.bold(stagename)}" was skipped`)
+        new Progress({silent: this.opts?.silent === true})
+          .start(`stage "${chalk.bold(stagename)}" was skipped`)
           .stop();
       });
-    await this.runRecursive();
+    await this.runStage();
   }
 
-  private async runRecursive(): Promise<void> {
+  private async runStage(): Promise<void> {
     const stage = this.stages.get(this.stageNames.shift()!)!;
-    spinner = ora('Loading results from Iterator');
+    const progress = new Progress({silent: this.opts?.silent === true}).start(
+      'Loading results from iterator'
+    );
     const startTime = performance.now();
     let iterationsProcessed = 0;
-    if (!(this.opts?.silent === true)) spinner.start();
     await new Promise<void>((resolve, reject) => {
       stage.on('iteratorResult', (_$this, quadsGenerated) => {
         iterationsProcessed++;
-        this.updateSpinner(
+        this.increaseProgress(
+          progress,
           stage,
-          startTime,
           iterationsProcessed,
           quadsGenerated
         );
       });
       stage.on('generatorResult', count => {
-        this.updateSpinner(stage, startTime, iterationsProcessed, count);
+        this.increaseProgress(progress, stage, iterationsProcessed, count);
       });
       stage.on('error', e => {
-        spinner.fail();
-        this.error(e);
         reject(e);
+        this.error(e);
       });
       stage.on('end', (iris, statements) => {
-        if (!(this.opts?.silent === true))
-          spinner.succeed(
-            `Stage “${chalk.bold(
-              stage.name
-            )}” resulted in ${statements.toLocaleString()} statement${
-              statements === 1 ? '' : 's'
-            } in ${iris.toLocaleString()} iteration${
-              iris === 1 ? '' : 's'
-            } (took ${prettyMilliseconds(performance.now() - startTime)})`
-          );
+        progress.succeed(
+          `Stage “${chalk.bold(
+            stage.name
+          )}” resulted in ${statements.toLocaleString()} statement${
+            statements === 1 ? '' : 's'
+          } in ${iris.toLocaleString()} iteration${
+            iris === 1 ? '' : 's'
+          } (took ${prettyMilliseconds(performance.now() - startTime)})`
+        );
         resolve();
       });
       try {
         stage.run();
       } catch (e) {
-        spinner.fail((e as Error).message);
+        progress.fail((e as Error).message);
         reject(e);
       }
     });
 
-    if (this.stageNames.length !== 0) return this.runRecursive();
+    if (this.stageNames.length !== 0) return this.runStage();
     try {
       await this.writeResult();
     } catch (e) {
       throw new Error('Pipeline failed: ' + (e as Error).message);
     }
 
-    if (!(this.opts?.silent === true))
-      console.info(
-        chalk.green(
-          `✔ Your pipeline “${chalk.bold(
-            this.name
-          )}” was completed in ${prettyMilliseconds(
-            performance.now() - this.startTime
-          )} using ${memoryConsumption()} MB of memory`
-        )
-      );
+    progress.line(
+      chalk.green(
+        `✔ Your pipeline “${chalk.bold(
+          this.name
+        )}” was completed in ${prettyMilliseconds(
+          performance.now() - this.startTime
+        )} using ${memoryConsumption()} MB of memory`
+      )
+    );
   }
 
   private async writeResult(): Promise<void> {
-    spinner = ora('Writing results to destination');
-    if (!(this.opts?.silent === true)) spinner.start();
-    await this.destination.write(this, spinner);
-    if (!(this.opts?.silent === true))
-      spinner.suffixText = `${chalk.bold(
-        path.relative(process.cwd(), this.destination.path)
-      )}`;
-    if (!(this.opts?.silent === true)) spinner.succeed();
+    const progress = new Progress({silent: this.opts?.silent === true}).start(
+      'Writing results to destination'
+    );
+    await this.destination.write(this, progress);
+    progress.suffixText(
+      chalk.bold(path.relative(process.cwd(), this.destination.path))
+    );
+    progress.succeed();
   }
 
   get name(): string {
@@ -259,9 +247,9 @@ class Pipeline {
     return this.$configuration.description;
   }
 
-  private updateSpinner(
+  private increaseProgress(
+    progress: Progress,
     stage: Stage,
-    startTime: number,
     iterationsProcessed: number,
     quadsGenerated: number
   ) {
@@ -269,16 +257,18 @@ class Pipeline {
       return;
     }
 
-    spinner.text = `Running stage “${chalk.bold(
-      stage.name
-    )}”:\n\n  Processed elements: ${millify(
-      iterationsProcessed
-    )}\n  Generated quads: ${millify(
-      quadsGenerated
-    )}\n  Duration: ${formatDuration(
-      startTime,
-      performance.now()
-    )}\n  Memory: ${memoryConsumption()} MB`;
+    progress.text(
+      `Running stage “${chalk.bold(
+        stage.name
+      )}”:\n\n  Processed elements: ${millify(
+        iterationsProcessed
+      )}\n  Generated quads: ${millify(
+        quadsGenerated
+      )}\n  Duration: ${formatDuration(
+        progress.startTime,
+        performance.now()
+      )}\n  Memory: ${memoryConsumption()} MB`
+    );
   }
 }
 

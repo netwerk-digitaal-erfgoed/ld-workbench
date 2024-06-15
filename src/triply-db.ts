@@ -1,6 +1,6 @@
-import {type Ora} from 'ora';
 import type Pipeline from './pipeline.js';
 import App from '@triply/triplydb';
+import {Progress} from './progress.js';
 
 const pattern = /^triplydb:\/\/([a-z0-9-]+)\/([a-z0-9-]+)$/;
 
@@ -46,7 +46,7 @@ export default class TriplyDB {
     return this.$datasetUrl ?? this.$dsn;
   }
 
-  public async write(pipeline: Pipeline, spinner: Ora): Promise<void> {
+  public async write(pipeline: Pipeline, progress: Progress): Promise<void> {
     const filenames = Array.from(pipeline.stages.keys()).map(
       stageName => pipeline.stages.get(stageName)!.destinationPath
     );
@@ -56,7 +56,7 @@ export default class TriplyDB {
       .then(async dataset => {
         const appInfo = await this.app!.getInfo();
         this.$datasetUrl = `${appInfo.consoleUrl}/${this.accountname}/${this.datasetname}`;
-        spinner.info(`uploading data to ${this.$dsn}`);
+        progress.line(`uploading data to ${this.$dsn}`);
         await dataset.importFromFiles(filenames, {mergeGraphs: true});
       })
       .catch(e => {
