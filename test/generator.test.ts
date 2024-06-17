@@ -1,4 +1,4 @@
-import Generator from '../src/generator.js';
+import Generator, {Query} from '../src/generator.js';
 import {EventEmitter} from 'events';
 import Stage from '../src/stage.js';
 import Pipeline from '../src/pipeline.js';
@@ -11,9 +11,9 @@ import type {Configuration} from '../src/configuration.js';
 import {fileURLToPath} from 'url';
 import removeDirectory from '../src/utils/removeDir.js';
 import {Quad} from '@rdfjs/types';
+import getSPARQLQuery from '../src/utils/getSPARQLQuery.js';
 
 chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 describe('Generator Class', () => {
   const _filename = fileURLToPath(import.meta.url);
@@ -62,11 +62,11 @@ describe('Generator Class', () => {
       const stageConfig = configuration.stages[0];
       const stage = new Stage(pipeline, stageConfig);
       const generator = new Generator(stage, 0);
-      expect(generator).to.be.an.instanceOf(Generator);
-      expect(generator).to.be.an.instanceOf(EventEmitter);
-      expect(generator).to.have.property('query');
-      expect(generator).to.have.property('engine');
-      expect(generator).to.have.property('endpoint');
+      chai.expect(generator).to.be.an.instanceOf(Generator);
+      chai.expect(generator).to.be.an.instanceOf(EventEmitter);
+      chai.expect(generator).to.have.property('query');
+      chai.expect(generator).to.have.property('engine');
+      chai.expect(generator).to.have.property('endpoint');
     });
   });
   describe('run', () => {
@@ -109,14 +109,18 @@ describe('Generator Class', () => {
       await pipelineParallelGenerators.run();
       const file = fs.readFileSync(filePath, {encoding: 'utf-8'});
       const fileLines = file.split('\n').sort();
-      expect(fileLines.length).to.equal(741);
-      expect(fileLines[0]).to.equal('');
-      expect(fileLines[1]).to.equal(
-        '<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .'
-      );
-      expect(fileLines[fileLines.length - 1]).to.equal(
-        '<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .'
-      );
+      chai.expect(fileLines.length).to.equal(741);
+      chai.expect(fileLines[0]).to.equal('');
+      chai
+        .expect(fileLines[1])
+        .to.equal(
+          '<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .'
+        );
+      chai
+        .expect(fileLines[fileLines.length - 1])
+        .to.equal(
+          '<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .'
+        );
     });
     it("Should work in batchSize for pipeline's generator", async () => {
       const filePath = 'pipelines/data/example-pipelineBatch.nt';
@@ -150,14 +154,18 @@ describe('Generator Class', () => {
           // read file after pipeline has finished
           const file = fs.readFileSync(filePath, {encoding: 'utf-8'});
           const fileLines = file.split('\n').sort();
-          expect(fileLines.length).to.equal(460);
-          expect(fileLines[0]).to.equal('');
-          expect(fileLines[1]).to.equal(
-            '<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .'
-          );
-          expect(fileLines[fileLines.length - 1]).to.equal(
-            '<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .'
-          );
+          chai.expect(fileLines.length).to.equal(460);
+          chai.expect(fileLines[0]).to.equal('');
+          chai
+            .expect(fileLines[1])
+            .to.equal(
+              '<http://dbpedia.org/resource/Iris_setosa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Thing> .'
+            );
+          chai
+            .expect(fileLines[fileLines.length - 1])
+            .to.equal(
+              '<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .'
+            );
         })
         .catch(error => {
           throw error;
@@ -224,19 +232,133 @@ describe('Generator Class', () => {
       }
 
       await runGeneratorWithPromise();
-      expect(emittedEvents).to.have.lengthOf(4);
-      expect(emittedEvents[0].event).to.equal('data');
-      expect(emittedEvents[0].quad?.subject.value).to.equal(
-        'https://triplydb.com/triply/iris/id/floweringPlant/00106'
+      chai.expect(emittedEvents).to.have.lengthOf(4);
+      chai.expect(emittedEvents[0].event).to.equal('data');
+      chai
+        .expect(emittedEvents[0].quad?.subject.value)
+        .to.equal('https://triplydb.com/triply/iris/id/floweringPlant/00106');
+      chai
+        .expect(emittedEvents[0].quad?.predicate.value)
+        .to.equal('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+      chai
+        .expect(emittedEvents[0].quad?.object.value)
+        .to.equal('https://schema.org/Thing');
+      chai
+        .expect(emittedEvents[emittedEvents.length - 1].event)
+        .to.equal('end');
+      chai
+        .expect(emittedEvents[emittedEvents.length - 1].numResults)
+        .to.equal(3);
+    });
+  });
+});
+
+describe('Query', () => {
+  const queryString =
+    'CONSTRUCT { ?this <http://example.com/predicate> ?value. }\nWHERE {  }';
+  const query = Query.from(getSPARQLQuery(queryString, 'construct'));
+  it('returns the query as string', () => {
+    expect(query.toString()).toEqual(queryString);
+  });
+
+  const invalidQueries = [
+    {
+      clause: 'MINUS',
+      query: `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX ex: <http://example.org/>
+    
+        CONSTRUCT {
+          ?city rdf:type ex:City.
+        }
+        WHERE {
+          ?city rdf:type ex:City.
+          MINUS { ?city ex:isCapitalOf ?country. }
+        }`,
+    },
+    {
+      clause: 'MINUS',
+      query: `PREFIX ex: <http://example.org/>
+        CONSTRUCT {
+          ?city ex:hasPopulation ?population.
+        }
+        WHERE {
+          ?city ex:hasPopulation ?population.
+    
+          OPTIONAL {
+            MINUS {
+              ?city ex:hasPopulation ?otherPopulation.
+              FILTER (?population = ?otherPopulation)
+            }
+          }
+        }`,
+    },
+    {
+      clause: 'SERVICE',
+      query: `PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX ex: <http://example.org/>
+    
+        CONSTRUCT {
+          ?person foaf:name ?name.
+          ?person ex:hasEmail ?email.
+        }
+        WHERE {
+          ?person foaf:name ?name.
+          SERVICE <http://remote-endpoint.example/sparql> {
+            ?person ex:hasEmail ?email.
+          }
+        }`,
+    },
+    {
+      clause: 'SERVICE',
+      query: `PREFIX ex: <http://example.org/>
+        CONSTRUCT {
+          ?place ex:hasPopulation ?population.
+        }
+        WHERE {
+          {
+            SERVICE <http://external-endpoint.example/sparql> {
+              ?place a ex:Country.
+              ?place ex:hasPopulation ?population.
+            }
+          }
+        }`,
+    },
+    {
+      clause: 'VALUES',
+      query: `PREFIX ex: <http://example.org/>
+        CONSTRUCT {
+          ?city ex:hasPopulation ?population.
+        }
+        WHERE {
+          VALUES ?city { ex:City1 ex:City2 ex:City3 }
+          ?city ex:hasPopulation ?population.
+        }`,
+    },
+    {
+      clause: 'VALUES',
+      query: `PREFIX ex: <http://example.org/>
+        CONSTRUCT {
+          ?city ex:hasPopulation ?population.
+        }
+        WHERE {
+          GRAPH ?graph {
+            VALUES (?city ?population) {
+              (ex:City1 10000)
+              (ex:City2 15000)
+              (ex:City3 20000)
+            }
+    
+            ?city ex:hasPopulation ?population.
+          }
+        }`,
+    },
+  ];
+
+  describe.each(invalidQueries)('A query with clause ', ({clause, query}) => {
+    it(`${clause} is rejected`, () => {
+      expect(() => Query.from(getSPARQLQuery(query, 'construct'))).toThrow(
+        `SPARQL CONSTRUCT generator query must not contain a ${clause} clause`
       );
-      expect(emittedEvents[0].quad?.predicate.value).to.equal(
-        'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
-      );
-      expect(emittedEvents[0].quad?.object.value).to.equal(
-        'https://schema.org/Thing'
-      );
-      expect(emittedEvents[emittedEvents.length - 1].event).to.equal('end');
-      expect(emittedEvents[emittedEvents.length - 1].numResults).to.equal(3);
     });
   });
 });

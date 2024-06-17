@@ -1,4 +1,4 @@
-import Iterator from '../src/iterator.js';
+import Iterator, {Query} from '../src/iterator.js';
 import {EventEmitter} from 'events';
 import Stage from '../src/stage.js';
 import Pipeline from '../src/pipeline.js';
@@ -9,8 +9,8 @@ import {Configuration} from '../src/configuration.js';
 import {fileURLToPath} from 'url';
 import removeDirectory from '../src/utils/removeDir.js';
 import {NamedNode} from '@rdfjs/types';
+import getSPARQLQuery from '../src/utils/getSPARQLQuery.js';
 chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 describe('Iterator Class', () => {
   const _filename = fileURLToPath(import.meta.url);
@@ -22,7 +22,7 @@ describe('Iterator Class', () => {
   });
 
   describe('constructor', () => {
-    it('should set query, endpoint, engine, $offset, and totalResults properties correctly', () => {
+    it('should set query, endpoint, engine, offset, and totalResults properties correctly', () => {
       const configuration: Configuration = {
         name: 'Example Pipeline',
         description:
@@ -59,13 +59,13 @@ describe('Iterator Class', () => {
       const stageConfig = configuration.stages[0];
       const stage = new Stage(pipeline, stageConfig);
       const iterator = new Iterator(stage);
-      expect(iterator).to.be.an.instanceOf(Iterator);
-      expect(iterator).to.be.an.instanceOf(EventEmitter);
-      expect(iterator).to.have.property('query');
-      expect(iterator).to.have.property('endpoint');
-      expect(iterator).to.have.property('engine');
-      expect(iterator).to.have.property('$offset', 0);
-      expect(iterator).to.have.property('totalResults', 0);
+      chai.expect(iterator).to.be.an.instanceOf(Iterator);
+      chai.expect(iterator).to.be.an.instanceOf(EventEmitter);
+      chai.expect(iterator).to.have.property('query');
+      chai.expect(iterator).to.have.property('endpoint');
+      chai.expect(iterator).to.have.property('engine');
+      chai.expect(iterator).to.have.property('offset', 0);
+      chai.expect(iterator).to.have.property('totalResults', 0);
     });
   });
   describe.skip('run', () => {
@@ -124,13 +124,49 @@ describe('Iterator Class', () => {
       }
 
       await runIteratorWithPromise();
-      expect(emittedEvents).to.have.lengthOf(154);
-      expect(emittedEvents[0].event).to.equal('data');
-      expect(emittedEvents[0].bindings?.termType).to.equal('NamedNode');
-      expect(emittedEvents[0].bindings?.value).to.equal(
-        'http://dbpedia.org/resource/Iris_virginica'
-      );
-      expect(emittedEvents[emittedEvents.length - 1].event).to.equal('end');
+      chai.expect(emittedEvents).to.have.lengthOf(154);
+      chai.expect(emittedEvents[0].event).to.equal('data');
+      chai.expect(emittedEvents[0].bindings?.termType).to.equal('NamedNode');
+      chai
+        .expect(emittedEvents[0].bindings?.value)
+        .to.equal('http://dbpedia.org/resource/Iris_virginica');
+      chai
+        .expect(emittedEvents[emittedEvents.length - 1].event)
+        .to.equal('end');
     });
+  });
+});
+
+describe('Query', () => {
+  const queryString = 'SELECT ?this WHERE { ?s ?p ?o. }\nLIMIT 30';
+  const query = Query.from(getSPARQLQuery(queryString, 'select'));
+
+  it('returns the query as a string', () => {
+    expect(query.toString()).toEqual(queryString);
+  });
+
+  it('reads the LIMIT from the query', () => {
+    expect(query.limit).toEqual(30);
+  });
+
+  it('sets the default LIMIT', () => {
+    const query = Query.from(getSPARQLQuery('SELECT ?this WHERE {}', 'select'));
+    expect(query.limit).toEqual(10);
+  });
+
+  it('overrides the LIMIT', () => {
+    const query = Query.from(getSPARQLQuery(queryString, 'select'), 500);
+    expect(query.limit).toEqual(500);
+  });
+
+  it('validates the query', () => {
+    expect(() =>
+      Query.from(
+        getSPARQLQuery('SELECT ?nope WHERE { ?s ?p ?o. }', 'select'),
+        500
+      )
+    ).toThrow(
+      'The SPARQL iterator query must select either a variable $this or a wildcard *'
+    );
   });
 });

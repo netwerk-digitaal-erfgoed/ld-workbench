@@ -20,7 +20,7 @@
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
-    "posttest": "npm run fix"
+    "posttest": "jest-coverage-thresholds-bumper --silent"
   },
   "repository": {
     "type": "git",
@@ -67,6 +67,7 @@
     "@types/inquirer": "^9.0.7",
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
+    "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.kebabcase": "^4.1.9",
     "@types/n3": "^1.16.4",
     "@types/node": "^20.12.12",
@@ -92,6 +93,7 @@
     "glob": "^7.2.3",
     "inquirer": "^9.2.12",
     "js-yaml": "^4.1.0",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.kebabcase": "^4.1.1",
     "millify": "^6.1.0",
     "n3": "^1.17.2",
