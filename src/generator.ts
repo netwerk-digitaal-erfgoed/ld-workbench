@@ -1,13 +1,14 @@
-import type {ConstructQuery} from 'sparqljs';
+import type {ConstructQuery, Pattern} from 'sparqljs';
 import type Stage from './stage.js';
 import getSPARQLQuery from './utils/getSPARQLQuery.js';
-import type {Quad, NamedNode} from '@rdfjs/types';
-import getSPARQLQueryString from './utils/getSPARQLQueryString.js';
+import type {NamedNode, Quad} from '@rdfjs/types';
 import getEndpoint from './utils/getEndpoint.js';
 import type {Endpoint, QueryEngine, QuerySource} from './types.js';
 import getEngine from './utils/getEngine.js';
 import getEngineSource from './utils/getEngineSource.js';
 import EventEmitter from 'node:events';
+import {BaseQuery} from './sparql.js';
+import clonedeep from 'lodash.clonedeep';
 
 const DEFAULT_BATCH_SIZE = 10;
 
@@ -18,7 +19,7 @@ interface Events {
 }
 
 export default class Generator extends EventEmitter<Events> {
-  private readonly query: ConstructQuery;
+  private readonly query: Query;
   private readonly engine: QueryEngine;
   private iterationsProcessed = 0;
   private iterationsIncoming = 0;
@@ -37,9 +38,11 @@ export default class Generator extends EventEmitter<Events> {
       );
     super();
     this.index = index;
-    this.query = getSPARQLQuery(
-      stage.configuration.generator[this.index].query,
-      'construct'
+    this.query = Query.from(
+      getSPARQLQuery(
+        stage.configuration.generator[this.index].query,
+        'construct'
+      )
     );
 
     this.endpoint =
@@ -78,20 +81,10 @@ export default class Generator extends EventEmitter<Events> {
         `The Generator did not run successfully, it could not get the results from the endpoint ${this
           .source?.value}: ${(e as Error).message}`
       );
-    const unionQuery = getSPARQLQuery(
-      getSPARQLQueryString(this.query),
-      'construct'
-    );
-    const patterns = unionQuery.where ?? [];
-    patterns.push({
-      type: 'values',
-      values: batch.map($this => ({'?this': $this})),
-    });
-    unionQuery.where = [{type: 'group', patterns}];
 
     try {
       const stream = await this.engine.queryQuads(
-        getSPARQLQueryString(unionQuery),
+        this.query.withIris(batch).toString(),
         {
           sources: [(this.source ??= getEngineSource(this.endpoint))],
         }
@@ -122,5 +115,63 @@ export default class Generator extends EventEmitter<Events> {
 
   private async flush(): Promise<void> {
     await this.runBatch(this.$thisList);
+  }
+}
+
+export class Query extends BaseQuery {
+  public static from(query: ConstructQuery) {
+    const self = new this(query);
+    self.validate();
+    return self;
+  }
+
+  private constructor(protected readonly query: ConstructQuery) {
+    super(query);
+  }
+
+  public withIris(iris: NamedNode[]) {
+    const query = clonedeep(this.query);
+    const patterns: Pattern[] = [
+      ...(query.where ?? []),
+      {
+        type: 'values',
+        values: iris.map($this => ({'?this': $this})),
+      },
+    ];
+    query.where = [{type: 'group', patterns}];
+
+    return new Query(query);
+  }
+
+  protected validate() {
+    this.validatePreBinding(this.query.where ?? []);
+  }
+
+  /**
+   * Because we use pre-binding, the query must follow the rules as specified by https://www.w3.org/TR/shacl/#pre-binding:
+   * - SPARQL queries must not contain a MINUS clause
+   * - SPARQL queries must not contain a federated query (SERVICE)
+   * - SPARQL queries must not contain a VALUES clause
+   * - SPARQL queries must not use the syntax form `AS ?var` for any potentially pre-bound variable
+   */
+  private validatePreBinding(patterns: Pattern[]) {
+    for (const pattern of patterns) {
+      if (pattern.type === 'bind' && pattern.variable.value === 'this') {
+        throw new Error(
+          'SPARQL CONSTRUCT generator query must not use the syntax form `AS ?this` because it is a pre-bound variable'
+        );
+      } else if (['minus', 'service', 'values'].includes(pattern.type)) {
+        throw new Error(
+          `SPARQL CONSTRUCT generator query must not contain a ${pattern.type.toUpperCase()} clause`
+        );
+      } else if (
+        pattern.type === 'optional' ||
+        pattern.type === 'union' ||
+        pattern.type === 'group' ||
+        pattern.type === 'graph'
+      ) {
+        this.validatePreBinding(pattern.patterns);
+      }
+    }
   }
 }

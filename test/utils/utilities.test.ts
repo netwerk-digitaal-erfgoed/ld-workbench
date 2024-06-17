@@ -24,7 +24,7 @@ import {existsSync, rename} from 'fs';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import getSPARQLQuery from '../../src/utils/getSPARQLQuery.js';
-import getSPARQLQueryString from '../../src/utils/getSPARQLQueryString.js';
+
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
@@ -41,6 +41,7 @@ function testDeepEqualTwoObjects(
     return false;
   }
 }
+
 describe('Utilities', () => {
   it('should correctly get a version number', () => {
     expect(version()).match(/0.0.0-development/);
@@ -657,9 +658,9 @@ describe('Utilities', () => {
 
     it('should throw if query is not a SPARQL query', () => {
       const sqlQuery = `SELECT first_name, last_name, birthdate
-      FROM employees
-      WHERE department = 'IT'
-      ORDER BY last_name, first_name;
+                        FROM employees
+                        WHERE department = 'IT'
+                        ORDER BY last_name, first_name;
       `;
       let failed: boolean;
       try {
@@ -676,249 +677,56 @@ describe('Utilities', () => {
       }
       expect(failed).to.equal(true);
     });
-    describe('should throw if CONSTRUCT query contains minus, service, values', () => {
-      it('should throw for minus', () => {
-        const minusQuery = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX ex: <http://example.org/>
-        
-        CONSTRUCT {
-          ?city rdf:type ex:City.
-        }
-        WHERE {
-          ?city rdf:type ex:City.
-          MINUS { ?city ex:isCapitalOf ?country. }
-        }
-        
-        `;
-        expect(() => getSPARQLQuery(minusQuery, 'construct')).to.throw(
-          'SPARQL construct queries must not contain a MINUS clause'
-        );
-      });
-      it('should throw for service', () => {
-        const serviceQuery = `PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-        PREFIX ex: <http://example.org/>
-        
-        CONSTRUCT {
-          ?person foaf:name ?name.
-          ?person ex:hasEmail ?email.
-        }
-        WHERE {
-          ?person foaf:name ?name.
-          SERVICE <http://remote-endpoint.example/sparql> {
-            ?person ex:hasEmail ?email.
-          }
-        }        
-        `;
-        expect(() => getSPARQLQuery(serviceQuery, 'construct')).to.throw(
-          'SPARQL construct queries must not contain a SERVICE clause'
-        );
-      });
-      it('should throw for values', () => {
-        const valuesQuery = `PREFIX ex: <http://example.org/>
 
-        CONSTRUCT {
-          ?city ex:hasPopulation ?population.
-        }
-        WHERE {
-          VALUES ?city { ex:City1 ex:City2 ex:City3 }
-          ?city ex:hasPopulation ?population.
-        }        
-        `;
-        expect(() => getSPARQLQuery(valuesQuery, 'construct')).to.throw(
-          'SPARQL construct queries must not contain a VALUES clause'
-        );
-      });
+    it('should throw for incorrect syntax SPARQL query', () => {
+      const incorrectQuery = `SELECT ?subject ?predicate ?object
+          WHERE {
+            ?subject ?predicate ?object
+            FILTER (?object > 100)
+          `;
+      expect(() => getSPARQLQuery(incorrectQuery, 'select')).to.throw();
     });
-    describe('should throw if CONSTRUCT query contains optional, union, group, graph with minus, service, values', () => {
-      it('should throw for minus with optional', () => {
-        const minusOptionalQuery = `PREFIX ex: <http://example.org/>
-
-        CONSTRUCT {
-          ?city ex:hasPopulation ?population.
-        }
-        WHERE {
-          ?city ex:hasPopulation ?population.
-          
-          OPTIONAL {
-            MINUS {
-              ?city ex:hasPopulation ?otherPopulation.
-              FILTER (?population = ?otherPopulation)
-            }
-          }
-        }        
-        `;
-        expect(() => getSPARQLQuery(minusOptionalQuery, 'construct')).to.throw(
-          'SPARQL construct queries must not contain a MINUS clause'
-        );
-      });
-      it('should throw for service with union', () => {
-        const serviceUnionQuery = `PREFIX ex: <http://example.org/>
-
-        CONSTRUCT {
-          ?place ex:hasPopulation ?population.
-        }
-        WHERE {
-          {
-            ?place a ex:City.
-            ?place ex:hasPopulation ?population.
-          }
-          UNION
-          {
-            SERVICE <http://external-endpoint.example/sparql> {
-              ?place a ex:Country.
-              ?place ex:hasPopulation ?population.
-            }
-          }
-        }
-        
-        `;
-        expect(() => getSPARQLQuery(serviceUnionQuery, 'construct')).to.throw(
-          'SPARQL construct queries must not contain a SERVICE clause'
-        );
-      });
-      it('should throw for minus with group by', () => {
-        const minusGroupByQuery = `PREFIX ex: <http://example.org/>
-
-        CONSTRUCT {
-          ?cityType ex:averagePopulation ?averagePopulation.
-        }
-        WHERE {
-          {
-            SELECT ?cityType (AVG(?population) as ?averagePopulation)
-            WHERE {
-              ?city ex:hasType ?cityType.
-              ?city ex:hasPopulation ?population.
-            }
-            GROUP BY ?cityType
-          }
-          MINUS
-          {
-            SELECT ?cityType
-            WHERE {
-              ?city ex:hasType ?cityType.
-              FILTER NOT EXISTS {
-                ?city ex:hasPopulation ?population.
-              }
-            }
-          }
-        }        
-        `;
-        expect(() => getSPARQLQuery(minusGroupByQuery, 'construct')).to.throw(
-          'SPARQL construct queries must not contain a MINUS clause'
-        );
-      });
-      it('should throw for values', () => {
-        const valuesGraphQuery = `PREFIX ex: <http://example.org/>
-
-        CONSTRUCT {
-          ?city ex:hasPopulation ?population.
-        }
-        WHERE {
-          GRAPH ?graph {
-            VALUES (?city ?population) {
-              (ex:City1 10000)
-              (ex:City2 15000)
-              (ex:City3 20000)
-            }
-        
-            ?city ex:hasPopulation ?population.
-          }
-        }
-        `;
-        expect(() => getSPARQLQuery(valuesGraphQuery, 'construct')).to.throw(
-          'SPARQL construct queries must not contain a VALUES clause'
-        );
-      });
-    });
-  });
-  describe('getSPARQLQueryString', () => {
-    it('should return query string for correct SELECT/CONSTRUCT SPARQL query', () => {
-      const selectQuery = `PREFIX ex: <http://example.org/>
-
-      SELECT ?city ?population
-      WHERE {
-        ?city ex:hasPopulation ?population.
-      }
-      `;
-      const constructQuery = `PREFIX ex: <http://example.org/>
-
-      CONSTRUCT {
-        ?city ex:hasPopulation ?population.
-      }
-      WHERE {
-        ?city ex:hasPopulation ?population.
-      }
-      `;
-
-      const expectedSelectQuery = `PREFIX ex: <http://example.org/>
-SELECT ?city ?population WHERE { ?city ex:hasPopulation ?population. }`;
-      const expectedConstructQuery = `PREFIX ex: <http://example.org/>
-CONSTRUCT { ?city ex:hasPopulation ?population. }
-WHERE { ?city ex:hasPopulation ?population. }`;
-
-      const selectStr = getSPARQLQueryString(
-        getSPARQLQuery(selectQuery, 'select')
+    it('should throw for empty string', () => {
+      expect(() => getSPARQLQuery('', 'select')).to.throw(
+        'Unexpected querytype undefined'
       );
-      const constructStr = getSPARQLQueryString(
-        getSPARQLQuery(constructQuery, 'construct')
-      );
-
-      expect(selectStr).to.equal(expectedSelectQuery);
-      expect(constructStr).to.equal(expectedConstructQuery);
     });
-    describe('should throw error for incorrect SPARQL queries', () => {
-      it('should throw for incorrect syntax SPARQL query', () => {
-        const incorrectQuery = `SELECT ?subject ?predicate ?object
-        WHERE {
-          ?subject ?predicate ?object
-          FILTER (?object > 100)
-        `;
-        expect(() =>
-          getSPARQLQueryString(getSPARQLQuery(incorrectQuery, 'select'))
-        ).to.throw();
-      });
-      it('should throw for empty string', () => {
-        expect(() =>
-          getSPARQLQueryString(getSPARQLQuery('', 'select'))
-        ).to.throw('Unexpected querytype undefined');
-      });
-      it('should throw for UPDATE SPARQL query', () => {
-        const updateQuery = `PREFIX ex: <http://example.org/>
+    it('should throw for UPDATE SPARQL query', () => {
+      const updateQuery = `PREFIX ex: <http://example.org/>
 
-        DELETE {
-          ex:City1 ex:hasPopulation ?newPopulation.
-        }
-        WHERE {
-          ex:City1 ex:hasPopulation ?oldPopulation.
-          FILTER (?oldPopulation = "some_old_value")
-        }
-        `;
-        expect(() =>
-          getSPARQLQueryString(getSPARQLQuery(updateQuery, 'select'))
-        ).to.throw('Unexpected querytype update');
-      });
-      it('should throw for ASK SPARQL query', () => {
-        const askQuery = `PREFIX ex: <http://example.org/>
+          DELETE {
+            ex:City1 ex:hasPopulation ?newPopulation.
+          }
+          WHERE {
+            ex:City1 ex:hasPopulation ?oldPopulation.
+            FILTER (?oldPopulation = "some_old_value")
+          }
+          `;
+      expect(() => getSPARQLQuery(updateQuery, 'select')).to.throw(
+        'Unexpected querytype update'
+      );
+    });
+    it('should throw for ASK SPARQL query', () => {
+      const askQuery = `PREFIX ex: <http://example.org/>
 
-        ASK
-        WHERE {
-          ex:City1 ex:hasPopulation ?population.
-          FILTER (?population > 1000000)
-        }
-        `;
-        expect(() =>
-          getSPARQLQueryString(getSPARQLQuery(askQuery, 'select'))
-        ).to.throw('Unexpected querytype ASK');
-      });
-      it('should throw for DESCRIBE SPARQL query', () => {
-        const describeQuery = `PREFIX ex: <http://example.org/>
+          ASK
+          WHERE {
+            ex:City1 ex:hasPopulation ?population.
+            FILTER (?population > 1000000)
+          }
+          `;
+      expect(() => getSPARQLQuery(askQuery, 'select')).to.throw(
+        'Unexpected querytype ASK'
+      );
+    });
+    it('should throw for DESCRIBE SPARQL query', () => {
+      const describeQuery = `PREFIX ex: <http://example.org/>
 
-        DESCRIBE ex:City1
-        `;
-        expect(() =>
-          getSPARQLQueryString(getSPARQLQuery(describeQuery, 'select'))
-        ).to.throw('Unexpected querytype DESCRIBE');
-      });
+          DESCRIBE ex:City1
+          `;
+      expect(() => getSPARQLQuery(describeQuery, 'select')).to.throw(
+        'Unexpected querytype DESCRIBE'
+      );
     });
   });
 });

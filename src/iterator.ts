@@ -4,12 +4,12 @@ import type Stage from './stage.js';
 import type {NamedNode} from '@rdfjs/types';
 import getSPARQLQuery from './utils/getSPARQLQuery.js';
 import {type Bindings} from '@comunica/types';
-import getSPARQLQueryString from './utils/getSPARQLQueryString.js';
 import getEndpoint from './utils/getEndpoint.js';
 import type {Endpoint, QueryEngine, QuerySource} from './types.js';
 import getEngine from './utils/getEngine.js';
 import getEngineSource from './utils/getEngineSource.js';
 import parse from 'parse-duration';
+import {BaseQuery} from './sparql.js';
 
 const DEFAULT_LIMIT = 10;
 
@@ -20,22 +20,20 @@ interface Events {
 }
 
 export default class Iterator extends EventEmitter<Events> {
-  private readonly query: SelectQuery;
+  private readonly query: Query;
   public readonly endpoint: Endpoint;
   private readonly engine: QueryEngine;
   private readonly delay: number = 0;
   private source?: QuerySource;
-  private $offset = 0;
+  private offset = 0;
   public totalResults = 0;
 
   constructor(stage: Stage) {
     super();
-    this.query = getSPARQLQuery(stage.configuration.iterator.query, 'select');
-    this.query.limit =
-      stage.configuration.iterator.batchSize ??
-      this.query.limit ??
-      DEFAULT_LIMIT;
-    this.validateQuery();
+    this.query = Query.from(
+      getSPARQLQuery(stage.configuration.iterator.query, 'select'),
+      stage.configuration.iterator.batchSize
+    );
     this.endpoint = getEndpoint(stage);
     this.engine = getEngine(this.endpoint);
     if (stage.configuration.iterator.delay !== undefined) {
@@ -51,18 +49,17 @@ export default class Iterator extends EventEmitter<Events> {
   public async run(): Promise<void> {
     setTimeout(async () => {
       let resultsPerPage = 0;
-      this.query.offset = this.$offset;
-      const queryString = getSPARQLQueryString(this.query);
+      this.query.offset = this.offset;
       const error = (e: unknown): Error =>
         new Error(
           `The Iterator did not run successfully, it could not get the results from the endpoint ${
             this.source
-          } (offset: ${this.$offset}, limit ${this.query.limit}): ${
+          } (offset: ${this.offset}, limit ${this.query.limit}): ${
             (e as Error).message
           }`
         );
       try {
-        const stream = await this.engine.queryBindings(queryString, {
+        const stream = await this.engine.queryBindings(this.query.toString(), {
           sources: [(this.source ??= getEngineSource(this.endpoint))],
         });
 
@@ -81,7 +78,7 @@ export default class Iterator extends EventEmitter<Events> {
         });
         stream.on('end', () => {
           this.totalResults += resultsPerPage;
-          this.$offset += this.query.limit!;
+          this.offset += this.query.limit;
           if (resultsPerPage < this.query.limit!) {
             this.emit('end', this.totalResults);
           } else {
@@ -97,8 +94,29 @@ export default class Iterator extends EventEmitter<Events> {
       }
     }, this.delay);
   }
+}
 
-  private validateQuery() {
+export class Query extends BaseQuery {
+  public static from(query: SelectQuery, limit?: number) {
+    const self = new Query(query);
+    self.query.limit = limit ?? self.query.limit ?? DEFAULT_LIMIT;
+    self.validate();
+    return self;
+  }
+
+  private constructor(protected readonly query: SelectQuery) {
+    super(query);
+  }
+
+  get limit(): number {
+    return this.query.limit!;
+  }
+
+  set offset(offset: number) {
+    this.query.offset = offset;
+  }
+
+  protected validate() {
     if (
       !this.query.variables.find(
         v =>
@@ -106,7 +124,7 @@ export default class Iterator extends EventEmitter<Events> {
       )
     ) {
       throw new Error(
-        'The SPARQL query must select either a variable $this or a wildcard *'
+        'The SPARQL iterator query must select either a variable $this or a wildcard *'
       );
     }
   }
