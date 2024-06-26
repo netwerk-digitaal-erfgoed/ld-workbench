@@ -131,12 +131,13 @@ export class Query extends BaseQuery {
 
   public withIris(iris: NamedNode[]) {
     const query = clonedeep(this.query);
+    // Increase Comunica query performance by inserting the VALUES as the first element in the query’s WHERE clause.
     const patterns: Pattern[] = [
-      ...(query.where ?? []),
       {
         type: 'values',
         values: iris.map($this => ({'?this': $this})),
       },
+      ...(query.where ?? []),
     ];
     query.where = [{type: 'group', patterns}];
 
