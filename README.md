@@ -34,11 +34,23 @@ so users will not be locked into a proprietary tool or technology.
 
 ## Usage
 
-To get started with LD Workbench, first install [NodeJS](https://nodejs.org), then run:
+To get started with LD Workbench, you can either use the NPM package or a Docker image.
+
+To use the NPM package, install [Node.js](https://nodejs.org), then run:
 
 ```sh
 npx @netwerk-digitaal-erfgoed/ld-workbench@latest --init
 ````
+
+Alternatively, to run the Docker image,
+first create a directory to store your pipeline configurations,
+then run the Docker image (mounting the `pipelines/` directory with `-v` and using `-t` for colorful console output):
+
+```sh
+mkdir pipelines
+docker run -t -v $(pwd)/pipelines:/pipelines ghcr.io/netwerk-digitaal-erfgoed/ld-workbench:latest
+```
+
 
 This creates an example LD Workbench pipeline in the `pipelines/configurations/example` directory
 and runs that pipeline right away. The output is written to `pipelines/data`.
@@ -61,7 +73,9 @@ You can find more examples in the [ld-workbench-configuration](https://github.co
 
 #### Iterator
 
-Each stage has a single iterator. The iterator SPARQL SELECT query must return a `$this` binding for each URI that will be passed to the generator(s).
+Each stage has a single iterator.
+The iterator selects URIs from a dataset that match certain criteria.
+The iterator SPARQL SELECT query must return a `$this` binding for each URI that will be passed to the generator(s).
 
 The query can be specified either inline:
 
