@@ -78,8 +78,9 @@ export default class Generator extends EventEmitter<Events> {
   private async runBatch(batch: NamedNode[]): Promise<void> {
     const error = (e: unknown): Error =>
       new Error(
-        `The Generator did not run successfully, it could not get the results from the endpoint ${this
-          .source?.value}: ${(e as Error).message}`
+        `The Generator did not run successfully, it could not get the results from the endpoint ${
+          this.source?.value
+        }: ${(e as Error).message}`
       );
 
     try {
