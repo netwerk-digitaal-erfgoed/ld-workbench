@@ -44,13 +44,13 @@ npx @netwerk-digitaal-erfgoed/ld-workbench@latest --init
 
 Alternatively, to run the Docker image,
 first create a directory to store your pipeline configurations,
-then run the Docker image (mounting the `pipelines/` directory with `-v` and using `-t` for colorful console output):
+then run the Docker image 
+(mounting the `pipelines/` directory with `-v`, using `-it` for an interactive and colorful console):
 
 ```sh
 mkdir pipelines
-docker run -t -v $(pwd)/pipelines:/pipelines ghcr.io/netwerk-digitaal-erfgoed/ld-workbench:latest
+docker run -it -v $(pwd)/pipelines:/pipelines ghcr.io/netwerk-digitaal-erfgoed/ld-workbench:latest
 ```
-
 
 This creates an example LD Workbench pipeline in the `pipelines/configurations/example` directory
 and runs that pipeline right away. The output is written to `pipelines/data`.
