@@ -12,7 +12,7 @@ console.info(
   chalk.bold(`Welcome to LD Workbench version ${chalk.cyan(version())}`)
 );
 
-async function main(): Promise<void> {
+(async () => {
   const pipelines = loadPipelines(cli.config ?? './pipelines/');
   const names = [...pipelines.keys()];
   let configuration: Configuration | undefined;
@@ -22,7 +22,6 @@ async function main(): Promise<void> {
     if (configuration === undefined) {
       error(
         `No pipeline named “${cli.pipeline}” was found.`,
-        2,
         `Valid pipeline names are: ${names.map(name => `"${name}"`).join(', ')}`
       );
     }
@@ -62,14 +61,6 @@ async function main(): Promise<void> {
     });
     await pipeline.run();
   } catch (e) {
-    error(
-      `Error in pipeline ${chalk.italic(configuration.name)}`,
-      5,
-      e as Error
-    );
+    error(`Error in pipeline ${chalk.italic(configuration.name)}`, e as Error);
   }
-}
-
-main().catch(e => {
-  error(e as Error);
-});
+})();

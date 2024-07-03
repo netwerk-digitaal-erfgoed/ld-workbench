@@ -1,7 +1,7 @@
 import EventEmitter from 'node:events';
 import File from './file.js';
 import {Configuration} from './configuration.js';
-import Iterator from './iterator.js';
+import Iterator, {Query} from './iterator.js';
 import Generator from './generator.js';
 import kebabcase from 'lodash.kebabcase';
 import type Pipeline from './pipeline.js';
@@ -10,8 +10,15 @@ import {Writer} from 'n3';
 import type {NamedNode} from '@rdfjs/types';
 import type {WriteStream} from 'node:fs';
 import {isPreviousStage} from './utils/guards.js';
+import getSPARQLQuery from './utils/getSPARQLQuery.js';
+import parse from 'parse-duration';
+import getEndpoint from './utils/getEndpoint.js';
+import {Importer} from './import.js';
 
 interface Events {
+  importStart: [];
+  imported: [numOfTriples: number];
+  importSuccess: [numOfTriples: number];
   generatorResult: [count: number];
   end: [iteratorCount: number, statements: number];
   iteratorResult: [$this: NamedNode, quadsGenerated: number];
@@ -19,9 +26,10 @@ interface Events {
 }
 
 export default class Stage extends EventEmitter<Events> {
-  public destination: () => WriteStream;
-  public iterator: Iterator;
-  public generators: Generator[] = [];
+  public readonly destination: () => WriteStream;
+  public readonly iterator: Iterator;
+  public readonly generators: Generator[] = [];
+  public readonly importer?: Importer;
   private iteratorEnded = false;
 
   public constructor(
@@ -29,23 +37,35 @@ export default class Stage extends EventEmitter<Events> {
     public readonly configuration: Configuration['stages'][0]
   ) {
     super();
-    try {
-      this.iterator = new Iterator(this);
-    } catch (e) {
-      throw new Error(
-        `Error in the iterator of stage \`${configuration.name}\`: ${
-          (e as Error).message
-        }`
+
+    const endpoint = getEndpoint(this);
+    if (
+      undefined !== configuration.iterator['importTo'] &&
+      endpoint instanceof File
+    ) {
+      const storeUrl = configuration.iterator['importTo']!;
+      const store = pipeline.stores.find(
+        store => store.options.queryUrl.toString() === storeUrl
       );
+      if (store === undefined) {
+        throw new Error(`No store configured with queryUrl ${storeUrl}`);
+      }
+      this.importer = new Importer(store, endpoint);
     }
+
+    this.iterator = new Iterator(
+      Query.from(
+        getSPARQLQuery(configuration.iterator.query, 'select'),
+        configuration.iterator.batchSize
+      ).withDefaultGraph(this.importer?.graph),
+      this.importer?.url ?? endpoint,
+      this.parseDelay(configuration.iterator.delay)
+    );
 
     // Handle both single generator and array of generators
     for (let index = 0; index < this.configuration.generator.length; index++) {
-      const generatorConfig = this.configuration.generator[index];
       try {
-        this.generators.push(
-          new Generator({...this, generators: [generatorConfig]}, index)
-        );
+        this.generators.push(new Generator(this, index));
       } catch (e) {
         throw new Error(
           `Error in the generator of stage \`${configuration.name}\`: ${
@@ -73,6 +93,21 @@ export default class Stage extends EventEmitter<Events> {
       end: false,
       format: 'N-Triples',
     });
+
+    if (this.importer !== undefined) {
+      this.importer.on('imported', numOfTriples =>
+        this.emit('imported', numOfTriples)
+      );
+      this.importer.on('end', numOfTriples =>
+        this.emit('importSuccess', numOfTriples)
+      );
+      this.emit('importStart');
+      try {
+        await this.importer.run();
+      } catch (e) {
+        this.emit('error', e as Error);
+      }
+    }
 
     const generatorProcessedCounts = new Map<number, number>();
     let quadsGenerated = 0;
@@ -121,7 +156,22 @@ export default class Stage extends EventEmitter<Events> {
     });
 
     // Start the iterator
-    this.iterator.run();
+    await this.iterator.run();
+  }
+
+  private parseDelay(delay?: string) {
+    if (delay === undefined) {
+      return undefined;
+    }
+
+    const parsed = parse(delay);
+    if (parsed === undefined) {
+      throw new Error(
+        `Error in stage “${this.configuration.name}”: incorrect delay format was provided.`
+      );
+    }
+
+    return parsed;
   }
 }
 

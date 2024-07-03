@@ -47,6 +47,10 @@ export interface Configuration {
          */
         endpoint?: string;
         /**
+         * Optional name of the store this endpoint should be imported into before querying. If omitted, the endpoint is queried directly.
+         */
+        importTo?: string;
+        /**
          * Number of `$this` bindings retrieved per query. Defaults to the LIMIT value of your iterator query or 10 if no LIMIT is present.
          */
         batchSize?: number;
@@ -108,6 +112,10 @@ export interface Configuration {
          */
         endpoint?: string;
         /**
+         * Optional name of the store this endpoint should be imported into before querying. If omitted, the endpoint is queried directly.
+         */
+        importTo?: string;
+        /**
          * Number of `$this` bindings retrieved per query. Defaults to the LIMIT value of your iterator query or 10 if no LIMIT is present.
          */
         batchSize?: number;
@@ -155,4 +163,21 @@ export interface Configuration {
       destination?: string;
     }[]
   ];
+  /**
+   * A list of SPARQL 1.1 Graph Stores that can be used in the pipeline.
+   */
+  stores?: {
+    /**
+     * The store’s query URL.
+     */
+    queryUrl: string;
+    /**
+     * The store’s Graph Store HTTP Protocol URL.
+     */
+    storeUrl?: string;
+    /**
+     * The store’s SPARQL Update URL.
+     */
+    updateUrl?: string;
+  }[];
 }

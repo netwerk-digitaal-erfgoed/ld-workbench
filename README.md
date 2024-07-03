@@ -127,6 +127,24 @@ stages:
       - query: "CONSTRUCT { $this a <https://schema.org/CreativeWork> } WHERE { $this a <https://schema.org/Book> }"
 ```
 
+#### Stores
+
+To query large local files, you may need to load them into a SPARQL store first. Do so by starting a SPARQL store,
+for example Oxigraph:
+
+```shell
+docker run --rm -v $PWD/data:/data -p 7878:7878 oxigraph/oxigraph --location /data serve
+```
+
+Then configure the store in your pipeline:
+
+```yaml
+# config.yml
+stores:
+  - queryUrl: "http://localhost:7878/query"
+    storeUrl: "http://localhost:7878/store"
+```
+
 #### Example configuration
 
 ```yaml

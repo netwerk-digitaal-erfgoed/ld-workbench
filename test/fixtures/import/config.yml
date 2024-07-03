@@ -1,0 +1,20 @@
+name: Import
+description: Pipeline that imports a data dump file
+
+stores:
+  # Oxigraph
+  - queryUrl: "http://localhost:7878/query"
+    storeUrl: "http://localhost:7878/store?no_transaction&lenient"
+
+  # Fuseki
+  - queryUrl: "http://localhost:3030/persistent"
+    storeUrl: "http://localhost:3030/persistent"
+
+stages:
+  - name: "Stage"
+    iterator:
+      query: "SELECT $this WHERE { $this a <http://dbpedia.org/ontology/Plant> }"
+      endpoint: file://../../../static/tests/iris.nt
+      importTo: http://localhost:7878/query
+    generator:
+      - query: "CONSTRUCT WHERE { $this a <http://dbpedia.org/ontology/Plant> }"

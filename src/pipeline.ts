@@ -12,6 +12,7 @@ import {memoryConsumption} from './utils/memory.js';
 import {Progress} from './progress.js';
 import {millify} from 'millify';
 import formatDuration from './utils/formatDuration.js';
+import {GraphStore} from './import.js';
 interface PipelineOptions {
   startFromStageName?: string;
   silent?: boolean;
@@ -23,10 +24,11 @@ class Pipeline {
   private stageNames: string[] = [];
   private startTime = performance.now();
   private readonly destination: File | TriplyDB;
+  public readonly stores: GraphStore[] = [];
   private readonly opts?: PipelineOptions;
 
   public constructor(
-    private readonly $configuration: Configuration,
+    private readonly configuration: Configuration,
     pipelineOptions?: PipelineOptions
   ) {
     //  create data folder:
@@ -34,7 +36,7 @@ class Pipeline {
     this.dataDir = path.join(
       'pipelines',
       'data',
-      kebabcase(this.$configuration.name)
+      kebabcase(this.configuration.name)
     );
     fs.mkdirSync(this.dataDir, {recursive: true});
     const destinationFile =
@@ -61,6 +63,20 @@ class Pipeline {
     this.destination = isTriplyDBPathString(destinationFile)
       ? new TriplyDB(destinationFile).validate()
       : new File(destinationFile, true).validate();
+
+    this.stores = (configuration.stores ?? []).map(
+      storeConfig =>
+        new GraphStore({
+          queryUrl: new URL(storeConfig.queryUrl),
+          updateUrl: storeConfig.updateUrl
+            ? new URL(storeConfig.updateUrl)
+            : undefined,
+          storeUrl: storeConfig.storeUrl
+            ? new URL(storeConfig.storeUrl)
+            : undefined,
+        })
+    );
+
     this.validate();
   }
 
@@ -86,31 +102,35 @@ class Pipeline {
   }
 
   private validate(): void {
-    if (this.$configuration.stages.length === 0) {
+    if (this.configuration.stages.length === 0) {
       throw new Error('Your pipeline contains no stages.');
     }
 
-    if (this.$configuration.stages[0].iterator.endpoint === undefined) {
+    if (this.configuration.stages[0].iterator.endpoint === undefined) {
       throw new Error(
         'The first stage of your pipeline must have an endpoint defined for the Iterator.'
       );
     }
 
-    for (const stageConfiguration of this.$configuration.stages) {
+    for (const stageConfiguration of this.configuration.stages) {
       if (this.stages.has(stageConfiguration.name)) {
         throw new Error(
           `Detected a duplicate name for stage \`${stageConfiguration.name}\` in your pipeline: each stage must have a unique name.`
         );
       }
-      this.stages.set(
-        stageConfiguration.name,
-        new Stage(this, stageConfiguration)
-      );
+      try {
+        this.stages.set(
+          stageConfiguration.name,
+          new Stage(this, stageConfiguration)
+        );
+      } catch (e) {
+        throw new Error(
+          `Error in the iterator of stage \`${stageConfiguration.name}\`: ${
+            (e as Error).message
+          }`
+        );
+      }
     }
-  }
-
-  public get configuration(): Configuration {
-    return this.$configuration;
   }
 
   public async run(): Promise<void> {
@@ -188,7 +208,6 @@ class Pipeline {
       });
       stage.on('error', e => {
         reject(e);
-        this.error(e);
       });
       stage.on('end', (iris, statements) => {
         progress.succeed(
@@ -202,6 +221,7 @@ class Pipeline {
         );
         resolve();
       });
+      this.monitorImport(stage, progress);
       try {
         stage.run();
       } catch (e) {
@@ -228,6 +248,31 @@ class Pipeline {
     );
   }
 
+  private monitorImport(stage: Stage, progress: Progress) {
+    let importStartTime: number;
+
+    stage.on('importStart', () => {
+      progress.start('Importing data to SPARQL store');
+      importStartTime = performance.now();
+    });
+    stage.on('imported', numOfTriples => {
+      progress.text(
+        `Importing data to SPARQL store\n\n  Statements: ${millify(
+          numOfTriples
+        )}\n  Duration: ${formatDuration(importStartTime, performance.now())} `
+      );
+    });
+    stage.on('importSuccess', numOfTriples => {
+      progress.succeed(
+        `Imported ${millify(
+          numOfTriples
+        )} statements to SPARQL store (took ${prettyMilliseconds(
+          performance.now() - importStartTime
+        )})`
+      );
+    });
+  }
+
   private async writeResult(): Promise<void> {
     const progress = new Progress({silent: this.opts?.silent === true}).start(
       'Writing results to destination'
@@ -240,11 +285,11 @@ class Pipeline {
   }
 
   get name(): string {
-    return this.$configuration.name;
+    return this.configuration.name;
   }
 
   get description(): string | undefined {
-    return this.$configuration.description;
+    return this.configuration.description;
   }
 
   private increaseProgress(
