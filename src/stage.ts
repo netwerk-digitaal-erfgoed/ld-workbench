@@ -106,6 +106,7 @@ export default class Stage extends EventEmitter<Events> {
         await this.importer.run();
       } catch (e) {
         this.emit('error', e as Error);
+        return;
       }
     }
 

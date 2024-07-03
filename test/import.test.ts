@@ -39,6 +39,6 @@ describe('Import', () => {
   }, 15_000);
 
   afterAll(async () => {
-    // await sparqlStore.stop();
+    await sparqlStore.stop();
   });
 });

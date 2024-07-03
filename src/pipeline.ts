@@ -207,6 +207,7 @@ class Pipeline {
         this.increaseProgress(progress, stage, iterationsProcessed, count);
       });
       stage.on('error', e => {
+        progress.fail('Error: ' + (e as Error).message);
         reject(e);
       });
       stage.on('end', (iris, statements) => {
