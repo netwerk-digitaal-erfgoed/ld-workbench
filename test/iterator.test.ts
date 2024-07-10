@@ -10,6 +10,7 @@ import {fileURLToPath} from 'url';
 import removeDirectory from '../src/utils/removeDir.js';
 import {NamedNode} from '@rdfjs/types';
 import getSPARQLQuery from '../src/utils/getSPARQLQuery.js';
+import getEndpoint from '../src/utils/getEndpoint.js';
 chai.use(chaiAsPromised);
 
 describe('Iterator Class', () => {
@@ -57,8 +58,10 @@ describe('Iterator Class', () => {
       };
       const pipeline = new Pipeline(configuration, {silent: true});
       const stageConfig = configuration.stages[0];
-      const stage = new Stage(pipeline, stageConfig);
-      const iterator = new Iterator(stage);
+      const iterator = new Iterator(
+        Query.from(getSPARQLQuery(stageConfig.iterator.query, 'select')),
+        getEndpoint(new Stage(pipeline, stageConfig))
+      );
       chai.expect(iterator).to.be.an.instanceOf(Iterator);
       chai.expect(iterator).to.be.an.instanceOf(EventEmitter);
       chai.expect(iterator).to.have.property('query');
@@ -68,7 +71,7 @@ describe('Iterator Class', () => {
       chai.expect(iterator).to.have.property('totalResults', 0);
     });
   });
-  describe.skip('run', () => {
+  describe('run', () => {
     it('should emit "data" and "end" events with the correct $this and numResults', async () => {
       const configuration: Configuration = {
         name: 'Example Pipeline',
@@ -104,8 +107,10 @@ describe('Iterator Class', () => {
       };
       const pipeline = new Pipeline(configuration, {silent: true});
       const stageConfig = configuration.stages[0];
-      const stage = new Stage(pipeline, stageConfig);
-      const iterator = new Iterator(stage);
+      const iterator = new Iterator(
+        Query.from(getSPARQLQuery(stageConfig.iterator.query, 'select')),
+        getEndpoint(new Stage(pipeline, stageConfig))
+      );
       const emittedEvents: {event: string; bindings?: NamedNode}[] = [];
       async function runIteratorWithPromise(): Promise<boolean> {
         return new Promise((resolve, reject) => {
