@@ -1,7 +1,7 @@
 {
   "$id": "https://raw.githubusercontent.com/netwerk-digitaal-erfgoed/ld-workbench/main/static/ld-workbench.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "LDWorkbenchConfiguration",
+  "title": "Configuration",
   "description": "JSON Schema for LDWorkbench.\nIt helps with the writing of the configuration needed to run LDWorkbench pipelines.",
   "type": "object",
   "additionalProperties": false,
@@ -47,6 +47,10 @@
                 "type": "string",
                 "description": "SPARQL endpoint for the iterator. If it starts with `file://`, a local RDF file is queried. If omitted the result of the previous stage is used."
               },
+              "importTo": {
+                "type": "string",
+                "description": "Optional name of the store this endpoint should be imported into before querying. If omitted, the endpoint is queried directly."
+              },
               "batchSize": {
                 "type": "number",
                 "minimum": 1,
@@ -89,6 +93,29 @@
           }
         },
         "required": ["name", "iterator", "generator"]
+      }
+    },
+    "stores": {
+      "type": "array",
+      "description": "A list of SPARQL 1.1 Graph Stores that can be used in the pipeline.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "queryUrl": {
+            "type": "string",
+            "description": "The store’s query URL."
+          },
+          "storeUrl": {
+            "type": "string",
+            "description": "The store’s Graph Store HTTP Protocol URL."
+          },
+          "updateUrl": {
+            "type": "string",
+            "description": "The store’s SPARQL Update URL."
+          }
+        },
+        "required": ["queryUrl"]
       }
     }
   },

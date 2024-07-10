@@ -83,13 +83,14 @@
     "typescript": "~5.4.3"
   },
   "dependencies": {
-    "@comunica/query-sparql": "^3.1.2",
-    "@comunica/query-sparql-file": "^3.1.2",
+    "@comunica/query-sparql": "^3.2.0",
+    "@comunica/query-sparql-file": "^3.2.0",
     "@triply/triplydb": "^8.0.6",
     "ajv": "^8.16.0",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "glob": "^7.2.3",
+    "got": "^14.4.1",
     "inquirer": "^9.3.0",
     "js-yaml": "^4.1.0",
     "lodash.clonedeep": "^4.5.0",
@@ -97,8 +98,11 @@
     "millify": "^6.1.0",
     "n3": "^1.17.4",
     "ora": "^7.0.1",
+    "p-retry": "^6.2.0",
     "parse-duration": "^1.1.0",
     "pretty-ms": "^8.0.0",
-    "sparqljs": "^3.7.1"
+    "rdf-dereference": "^2.2.0",
+    "sparqljs": "^3.7.1",
+    "testcontainers": "^10.10.0"
   }
 }

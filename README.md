@@ -20,6 +20,7 @@ A pipeline consists of one or more **stages**. Each stage has:
 - one or more **generators**, which generate triples about each URI using SPARQL CONSTRUCT queries.
 
 Stages can be chained together, with the output of one stage becoming the input of the next.
+The output of each stage combined becomes the final output of the pipeline.
 
 ### Design principles
 
@@ -126,6 +127,37 @@ stages:
     generator:
       - query: "CONSTRUCT { $this a <https://schema.org/CreativeWork> } WHERE { $this a <https://schema.org/Book> }"
 ```
+
+#### Stores
+
+To query large local files, you may need to load them into a SPARQL store first. Do so by starting a SPARQL store,
+for example Oxigraph:
+
+```shell
+docker run --rm -v $PWD/data:/data -p 7878:7878 oxigraph/oxigraph --location /data serve --bind 0.0.0.0:7878
+```
+
+Then configure the store in your pipeline, configuring at least one store under `stores`
+and using the `importTo` parameter to import the `endpoint`’s data to the store,
+referencing the store’s `queryUrl`:
+
+```yaml
+# config.yml
+stores:
+  - queryUrl: "http://localhost:7878/query" # SPARQL endpoint for read queries.
+    storeUrl: "http://localhost:7878/store" # SPARQL Graph Store HTTP Protocol endpoint. 
+
+stages:
+  - name: ...
+    iterator:
+      query: ...
+      endpoint: data.nt
+      importTo: http://localhost:7878/query
+    generator:
+      - query: ...
+```
+
+The data is loaded into a named graph `<import:filename>`, so in this case `<import:data.nt>`.
 
 #### Example configuration
 

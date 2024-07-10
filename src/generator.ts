@@ -45,10 +45,13 @@ export default class Generator extends EventEmitter<Events> {
       )
     );
 
-    this.endpoint =
-      stage.configuration.generator[this.index].endpoint === undefined
-        ? stage.iterator.endpoint
-        : getEndpoint(stage, 'generator', this.index);
+    if (stage.configuration.generator[this.index].endpoint === undefined) {
+      // No endpoint configured, so use the iterator’s endpoint.
+      this.endpoint = stage.iterator.endpoint;
+      this.query = this.query.withDefaultGraph(stage.importer?.graph);
+    } else {
+      this.endpoint = getEndpoint(stage, 'generator', this.index);
+    }
 
     this.engine = getEngine(this.endpoint);
 
