@@ -222,7 +222,7 @@ class Pipeline {
         );
         resolve();
       });
-      this.monitorImport(stage, progress);
+      this.monitorImport(stage);
       try {
         stage.run();
       } catch (e) {
@@ -249,18 +249,19 @@ class Pipeline {
     );
   }
 
-  private monitorImport(stage: Stage, progress: Progress) {
-    let importStartTime: number;
+  private monitorImport(stage: Stage) {
+    let progress: Progress;
 
     stage.on('importStart', () => {
-      progress.start('Importing data to SPARQL store');
-      importStartTime = performance.now();
+      progress = new Progress({silent: this.opts?.silent === true}).start(
+        'Importing data to SPARQL store'
+      );
     });
     stage.on('imported', numOfTriples => {
       progress.text(
         `Importing data to SPARQL store\n\n  Statements: ${millify(
           numOfTriples
-        )}\n  Duration: ${formatDuration(importStartTime, performance.now())} `
+        )}\n  Duration: ${formatDuration(progress.startTime, performance.now())} `
       );
     });
     stage.on('importSuccess', numOfTriples => {
@@ -268,9 +269,13 @@ class Pipeline {
         `Imported ${millify(
           numOfTriples
         )} statements to SPARQL store (took ${prettyMilliseconds(
-          performance.now() - importStartTime
+          performance.now() - progress.startTime
         )})`
       );
+    });
+    stage.on('importError', e => {
+      progress?.fail('Import failed');
+      this.error(e);
     });
   }
 

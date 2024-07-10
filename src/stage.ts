@@ -23,6 +23,7 @@ interface Events {
   end: [iteratorCount: number, statements: number];
   iteratorResult: [$this: NamedNode, quadsGenerated: number];
   error: [Error];
+  importError: [Error];
 }
 
 export default class Stage extends EventEmitter<Events> {
@@ -105,7 +106,7 @@ export default class Stage extends EventEmitter<Events> {
       try {
         await this.importer.run();
       } catch (e) {
-        this.emit('error', e as Error);
+        this.emit('importError', e as Error);
         return;
       }
     }
