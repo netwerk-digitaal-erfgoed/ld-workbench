@@ -40,28 +40,26 @@ export class Importer extends EventEmitter<Events> {
   }
 
   /**
-   * Wait for data to be available in the SPARQL store
+   * Wait for data to be available in the SPARQL store.
    */
   private async dataLoaded() {
+    const query = `SELECT * FROM <${this.graph.value}> WHERE { ?s ?p ?o } LIMIT 1`;
     await pRetry(
       async () => {
-        const result = await this.queryEngine.queryBindings(
-          `SELECT * FROM <${this.graph.value}> WHERE { ?s ?p ?o } LIMIT 1`,
-          {
-            sources: [
-              {
-                type: 'sparql',
-                value: this.store.options.queryUrl.toString(),
-              },
-            ],
-          }
-        );
+        const result = await this.queryEngine.queryBindings(query, {
+          sources: [
+            {
+              type: 'sparql',
+              value: this.store.options.queryUrl.toString(),
+            },
+          ],
+        });
         const results = await result.toArray();
         if (results.length === 0) {
-          throw new Error('No data loaded');
+          throw new Error(`No data loaded (based on query ${query})`);
         }
       },
-      {retries: 3}
+      {retries: 5}
     );
   }
 
