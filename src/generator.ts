@@ -118,7 +118,9 @@ export default class Generator extends EventEmitter<Events> {
   }
 
   private async flush(): Promise<void> {
-    await this.runBatch(this.$thisList);
+    if (this.$thisList.length > 0) {
+      await this.runBatch(this.$thisList);
+    }
   }
 }
 

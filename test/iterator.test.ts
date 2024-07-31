@@ -11,6 +11,7 @@ import removeDirectory from '../src/utils/removeDir.js';
 import {NamedNode} from '@rdfjs/types';
 import getSPARQLQuery from '../src/utils/getSPARQLQuery.js';
 import getEndpoint from '../src/utils/getEndpoint.js';
+import File from '../src/file.js';
 chai.use(chaiAsPromised);
 
 describe('Iterator Class', () => {
@@ -111,24 +112,9 @@ describe('Iterator Class', () => {
         Query.from(getSPARQLQuery(stageConfig.iterator.query, 'select')),
         getEndpoint(new Stage(pipeline, stageConfig))
       );
-      const emittedEvents: {event: string; bindings?: NamedNode}[] = [];
-      async function runIteratorWithPromise(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-          iterator.addListener('data', bindings => {
-            emittedEvents.push({event: 'data', bindings});
-          });
-          iterator.addListener('end', () => {
-            emittedEvents.push({event: 'end'});
-            resolve(true);
-          });
-          iterator.addListener('error', error => {
-            reject(error);
-          });
-          iterator.run();
-        });
-      }
 
-      await runIteratorWithPromise();
+      const emittedEvents = await runIterator(iterator);
+
       chai.expect(emittedEvents).to.have.lengthOf(154);
       chai.expect(emittedEvents[0].event).to.equal('data');
       chai.expect(emittedEvents[0].bindings?.termType).to.equal('NamedNode');
@@ -138,6 +124,22 @@ describe('Iterator Class', () => {
       chai
         .expect(emittedEvents[emittedEvents.length - 1].event)
         .to.equal('end');
+    });
+
+    it('throws error if query returns no results', async () => {
+      const query = Query.from(
+        getSPARQLQuery(
+          'SELECT $this WHERE { $this a <http://example.com/no-matches> }',
+          'select'
+        )
+      );
+      const iterator = new Iterator(
+        query,
+        new File('file://static/tests/iris-small.nt')
+      );
+      await expect(async () => await runIterator(iterator)).rejects.toThrow(
+        'no results for query:\n SELECT ?this WHERE { ?this <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/no-matches>. }'
+      );
     });
   });
 });
@@ -175,3 +177,22 @@ describe('Query', () => {
     );
   });
 });
+
+async function runIterator(
+  iterator: Iterator
+): Promise<{event: string; bindings?: NamedNode}[]> {
+  const emittedEvents: {event: string; bindings?: NamedNode}[] = [];
+  return new Promise((resolve, reject) => {
+    iterator.on('data', bindings => {
+      emittedEvents.push({event: 'data', bindings});
+    });
+    iterator.on('end', () => {
+      emittedEvents.push({event: 'end'});
+      resolve(emittedEvents);
+    });
+    iterator.on('error', error => {
+      reject(error);
+    });
+    iterator.run();
+  });
+}
