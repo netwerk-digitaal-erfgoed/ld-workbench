@@ -37,7 +37,7 @@ export default class Iterator extends EventEmitter<Events> {
       const error = (e: unknown): Error =>
         new Error(
           `The Iterator did not run successfully, it could not get the results from the endpoint ${
-            this.source
+            this.source?.value
           } (offset: ${this.offset}, limit ${this.query.limit}): ${
             (e as Error).message
           }`
@@ -62,6 +62,14 @@ export default class Iterator extends EventEmitter<Events> {
         });
         stream.on('end', () => {
           this.totalResults += resultsPerPage;
+          if (this.totalResults === 0) {
+            this.emit(
+              'error',
+              error(
+                new Error(`no results for query:\n ${this.query.toString()}`)
+              )
+            );
+          }
           this.offset += this.query.limit;
           if (resultsPerPage < this.query.limit!) {
             this.emit('end', this.totalResults);
