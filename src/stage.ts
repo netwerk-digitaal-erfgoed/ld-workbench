@@ -75,7 +75,8 @@ export default class Stage extends EventEmitter<Events> {
         );
       }
     }
-    this.destination = () => new File(this.destinationPath).getStream();
+    this.destination = () =>
+      new File(`file://${this.destinationPath}`, true).getStream();
   }
 
   public get destinationPath(): string {
@@ -157,7 +158,6 @@ export default class Stage extends EventEmitter<Events> {
       this.emit('error', e);
     });
 
-    // Start the iterator
     await this.iterator.run();
   }
 

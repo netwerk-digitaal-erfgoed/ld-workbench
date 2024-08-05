@@ -62,7 +62,7 @@ class Pipeline {
     }
     this.destination = isTriplyDBPathString(destinationFile)
       ? new TriplyDB(destinationFile).validate()
-      : new File(destinationFile, true).validate();
+      : new File(destinationFile, true);
 
     this.stores = (configuration.stores ?? []).map(
       storeConfig =>
@@ -125,9 +125,10 @@ class Pipeline {
         );
       } catch (e) {
         throw new Error(
-          `Error in the iterator of stage \`${stageConfiguration.name}\`: ${
+          `Error in the configuration of stage “${stageConfiguration.name}”: ${
             (e as Error).message
-          }`
+          }`,
+          {cause: e}
         );
       }
     }
@@ -207,7 +208,7 @@ class Pipeline {
         this.increaseProgress(progress, stage, iterationsProcessed, count);
       });
       stage.on('error', e => {
-        progress.fail('Error: ' + (e as Error).message);
+        progress.fail(`Stage “${this.name}” failed`);
         reject(e);
       });
       stage.on('end', (iris, statements) => {

@@ -19,45 +19,47 @@ describe('Generator Class', () => {
   const _filename = fileURLToPath(import.meta.url);
   const _dirname = path.dirname(_filename);
   const dataDirectoryPath = path.join(_dirname, 'pipelines', 'data');
+  let configuration: Configuration;
 
   beforeAll(async () => {
     await removeDirectory(dataDirectoryPath);
   });
 
+  beforeEach(() => {
+    configuration = {
+      name: 'Example Pipeline',
+      description:
+        'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
+      stages: [
+        {
+          name: 'Stage 1',
+          iterator: {
+            query: 'file://static/example/iterator-stage-1.rq',
+            endpoint: 'file://static/tests/iris.nt',
+          },
+          generator: [
+            {query: 'file://static/example/generator-stage-1-1.rq'},
+            {query: 'file://static/example/generator-stage-1-2.rq'},
+          ],
+        },
+        {
+          name: 'Stage 2',
+          iterator: {
+            query: 'file://static/example/iterator-stage-2.rq',
+          },
+          generator: [
+            {
+              query: 'file://static/example/generator-stage-2.rq',
+              endpoint: 'file://static/tests/wikidata.nt',
+            },
+          ],
+        },
+      ],
+    };
+  });
+
   describe('constructor', () => {
     it('should set query, engine, endpoint, and source properties correctly', () => {
-      const configuration: Configuration = {
-        name: 'Example Pipeline',
-        description:
-          'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-        destination: 'file://pipelines/data/example-pipeline.nt',
-        stages: [
-          {
-            name: 'Stage 1',
-            iterator: {
-              query: 'file://static/example/iterator-stage-1.rq',
-              endpoint: 'file://static/tests/iris.nt',
-            },
-            generator: [
-              {
-                query: 'file://static/example/generator-stage-1-1.rq',
-              },
-            ],
-          },
-          {
-            name: 'Stage 2',
-            iterator: {
-              query: 'file://static/example/iterator-stage-2.rq',
-            },
-            generator: [
-              {
-                query: 'file://static/example/generator-stage-2.rq',
-                endpoint: 'file://static/tests/wikidata.nt',
-              },
-            ],
-          },
-        ],
-      };
       const pipeline = new Pipeline(configuration, {silent: true});
       const stageConfig = configuration.stages[0];
       const stage = new Stage(pipeline, stageConfig);
@@ -73,39 +75,11 @@ describe('Generator Class', () => {
     it('Should work with multiple generators in parallel for one pipeline', async () => {
       const filePath = 'pipelines/data/example-pipelineParallel.nt';
 
-      const config: Configuration = {
-        name: 'Example Pipeline',
-        description:
-          'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-        destination: 'file://' + filePath,
-        stages: [
-          {
-            name: 'Stage 1',
-            iterator: {
-              query: 'file://static/example/iterator-stage-1.rq',
-              endpoint: 'file://static/tests/iris.nt',
-            },
-            generator: [
-              {query: 'file://static/example/generator-stage-1-1.rq'},
-              {query: 'file://static/example/generator-stage-1-2.rq'},
-            ],
-          },
-          {
-            name: 'Stage 2',
-            iterator: {
-              query: 'file://static/example/iterator-stage-2.rq',
-            },
-            generator: [
-              {
-                query: 'file://static/example/generator-stage-2.rq',
-                endpoint: 'file://static/tests/wikidata.nt',
-              },
-            ],
-          },
-        ],
-      };
       // read file after pipeline has finished
-      const pipelineParallelGenerators = new Pipeline(config, {silent: true});
+      configuration.destination = 'file://' + filePath;
+      const pipelineParallelGenerators = new Pipeline(configuration, {
+        silent: true,
+      });
       await pipelineParallelGenerators.run();
       const file = fs.readFileSync(filePath, {encoding: 'utf-8'});
       const fileLines = file.split('\n').sort();
@@ -163,6 +137,13 @@ describe('Generator Class', () => {
         .to.equal(
           '<https://triplydb.com/triply/iris/id/floweringPlant/00150> <https://schema.org/name> "Instance 150 of the Iris Virginica"@en .'
         );
+    });
+    it('throws an error when the generator endpoint returns an error', async () => {
+      configuration.stages[0].generator[0].endpoint = 'https://nope/';
+      const pipeline = new Pipeline(configuration, {silent: true});
+      await expect(async () => await pipeline.run()).rejects.toThrow(
+        'Generator failed for endpoint https://nope/ with query:'
+      );
     });
     it.skip('should emit "data" and "end" events with the correct number of statements', async () => {
       const configuration: Configuration = {
@@ -353,5 +334,17 @@ describe('Query', () => {
         `SPARQL CONSTRUCT generator query must not contain a ${clause} clause`
       );
     });
+  });
+  it('rejects as ?this', () => {
+    expect(() =>
+      Query.from(
+        getSPARQLQuery(
+          'CONSTRUCT { $this ?p ?o } WHERE { BIND(42 AS $this) $this ?p ?o . }',
+          'construct'
+        )
+      )
+    ).toThrow(
+      'must not use the syntax form `AS ?this` because it is a pre-bound variable'
+    );
   });
 });

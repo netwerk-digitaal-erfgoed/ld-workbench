@@ -16,7 +16,6 @@ describe('File Class', () => {
       expect(file).to.be.an.instanceOf(File);
       expect(file).to.have.property('$path');
       expect(file).to.have.property('skipExistsCheck');
-      expect(file).to.have.property('$id');
     });
   });
   describe('validate', () => {
@@ -24,31 +23,26 @@ describe('File Class', () => {
       const path = './static/example/config.yml';
       const validFilePath = `file://${path}`;
       const file = new File(validFilePath);
-      expect(file.validate());
       expect(file.path).to.equal(path);
     });
 
     it('should throw an error for an invalid file path', () => {
       const filePath = 'invalid/file/path.txt';
-      const file = new File(filePath);
-      expect(file.validate.bind(file)).to.throw(
+      expect(() => new File(filePath)).to.throw(
         'The filename `invalid/file/path.txt` should start with `file://`'
       );
     });
 
     it('should throw an error if file does not exist', () => {
       const filePath = 'file://nonexistent/file.txt';
-      const file = new File(filePath);
-      expect(file.validate.bind(file)).to.throw(
+      expect(() => new File(filePath)).to.throw(
         'File not found: `nonexistent/file.txt`'
       );
     });
 
     it('should skip exists check when skipExistsCheck is true', () => {
       const filePath = 'file://nonexistent/file.txt';
-      const file = new File(filePath, true);
-      expect(() => file.validate()).to.not.throw();
-      expect(file.path).to.equal('nonexistent/file.txt');
+      expect(new File(filePath, true).path).to.equal('nonexistent/file.txt');
     });
   });
 
@@ -73,15 +67,15 @@ describe('File Class', () => {
       }
     });
     it('should create a write stream for a new file', () => {
-      const filePath = 'new/file.txt';
-      const file = new File(filePath);
+      const filePath = 'file://new/file.txt';
+      const file = new File(filePath, true);
       writeStream = file.getStream();
       expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
       writeStream.end();
     });
 
     it('should append to an existing file when append is true', () => {
-      const filePath = 'file.txt';
+      const filePath = 'file://file.txt';
       const file = new File(filePath);
       writeStream = file.getStream(true);
       expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
@@ -89,7 +83,7 @@ describe('File Class', () => {
 
     it('should create parent directories if they do not exist', async () => {
       const filePath = 'file://new/directory/nested/file.txt';
-      const file = new File(filePath, true).validate();
+      const file = new File(filePath, true);
       writeStream = file.getStream();
       expect(writeStream).to.be.an.instanceOf(fs.WriteStream);
       expect(

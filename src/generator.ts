@@ -14,7 +14,7 @@ const DEFAULT_BATCH_SIZE = 10;
 
 interface Events {
   end: [iterations: number, statements: number, processed: number];
-  error: [e: Error];
+  error: [e: GeneratorError];
   data: [statement: Quad];
 }
 
@@ -79,31 +79,23 @@ export default class Generator extends EventEmitter<Events> {
   }
 
   private async runBatch(batch: NamedNode[]): Promise<void> {
-    const error = (e: unknown): Error =>
-      new Error(
-        `The Generator did not run successfully, it could not get the results from the endpoint ${
-          this.source?.value
-        }: ${(e as Error).message}`
-      );
-
+    const query = this.query.withIris(batch);
     try {
-      const stream = await this.engine.queryQuads(
-        this.query.withIris(batch).toString(),
-        {
-          sources: [(this.source ??= getEngineSource(this.endpoint))],
-        }
-      );
+      const stream = await this.engine.queryQuads(query.toString(), {
+        sources: [(this.source ??= getEngineSource(this.endpoint))],
+      });
 
       stream.on('data', (quad: Quad) => {
         this.statements++;
         this.emit('data', quad);
       });
-      stream.on('error', e => {
-        this.emit('error', error(e));
-        // reject(e);
+      stream.on('error', error => {
+        this.emit(
+          'error',
+          new GeneratorError({endpoint: this.endpoint, error, query})
+        );
       });
       stream.on('end', () => {
-        // resolve();
         this.iterationsProcessed += batch.length;
         this.emit(
           'end',
@@ -112,8 +104,15 @@ export default class Generator extends EventEmitter<Events> {
           this.iterationsProcessed
         );
       });
-    } catch (e) {
-      this.emit('error', error(e));
+    } catch (error) {
+      this.emit(
+        'error',
+        new GeneratorError({
+          endpoint: this.endpoint,
+          error: error as Error,
+          query,
+        })
+      );
     }
   }
 
@@ -180,5 +179,19 @@ export class Query extends BaseQuery {
         this.validatePreBinding(pattern.patterns);
       }
     }
+  }
+}
+
+export class GeneratorError extends Error {
+  public readonly context;
+  constructor(args: {error: Error; endpoint: Endpoint; query: Query}) {
+    super(
+      `Generator failed for endpoint ${args.endpoint.toString()} with query:\n${args.query.toString()}`,
+      {cause: args.error}
+    );
+    this.context = {
+      endpoint: args.endpoint.toString(),
+      query: args.query.toString(),
+    };
   }
 }

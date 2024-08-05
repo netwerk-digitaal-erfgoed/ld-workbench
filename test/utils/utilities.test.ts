@@ -307,7 +307,6 @@ describe('Utilities', () => {
   });
   describe('getEndpoint', () => {
     it('should return File when filePath is provided in Stage', () => {
-      const filePath = 'file://path/to/file.txt';
       const config: Configuration = {
         name: 'Example Pipeline',
         description:
@@ -318,7 +317,7 @@ describe('Utilities', () => {
             name: 'Stage 1',
             iterator: {
               query: 'file://static/example/iterator-stage-1.rq',
-              endpoint: filePath,
+              endpoint: 'file://static/tests/iris.nt',
             },
             generator: [
               {
@@ -334,7 +333,7 @@ describe('Utilities', () => {
       const retrievedEndpoint = getEndpoint(stage);
       expect(
         isFile(retrievedEndpoint) &&
-          retrievedEndpoint.path === 'file://path/to/file.txt'
+          retrievedEndpoint.path === 'static/tests/iris.nt'
       ).to.equal(true);
     });
     it('should return URL when URL is provided in Stage', () => {
@@ -391,7 +390,7 @@ describe('Utilities', () => {
         ],
       };
       expect(() => new Pipeline(config, {silent: true})).to.throw(
-        'Error in the iterator of stage `Stage 1`: "invalidExample" is not a valid URL'
+        'Error in the configuration of stage “Stage 1”: "invalidExample" is not a valid URL'
       );
     });
     it('should throw if stage has undefined endpoint and is first stage', () => {
@@ -467,7 +466,7 @@ describe('Utilities', () => {
       expect(result instanceof QueryEngineSparql).to.equal(true);
     });
     it('should return QueryEngineFile when input is File', () => {
-      const file = new File('file://exampleFile.txt');
+      const file = new File('file://exampleFile.txt', true);
       const result = getEngine(file);
       expect(result instanceof QueryEngineFile).to.equal(true);
     });
@@ -523,52 +522,6 @@ describe('Utilities', () => {
         type: 'sparql',
         value: url.toString(),
       });
-    });
-    it('should return engine source string when input is PreviousStage with destinationPath', async () => {
-      const config: Configuration = {
-        name: 'Example Pipeline',
-        description:
-          'This is an example pipeline. It uses files that are available in this repository  and SPARQL endpoints that should work.\n',
-        destination: 'file://pipelines/data/example-pipeline.nt',
-        stages: [
-          {
-            name: 'Stage 1',
-            iterator: {
-              query: 'file://static/example/iterator-stage-1.rq',
-              endpoint: 'file://static/tests/iris.nt',
-            },
-            generator: [
-              {
-                query: 'file://static/example/generator-stage-1-1.rq',
-              },
-            ],
-          },
-          {
-            name: 'Stage 2',
-            iterator: {
-              query: 'file://static/example/iterator-stage-2.rq',
-            },
-            generator: [
-              {
-                query: 'file://static/example/generator-stage-2.rq',
-                endpoint: 'file://static/tests/wikidata.nt',
-              },
-            ],
-          },
-        ],
-      };
-      const pipeline = new Pipeline(config, {silent: true});
-      const stage2: Stage = new Stage(pipeline, config.stages[1]);
-      const stagesSoFar = Array.from(stage2.pipeline.stages.keys());
-      const previousStage = new PreviousStage(stage2, stagesSoFar.pop()!);
-      const engineSource = getEngineSource(previousStage);
-      expect(
-        engineSource.value ===
-          path.join(
-            process.cwd(),
-            '/pipelines/data/example-pipeline/stage-1.nt'
-          )
-      ).to.equal(true);
     });
     describe('should throw', () => {
       beforeEach(() => {

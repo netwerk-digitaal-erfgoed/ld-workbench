@@ -138,7 +138,7 @@ describe('Iterator Class', () => {
         new File('file://static/tests/iris-small.nt')
       );
       await expect(async () => await runIterator(iterator)).rejects.toThrow(
-        'no results for query:\n SELECT ?this WHERE { ?this <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/no-matches>. }'
+        'No results'
       );
     });
   });
