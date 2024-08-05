@@ -14,20 +14,20 @@ import {pipeline as streamPipeline} from 'stream/promises';
 import {Progress} from './progress.js';
 
 export default class File {
-  public readonly $id = 'File';
   private $isValid?: boolean;
 
   public constructor(
     private $path: string,
     private readonly skipExistsCheck: boolean = false
-  ) {}
+  ) {
+    this.validate();
+  }
 
-  public validate(): File {
+  private validate(): File {
     if (this.$isValid !== undefined) return this;
     if (!isFilePathString(this.$path)) {
-      const wrongFilePath: string = this.$path as string;
       throw new Error(
-        `The filename \`${wrongFilePath}\` should start with \`file://\``
+        `The filename \`${this.$path}\` should start with \`file://\``
       );
     }
     this.$path = this.$path.replace(/^file:\/\//, '');
@@ -56,7 +56,6 @@ export default class File {
   }
 
   public toString(): string {
-    this.validate();
     return this.$path;
   }
 

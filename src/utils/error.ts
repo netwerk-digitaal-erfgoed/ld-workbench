@@ -1,11 +1,10 @@
-import chalk from 'chalk';
-
-export const error = (
-  message: string | Error,
-  ...info: Array<string | Error>
-): void => {
-  console.error(
-    chalk.red(message instanceof Error ? message.message : message)
-  );
-  info.forEach(i => console.info(i));
+export const error = (message: string | Error): void => {
+  if (message instanceof Error) {
+    console.error(`\n${message.message}`);
+    if (message.cause) {
+      console.error('\nCaused by:\n', message.cause);
+    }
+  } else {
+    console.error(`\n${message}`);
+  }
 };

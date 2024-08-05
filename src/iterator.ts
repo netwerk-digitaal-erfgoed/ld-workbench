@@ -12,7 +12,7 @@ const DEFAULT_LIMIT = 10;
 interface Events {
   data: [$this: NamedNode];
   end: [numResults: number];
-  error: [Error];
+  error: [IteratorError];
 }
 
 export default class Iterator extends EventEmitter<Events> {
@@ -34,14 +34,6 @@ export default class Iterator extends EventEmitter<Events> {
     setTimeout(async () => {
       let resultsPerPage = 0;
       this.query.offset = this.offset;
-      const error = (e: unknown): Error =>
-        new Error(
-          `The Iterator did not run successfully, it could not get the results from the endpoint ${
-            this.source?.value
-          } (offset: ${this.offset}, limit ${this.query.limit}): ${
-            (e as Error).message
-          }`
-        );
       try {
         const stream = await this.engine.queryBindings(this.query.toString(), {
           sources: [(this.source ??= getEngineSource(this.endpoint))],
@@ -65,9 +57,11 @@ export default class Iterator extends EventEmitter<Events> {
           if (this.totalResults === 0) {
             this.emit(
               'error',
-              error(
-                new Error(`no results for query:\n ${this.query.toString()}`)
-              )
+              new IteratorError({
+                endpoint: this.endpoint,
+                query: this.query,
+                error: new Error('No results'),
+              })
             );
           }
           this.offset += this.query.limit;
@@ -79,10 +73,24 @@ export default class Iterator extends EventEmitter<Events> {
         });
 
         stream.on('error', e => {
-          this.emit('error', error(e));
+          this.emit(
+            'error',
+            new IteratorError({
+              error: e,
+              endpoint: this.endpoint,
+              query: this.query,
+            })
+          );
         });
       } catch (e) {
-        this.emit('error', error(e));
+        this.emit(
+          'error',
+          new IteratorError({
+            error: e as Error,
+            endpoint: this.endpoint,
+            query: this.query,
+          })
+        );
       }
     }, this.delay);
   }
@@ -119,5 +127,20 @@ export class Query extends BaseQuery {
         'The SPARQL iterator query must select either a variable $this or a wildcard *'
       );
     }
+  }
+}
+
+export class IteratorError extends Error {
+  public readonly context;
+
+  constructor(args: {error: Error; endpoint: Endpoint; query: Query}) {
+    super(
+      `Iterator failed: ${args.error.message} for endpoint ${args.endpoint.toString()} with query:\n${args.query.toString()}`,
+      {cause: args.error}
+    );
+    this.context = {
+      endpoint: args.endpoint.toString(),
+      query: args.query.toString(),
+    };
   }
 }

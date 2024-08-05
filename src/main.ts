@@ -7,6 +7,7 @@ import type {Configuration} from './configuration.js';
 import loadPipelines from './utils/loadPipelines.js';
 import Pipeline from './pipeline.js';
 import {cli} from './cli.js';
+import Process from 'node:process';
 
 console.info(
   chalk.bold(`Welcome to LD Workbench version ${chalk.cyan(version())}`)
@@ -21,8 +22,7 @@ console.info(
     configuration = pipelines.get(cli.pipeline);
     if (configuration === undefined) {
       error(
-        `No pipeline named “${cli.pipeline}” was found.`,
-        `Valid pipeline names are: ${names.map(name => `"${name}"`).join(', ')}`
+        `No pipeline named “${cli.pipeline}” was found. Valid pipeline names are: ${names.map(name => `"${name}"`).join(', ')}`
       );
     }
   } else if (names.length === 1) {
@@ -61,6 +61,7 @@ console.info(
     });
     await pipeline.run();
   } catch (e) {
-    error(`Error in pipeline ${chalk.italic(configuration.name)}`, e as Error);
+    error(e as Error);
+    Process.exit(1);
   }
 })();
