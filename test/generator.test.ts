@@ -83,7 +83,7 @@ describe('Generator Class', () => {
       await pipelineParallelGenerators.run();
       const file = fs.readFileSync(filePath, {encoding: 'utf-8'});
       const fileLines = file.split('\n').sort();
-      chai.expect(fileLines.length).to.equal(741);
+      chai.expect(fileLines.length).to.equal(678);
       chai.expect(fileLines[0]).to.equal('');
       chai
         .expect(fileLines[1])

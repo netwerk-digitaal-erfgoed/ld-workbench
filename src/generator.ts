@@ -83,6 +83,7 @@ export default class Generator extends EventEmitter<Events> {
     try {
       const stream = await this.engine.queryQuads(query.toString(), {
         sources: [(this.source ??= getEngineSource(this.endpoint))],
+        distinctConstruct: true,
       });
 
       stream.on('data', (quad: Quad) => {
