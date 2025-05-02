@@ -2,7 +2,7 @@ import File from './file.js';
 import * as querystring from 'node:querystring';
 import path from 'path';
 import N3, {DataFactory} from 'n3';
-import rdfDereferencer from 'rdf-dereference';
+import {rdfDereferencer} from 'rdf-dereference';
 import {pipeline} from 'node:stream/promises';
 import got, {TimeoutError} from 'got';
 import {PassThrough} from 'node:stream';
@@ -10,7 +10,6 @@ import {QueryEngine} from '@comunica/query-sparql';
 import pRetry from 'p-retry';
 import EventEmitter from 'node:events';
 import type {NamedNode} from '@rdfjs/types';
-import namedNode = DataFactory.namedNode;
 
 interface Events {
   imported: [numOfTriples: number];
@@ -25,7 +24,7 @@ export class Importer extends EventEmitter<Events> {
     private readonly queryEngine: QueryEngine = new QueryEngine()
   ) {
     super();
-    this.graph = namedNode(
+    this.graph = DataFactory.namedNode(
       'import:' + querystring.escape(path.basename(file.toString()))
     );
   }
@@ -67,10 +66,9 @@ export class Importer extends EventEmitter<Events> {
     const graphUrl = new URL(url.toString());
     graphUrl.searchParams.set('graph', this.graph.value);
 
-    const {data} = await rdfDereferencer.default.dereference(
-      this.file.toString(),
-      {localFiles: true}
-    );
+    const {data} = await rdfDereferencer.dereference(this.file.toString(), {
+      localFiles: true,
+    });
 
     let numOfTriples = 0;
     data.on('data', () => {
