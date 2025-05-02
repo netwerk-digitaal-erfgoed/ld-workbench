@@ -58,7 +58,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
-    "@comunica/types": "^3.1.0",
+    "@comunica/types": "^4.2.0",
     "@swc/core": "^1.6.5",
     "@swc/jest": "^0.2.36",
     "@types/chai": "^4.3.16",
@@ -83,8 +83,8 @@
     "typescript": "~5.4.3"
   },
   "dependencies": {
-    "@comunica/query-sparql": "^3.2.0",
-    "@comunica/query-sparql-file": "^3.2.0",
+    "@comunica/query-sparql": "^4.2.0",
+    "@comunica/query-sparql-file": "^4.2.0",
     "@triply/triplydb": "^8.0.6",
     "ajv": "^8.16.0",
     "chalk": "^5.3.0",
@@ -99,9 +99,9 @@
     "n3": "^1.17.4",
     "ora": "^7.0.1",
     "p-retry": "^6.2.0",
-    "parse-duration": "^1.1.0",
+    "parse-duration": "^2.1.4",
     "pretty-ms": "^8.0.0",
-    "rdf-dereference": "^2.2.0",
+    "rdf-dereference": "^4.0.0",
     "sparqljs": "^3.7.1",
     "testcontainers": "^10.10.0"
   }

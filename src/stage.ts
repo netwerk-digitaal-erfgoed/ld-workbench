@@ -167,7 +167,7 @@ export default class Stage extends EventEmitter<Events> {
     }
 
     const parsed = parse(delay);
-    if (parsed === undefined) {
+    if (parsed === null) {
       throw new Error(
         `Error in stage “${this.configuration.name}”: incorrect delay format was provided.`
       );
