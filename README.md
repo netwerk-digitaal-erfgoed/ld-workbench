@@ -163,6 +163,8 @@ The data is loaded into a named graph `<import:filename>`, so in this case `<imp
 
 ```yaml
 # config.yml
+
+# $schema: https://raw.githubusercontent.com/netwerk-digitaal-erfgoed/ld-workbench/refs/heads/main/static/ld-workbench.schema.json
 name: MyPipeline
 description: Example pipeline configuration
 destination: output/result.ttl
@@ -189,6 +191,13 @@ stages:
         batchSize: 100
     destination: output/stage2-result.ttl
 ```
+
+> [!TIP]
+> This line at the top of the file provides YAML code-completion in editors like VSCode and IntelliJ:
+>
+> ```yaml
+> $schema: https://raw.githubusercontent.com/netwerk-digitaal-erfgoed/ld-workbench/refs/heads/main/static/ld-workbench.schema.json
+> ```
 
 #### Configuration options
 

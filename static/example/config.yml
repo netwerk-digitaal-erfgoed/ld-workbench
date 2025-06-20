@@ -1,3 +1,4 @@
+# $schema: https://raw.githubusercontent.com/netwerk-digitaal-erfgoed/ld-workbench/refs/heads/main/static/ld-workbench.schema.json
 # Metadata for your pipeline:
 name: Example Pipeline
 description: >
