@@ -49,7 +49,13 @@ then run the Docker image
 (mounting the `pipelines/` directory with `-v`, using `-it` for an interactive and colorful console):
 
 ```sh
+# Create a directory for your pipelines.
 mkdir pipelines
+
+# Make sure you have the latest Docker image.
+docker pull ghcr.io/netwerk-digitaal-erfgoed/ld-workbench:latest
+
+# Run the Docker image.
 docker run -it -v $(pwd)/pipelines:/pipelines ghcr.io/netwerk-digitaal-erfgoed/ld-workbench:latest
 ```
 
