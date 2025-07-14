@@ -37,11 +37,15 @@ so users will not be locked into a proprietary tool or technology.
 
 To get started with LD Workbench, you can either use the NPM package or a Docker image.
 
+### Node
+
 To use the NPM package, install [Node.js](https://nodejs.org), then run:
 
 ```sh
 npx @netwerk-digitaal-erfgoed/ld-workbench@latest --init
 ````
+
+### Docker image 
 
 Alternatively, to run the Docker image,
 first create a directory to store your pipeline configurations,
